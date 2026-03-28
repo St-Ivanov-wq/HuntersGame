@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <!-- AR Fragment -->
+    <fragment
+        android:id="@+id/ar_fragment"
+        android:name="com.google.ar.sceneform.ux.ArFragment"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" />
+
+    <!-- Rest of your UI -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical">
+
+        <TextView
+            android:id="@+id/tv_ar_status"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="🔍 Look around with your camera!"
+            android:textSize="14sp"
+            android:textColor="#FFD700"
+            android:padding="12dp"
+            android:background="#80000000"
+            android:gravity="center"/>
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1"/>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:padding="16dp"
+            android:background="#80000000">
+
+            <Button
+                android:id="@+id/btn_spawn_creature"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="🔍 Spawn Creature"
+                android:textSize="16sp"
+                android:backgroundTint="#2196F3"
+                android:layout_marginEnd="8dp"/>
+
+            <Button
+                android:id="@+id/btn_ar_capture"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="✨ Capture!"
+                android:textSize="16sp"
+                android:backgroundTint="#4CAF50"
+                android:layout_marginStart="8dp"/>
+        </LinearLayout>
+
+        <Button
+            android:id="@+id/btn_ar_back"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="← Back to Menu"
+            android:textSize="14sp"
+            android:backgroundTint="#FF9800"
+            android:layout_margin="16dp"/>
+
+    </LinearLayout>
+
+</FrameLayout>

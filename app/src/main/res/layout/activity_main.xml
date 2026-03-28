@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:gravity="center"
+    android:background="#1A3F2C"
+    android:padding="24dp">
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Hunters of Mythical Creatures"
+        android:textSize="28sp"
+        android:textStyle="bold"
+        android:textColor="#FFD700"
+        android:gravity="center"
+        android:layout_marginBottom="48dp"/>
+
+    <Button
+        android:id="@+id/btn_start_game"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Start Hunting"
+        android:textSize="18sp"
+        android:backgroundTint="#4CAF50"
+        android:layout_marginBottom="16dp"/>
+
+    <Button
+        android:id="@+id/btn_collection"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="My Collection"
+        android:textSize="18sp"
+        android:backgroundTint="#2196F3"
+        android:layout_marginBottom="16dp"/>
+
+    <Button
+        android:id="@+id/btn_profile"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Hunter Profile"
+        android:textSize="18sp"
+        android:backgroundTint="#FF9800"/>
+
+    <Button
+        android:id="@+id/btn_map"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="🗺️ Hunt on Map"
+        android:textSize="18sp"
+        android:backgroundTint="#9C27B0"
+        android:layout_marginBottom="16dp"/>
+
+    <Button
+        android:id="@+id/btn_ar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="🕶️ AR Hunting"
+        android:textSize="18sp"
+        android:backgroundTint="#E91E63"
+        android:layout_marginBottom="16dp"/>
+
+</LinearLayout>

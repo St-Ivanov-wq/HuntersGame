@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:background="#2C3E2B"
+    android:padding="16dp">
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="🏆 Hunter Profile"
+        android:textSize="24sp"
+        android:textStyle="bold"
+        android:textColor="#FFD700"
+        android:gravity="center"
+        android:padding="16dp"
+        android:background="#4CAF50"
+        android:layout_marginBottom="24dp"/>
+
+    <!-- Profile Card - Using LinearLayout instead of CardView -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="24dp"
+        android:orientation="vertical"
+        android:background="#F5F5DC"
+        android:padding="24dp">
+
+        <TextView
+            android:id="@+id/tv_hunter_name"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="🏹 Master Hunter"
+            android:textSize="22sp"
+            android:textStyle="bold"
+            android:textColor="#2C3E2B"
+            android:gravity="center"
+            android:layout_marginBottom="16dp"/>
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="2dp"
+            android:background="#FFD700"
+            android:layout_marginBottom="16dp"/>
+
+        <TextView
+            android:id="@+id/tv_total_points"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="⭐ Total Points: 0"
+            android:textSize="18sp"
+            android:textColor="#2C3E2B"
+            android:layout_marginBottom="12dp"/>
+
+        <TextView
+            android:id="@+id/tv_captured_count"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="📖 Captured: 0 / 0"
+            android:textSize="18sp"
+            android:textColor="#2C3E2B"
+            android:layout_marginBottom="12dp"/>
+
+        <TextView
+            android:id="@+id/tv_remaining_count"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="🔍 Remaining: 0"
+            android:textSize="18sp"
+            android:textColor="#2C3E2B"/>
+    </LinearLayout>
+
+    <Button
+        android:id="@+id/btn_reset"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="🔄 Reset Progress"
+        android:textSize="16sp"
+        android:backgroundTint="#F44336"
+        android:layout_marginBottom="16dp"/>
+
+    <Button
+        android:id="@+id/btn_back"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="← Back to Menu"
+        android:textSize="14sp"
+        android:backgroundTint="#FF9800"/>
+
+</LinearLayout>

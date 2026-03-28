@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:background="#2C3E2B"
+    android:padding="16dp">
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="📚 My Creature Collection"
+        android:textSize="24sp"
+        android:textStyle="bold"
+        android:textColor="#FFD700"
+        android:gravity="center"
+        android:padding="16dp"
+        android:background="#4CAF50"
+        android:layout_marginBottom="16dp"/>
+
+    <TextView
+        android:id="@+id/tv_empty_collection"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:text="😢 No creatures captured yet!\n\nGo to the game and start hunting!"
+        android:textSize="18sp"
+        android:textColor="#FFFFFF"
+        android:gravity="center"
+        android:visibility="gone"/>
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/recycler_view"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:layout_marginBottom="16dp"/>
+
+    <Button
+        android:id="@+id/btn_back"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="← Back to Menu"
+        android:textSize="14sp"
+        android:backgroundTint="#FF9800"/>
+
+</LinearLayout>

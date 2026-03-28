@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:background="#2C3E2B">
+
+    <!-- Header -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:padding="16dp"
+        android:background="#4CAF50">
+
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="🗺️ HUNTING MAP"
+            android:textSize="20sp"
+            android:textStyle="bold"
+            android:textColor="#FFFFFF"/>
+
+        <Button
+            android:id="@+id/btn_find_nearby"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="🔍 Find Creatures"
+            android:textSize="14sp"
+            android:backgroundTint="#FF9800"/>
+    </LinearLayout>
+
+    <!-- Status Text -->
+    <TextView
+        android:id="@+id/tv_map_status"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="📍 Getting your location..."
+        android:textSize="14sp"
+        android:textColor="#FFD700"
+        android:padding="12dp"
+        android:background="#3E5A3D"/>
+
+    <!-- Map Fragment -->
+    <fragment
+        android:id="@+id/map"
+        android:name="com.google.android.gms.maps.SupportMapFragment"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"/>
+
+    <!-- Back Button -->
+    <Button
+        android:id="@+id/btn_back_maps"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="← Back to Menu"
+        android:textSize="14sp"
+        android:backgroundTint="#FF9800"
+        android:layout_margin="16dp"/>
+
+</LinearLayout>
