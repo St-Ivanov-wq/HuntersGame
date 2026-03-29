@@ -58,12 +58,12 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-       // btnAR.setOnClickListener(new View.OnClickListener() {
-         //   @Override
-           // public void onClick(View v) {
-             //   Intent intent = new Intent(MainActivity.this, ARActivity.class);
-               // startActivity(intent);
-            //}
-        //});
+        btnAR.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(MainActivity.this, ARActivity.class);
+                startActivity(intent);
+            }
+        });
     }
 }
