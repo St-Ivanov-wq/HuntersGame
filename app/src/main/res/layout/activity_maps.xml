@@ -1,63 +1,241 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:orientation="vertical"
-    android:background="#2C3E2B">
+    android:layout_height="match_parent">
 
-    <!-- Header -->
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:padding="16dp"
-        android:background="#4CAF50">
-
-        <TextView
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:text="🗺️ HUNTING MAP"
-            android:textSize="20sp"
-            android:textStyle="bold"
-            android:textColor="#FFFFFF"/>
-
-        <Button
-            android:id="@+id/btn_find_nearby"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="🔍 Find Creatures"
-            android:textSize="14sp"
-            android:backgroundTint="#FF9800"/>
-    </LinearLayout>
-
-    <!-- Status Text -->
-    <TextView
-        android:id="@+id/tv_map_status"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="📍 Getting your location..."
-        android:textSize="14sp"
-        android:textColor="#FFD700"
-        android:padding="12dp"
-        android:background="#3E5A3D"/>
-
-    <!-- Map Fragment -->
+    <!-- Map -->
     <fragment
         android:id="@+id/map"
         android:name="com.google.android.gms.maps.SupportMapFragment"
         android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_weight="1"/>
+        android:layout_height="match_parent" />
 
-    <!-- Back Button -->
-    <Button
-        android:id="@+id/btn_back_maps"
+    <!-- Circle Catch Overlay -->
+    <FrameLayout
+        android:id="@+id/catch_circle_container"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="← Back to Menu"
-        android:textSize="14sp"
-        android:backgroundTint="#FF9800"
-        android:layout_margin="16dp"/>
+        android:layout_height="match_parent"
+        android:visibility="gone"
+        android:background="#AA000000">
 
-</LinearLayout>
+        <!-- Outer Circle -->
+        <View
+            android:id="@+id/outer_circle"
+            android:layout_width="250dp"
+            android:layout_height="250dp"
+            android:layout_gravity="center"
+            android:background="@drawable/circle_outer" />
+
+        <!-- Inner Circle (Shrinks) -->
+        <View
+            android:id="@+id/inner_circle"
+            android:layout_width="250dp"
+            android:layout_height="250dp"
+            android:layout_gravity="center"
+            android:background="@drawable/circle_inner" />
+
+        <!-- Percentage Text -->
+        <TextView
+            android:id="@+id/percentage_text"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:text="0%"
+            android:textSize="32sp"
+            android:textStyle="bold"
+            android:textColor="#FFD700"
+            android:textAlignment="center"/>
+
+        <!-- Instructions -->
+        <TextView
+            android:id="@+id/catch_instruction"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center|bottom"
+            android:layout_marginBottom="150dp"
+            android:text="TAP WHEN PERCENTAGE IS HIGH!"
+            android:textSize="18sp"
+            android:textStyle="bold"
+            android:textColor="#FFD700"
+            android:padding="12dp"
+            android:background="#80000000"/>
+
+        <!-- Cancel Button -->
+        <Button
+            android:id="@+id/btn_cancel_catch"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="bottom|center"
+            android:layout_marginBottom="50dp"
+            android:text="CANCEL"
+            android:textSize="16sp"
+            android:backgroundTint="#F44336"
+            android:paddingStart="32dp"
+            android:paddingEnd="32dp"/>
+    </FrameLayout>
+
+    <!-- Overlay UI -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        android:background="#00000000">
+
+        <!-- Top Bar with XP -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:background="#8B4513"
+            android:padding="12dp">
+
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="🗺️ MAP HUNTER"
+                android:textSize="18sp"
+                android:textStyle="bold"
+                android:textColor="#FFD700"/>
+
+            <TextView
+                android:id="@+id/tv_xp"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="⭐ LVL 1 (0/100)"
+                android:textSize="14sp"
+                android:textColor="#FFFFFF"/>
+        </LinearLayout>
+
+        <!-- Status -->
+        <TextView
+            android:id="@+id/tv_map_status"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="📍 Getting your location..."
+            android:textSize="14sp"
+            android:textColor="#FFD700"
+            android:padding="12dp"
+            android:background="#3E5A3D"
+            android:gravity="center"/>
+
+        <!-- Catch Card (Pokémon GO style) -->
+        <androidx.cardview.widget.CardView
+            android:id="@+id/catch_card"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="bottom"
+            android:layout_margin="16dp"
+            android:visibility="gone"
+            app:cardCornerRadius="12dp"
+            app:cardElevation="8dp"
+            app:cardBackgroundColor="#F5F5DC">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:padding="16dp">
+
+                <TextView
+                    android:id="@+id/catch_creature_name"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Creature Name"
+                    android:textSize="20sp"
+                    android:textStyle="bold"
+                    android:textColor="#2C3E2B"
+                    android:gravity="center"/>
+
+                <TextView
+                    android:id="@+id/catch_creature_desc"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Description"
+                    android:textSize="14sp"
+                    android:textColor="#666666"
+                    android:padding="8dp"
+                    android:gravity="center"/>
+
+                <TextView
+                    android:id="@+id/catch_creature_points"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="⭐ 0 XP"
+                    android:textSize="16sp"
+                    android:textColor="#FF9800"
+                    android:gravity="center"
+                    android:padding="4dp"/>
+
+                <TextView
+                    android:id="@+id/catch_distance"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="📏 Calculating distance..."
+                    android:textSize="14sp"
+                    android:textStyle="bold"
+                    android:gravity="center"
+                    android:padding="8dp"/>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:layout_marginTop="12dp">
+
+                    <Button
+                        android:id="@+id/btn_catch"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="🎯 CATCH"
+                        android:textSize="16sp"
+                        android:backgroundTint="#4CAF50"
+                        android:layout_marginEnd="8dp"/>
+
+                    <Button
+                        android:id="@+id/btn_cancel"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="CANCEL"
+                        android:textSize="16sp"
+                        android:backgroundTint="#F44336"
+                        android:layout_marginStart="8dp"/>
+                </LinearLayout>
+            </LinearLayout>
+        </androidx.cardview.widget.CardView>
+
+        <!-- Bottom Buttons -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:padding="16dp"
+            android:background="#8B4513">
+
+            <Button
+                android:id="@+id/btn_find_nearby"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="🔍 FIND CREATURES"
+                android:textSize="16sp"
+                android:backgroundTint="#D2691E"
+                android:layout_marginEnd="8dp"/>
+
+            <Button
+                android:id="@+id/btn_back_maps"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="← BACK"
+                android:textSize="16sp"
+                android:backgroundTint="#A0522D"
+                android:layout_marginStart="8dp"/>
+        </LinearLayout>
+
+    </LinearLayout>
+
+</FrameLayout>
