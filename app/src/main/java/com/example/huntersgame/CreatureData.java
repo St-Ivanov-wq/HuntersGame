@@ -10,26 +10,26 @@ public class CreatureData {
         // Samodiva (Fairy)
         creatures.add(new Creature("1", "Samodiva", "Самодива",
                 "Beautiful woodland fairies with magical powers. They live in forests and mountains, dancing in circles called 'horo'.",
-                "Forests and mountains", 100, R.drawable.ic_samodiva));
+                "Forests and mountains", 100, R.drawable.samodiva));
 
         // Dragon (Zmey)
         creatures.add(new Creature("2", "Zmey", "Змей",
                 "A dragon-like creature that protects villages but also falls in love with human women.",
-                "Mountains and caves", 150, R.drawable.ic_dragon));
+                "Mountains and caves", 150, R.drawable.zmey));
 
         // Karakondzul
         creatures.add(new Creature("3", "Karakondzul", "Караконджул",
                 "A mischievous goblin that appears during the 12 days of Christmas. It rides on people's backs.",
-                "Villages and forests", 80, R.drawable.ic_karakondzul));
+                "Villages and forests", 80, R.drawable.karakondzul));
 
         // add more creatures
         creatures.add(new Creature("4", "Torbalan", "Торбалан",
                 "A vampire-like creature that rises from the dead to haunt the living.",
-                "Graveyards and abandoned places", 120, R.drawable.ic_torbalan));
+                "Graveyards and abandoned places", 120, R.drawable.torbalan));
 
         creatures.add(new Creature("5", "Vila", "Вила",
                 "Mountain spirits with long hair who can heal or harm humans.",
-                "Mountain peaks and springs", 110, R.drawable.ic_vila));
+                "Mountain peaks and springs", 110, R.drawable.vila));
 
         return creatures;
     }

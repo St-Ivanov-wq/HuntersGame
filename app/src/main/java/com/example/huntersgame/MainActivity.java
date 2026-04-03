@@ -14,16 +14,18 @@ public class MainActivity extends AppCompatActivity {
     private Button btnMap;  // <-- ADD THIS LINE
     private Button btnAR;
 
+    private Button btnBestiary;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
         btnStartGame = findViewById(R.id.btn_start_game);
-        btnCollection = findViewById(R.id.btn_collection);
         btnProfile = findViewById(R.id.btn_profile);
         btnMap = findViewById(R.id.btn_map);  // <-- ADD THIS LINE
         btnAR = findViewById(R.id.btn_ar);
+        btnBestiary = findViewById(R.id.btn_bestiary);
 
         btnStartGame.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -33,10 +35,11 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-        btnCollection.setOnClickListener(new View.OnClickListener() {
+
+        btnBestiary.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent intent = new Intent(MainActivity.this, CollectionActivity.class);
+                Intent intent = new Intent(MainActivity.this, BestiaryActivity.class);
                 startActivity(intent);
             }
         });

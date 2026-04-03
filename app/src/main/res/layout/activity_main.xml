@@ -27,12 +27,12 @@
         android:layout_marginBottom="16dp"/>
 
     <Button
-        android:id="@+id/btn_collection"
+        android:id="@+id/btn_bestiary"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="My Collection"
+        android:text="BESTIARY"
         android:textSize="18sp"
-        android:backgroundTint="#2196F3"
+        android:backgroundTint="#9C27B0"
         android:layout_marginBottom="16dp"/>
 
     <Button

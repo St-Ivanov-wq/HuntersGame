@@ -9,6 +9,8 @@ import android.graphics.Color;
 import android.graphics.Paint;
 import android.location.Location;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
@@ -18,6 +20,9 @@ import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.appcompat.app.AppCompatActivity;
 import com.google.android.gms.location.FusedLocationProviderClient;
+import com.google.android.gms.location.LocationCallback;
+import com.google.android.gms.location.LocationRequest;
+import com.google.android.gms.location.LocationResult;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -28,26 +33,24 @@ import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
-import com.google.android.gms.tasks.OnSuccessListener;
-import com.google.android.gms.tasks.Task;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Random;
 
 public class MapsActivity extends AppCompatActivity implements OnMapReadyCallback, GoogleMap.OnMarkerClickListener {
 
     private GoogleMap mMap;
     private FusedLocationProviderClient fusedLocationClient;
+    private LocationCallback locationCallback;
     private Button btnFindNearby;
     private Button btnBack;
     private TextView tvStatus;
     private TextView tvXP;
 
     private List<Creature> allCreatures;
-    private List<Creature> uncapturedCreatures;
     private HashMap<Marker, Creature> creatureMarkers;
-    private HashMap<Marker, LatLng> markerPositions;
     private Location currentLocation;
     private SaveManager saveManager;
 
@@ -57,6 +60,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
 
     private static final int LOCATION_PERMISSION_REQUEST_CODE = 100;
     private Random random = new Random();
+    private boolean creaturesSpawned = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -77,9 +81,9 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
 
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
         creatureMarkers = new HashMap<>();
-        markerPositions = new HashMap<>();
 
-        // Get the map fragment
+        setupLocationCallback();
+
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.map);
         if (mapFragment != null) {
@@ -96,24 +100,82 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         btnBack.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                stopLocationUpdates();
                 finish();
             }
         });
+    }
+
+    private void setupLocationCallback() {
+        locationCallback = new LocationCallback() {
+            @Override
+            public void onLocationResult(@NonNull LocationResult locationResult) {
+                if (locationResult == null) {
+                    return;
+                }
+                for (Location location : locationResult.getLocations()) {
+                    updateLocation(location);
+                }
+            }
+        };
+    }
+
+    private void updateLocation(Location location) {
+        if (location != null) {
+            currentLocation = location;
+
+            if (mMap != null && !creaturesSpawned) {
+                LatLng currentLatLng = new LatLng(
+                        location.getLatitude(),
+                        location.getLongitude()
+                );
+                mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(currentLatLng, 16));
+                spawnNearbyCreatures();
+            }
+        }
+    }
+
+    private void startLocationUpdates() {
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
+                != PackageManager.PERMISSION_GRANTED) {
+            return;
+        }
+
+        LocationRequest locationRequest = LocationRequest.create()
+                .setInterval(2000)
+                .setFastestInterval(1000)
+                .setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
+
+        fusedLocationClient.requestLocationUpdates(locationRequest, locationCallback, Looper.getMainLooper());
+    }
+
+    private void stopLocationUpdates() {
+        if (fusedLocationClient != null && locationCallback != null) {
+            fusedLocationClient.removeLocationUpdates(locationCallback);
+        }
     }
 
     private void loadSavedData() {
         List<Creature> savedCreatures = saveManager.loadCreatures();
         if (savedCreatures != null && savedCreatures.size() == allCreatures.size()) {
             for (int i = 0; i < allCreatures.size(); i++) {
+                allCreatures.get(i).setCaptureCount(savedCreatures.get(i).getCaptureCount());
                 allCreatures.get(i).setCaptured(savedCreatures.get(i).isCaptured());
             }
         }
 
-        uncapturedCreatures = new ArrayList<>();
+        // Debug: print loaded capture counts
         for (Creature creature : allCreatures) {
-            if (!creature.isCaptured()) {
-                uncapturedCreatures.add(creature);
-            }
+            android.util.Log.d("MapsActivity", "LOADED - " + creature.getName() + " capture count: " + creature.getCaptureCount());
+        }
+    }
+
+    private void saveAllData() {
+        saveManager.saveCreatures(allCreatures);
+
+        // Debug: print saved capture counts
+        for (Creature creature : allCreatures) {
+            android.util.Log.d("MapsActivity", "SAVED - " + creature.getName() + " capture count: " + creature.getCaptureCount());
         }
     }
 
@@ -134,7 +196,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         int newLevel = 1 + (currentXP / 100);
         if (newLevel > currentLevel) {
             currentLevel = newLevel;
-            tvStatus.setText("🎉 LEVEL UP! You are now Level " + currentLevel + " Hunter! 🎉");
+            tvStatus.setText("LEVEL UP! You are now Level " + currentLevel + " Hunter!");
         }
 
         updateXPDisplay();
@@ -144,44 +206,17 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
     public void onMapReady(GoogleMap googleMap) {
         mMap = googleMap;
 
-        // Check location permission
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
                 == PackageManager.PERMISSION_GRANTED) {
             mMap.setMyLocationEnabled(true);
-            getCurrentLocation();
+            startLocationUpdates();
         } else {
             ActivityCompat.requestPermissions(this,
                     new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
                     LOCATION_PERMISSION_REQUEST_CODE);
         }
 
-        // Set marker click listener
         mMap.setOnMarkerClickListener(this);
-    }
-
-    private void getCurrentLocation() {
-        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
-                != PackageManager.PERMISSION_GRANTED) {
-            return;
-        }
-
-        Task<Location> locationTask = fusedLocationClient.getLastLocation();
-        locationTask.addOnSuccessListener(this, new OnSuccessListener<Location>() {
-            @Override
-            public void onSuccess(Location location) {
-                if (location != null) {
-                    currentLocation = location;
-                    LatLng currentLatLng = new LatLng(
-                            location.getLatitude(),
-                            location.getLongitude()
-                    );
-                    mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(currentLatLng, 17));
-                    tvStatus.setText("📍 You are here! Tap Find Creatures to hunt!");
-                } else {
-                    tvStatus.setText("⚠️ Waiting for location...");
-                }
-            }
-        });
     }
 
     private BitmapDescriptor getCustomMarker(String creatureName) {
@@ -219,34 +254,38 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
 
     private void spawnNearbyCreatures() {
         if (currentLocation == null) {
-            tvStatus.setText("⚠️ Getting your location first...");
-            getCurrentLocation();
+            tvStatus.setText("Getting your location...");
             return;
         }
 
-        if (uncapturedCreatures.isEmpty()) {
-            tvStatus.setText("🎉 You've captured all creatures! Amazing!");
-            btnFindNearby.setEnabled(false);
-            return;
-        }
-
+        // Clear old markers
         mMap.clear();
         creatureMarkers.clear();
-        markerPositions.clear();
 
+        // Re-add player location marker
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
                 == PackageManager.PERMISSION_GRANTED) {
             mMap.setMyLocationEnabled(true);
         }
 
-        int creatureCount = Math.min(5 + random.nextInt(3), uncapturedCreatures.size());
+        // Spawn 5-8 creatures
+        int creatureCount = 5 + random.nextInt(4);
+
+        List<String> spawnedThisBatch = new ArrayList<>();
 
         for (int i = 0; i < creatureCount; i++) {
-            int creatureIndex = random.nextInt(uncapturedCreatures.size());
-            Creature creature = uncapturedCreatures.get(creatureIndex);
+            int creatureIndex = random.nextInt(allCreatures.size());
+            Creature creature = allCreatures.get(creatureIndex);
+
+            // Avoid spawning same creature twice in one batch
+            while (spawnedThisBatch.contains(creature.getName()) && spawnedThisBatch.size() < allCreatures.size()) {
+                creatureIndex = random.nextInt(allCreatures.size());
+                creature = allCreatures.get(creatureIndex);
+            }
+            spawnedThisBatch.add(creature.getName());
 
             double angle = random.nextDouble() * 2 * Math.PI;
-            double distance = 30 + random.nextDouble() * 70;
+            double distance = 50 + random.nextDouble() * 200;
             double latOffset = (distance / 111320) * Math.cos(angle);
             double lngOffset = (distance / (111320 * Math.cos(currentLocation.getLatitude()))) * Math.sin(angle);
 
@@ -255,22 +294,25 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                     currentLocation.getLongitude() + lngOffset
             );
 
+            int captureCount = creature.getCaptureCount();
+            String snippet = creature.getPointsValue() + " XP | Caught: " + captureCount + "x";
+
             Marker marker = mMap.addMarker(new MarkerOptions()
                     .position(creatureLocation)
                     .title(creature.getName())
-                    .snippet("⭐ " + creature.getPointsValue() + " XP | Tap to hunt in AR!")
+                    .snippet(snippet)
                     .icon(getCustomMarker(creature.getName())));
 
             if (marker != null) {
                 creatureMarkers.put(marker, creature);
-                markerPositions.put(marker, creatureLocation);
             }
         }
 
         LatLng playerLocation = new LatLng(currentLocation.getLatitude(), currentLocation.getLongitude());
-        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(playerLocation, 18));
+        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(playerLocation, 16));
 
-        tvStatus.setText("🔍 " + creatureCount + " creatures nearby! Tap on them to hunt in AR!");
+        creaturesSpawned = true;
+        tvStatus.setText(creatureCount + " creatures nearby! Walk to them and tap to hunt!");
     }
 
     @Override
@@ -279,7 +321,6 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         if (creature != null && currentLocation != null) {
             LatLng creaturePos = marker.getPosition();
 
-            // Calculate distance
             Location creatureLocation = new Location("");
             creatureLocation.setLatitude(creaturePos.latitude);
             creatureLocation.setLongitude(creaturePos.longitude);
@@ -287,19 +328,16 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
             float distanceMeters = currentLocation.distanceTo(creatureLocation);
             int distanceRounded = Math.round(distanceMeters);
 
-            if (distanceRounded <= 100) {
-                // Within range - Open AR mode to catch!
-                tvStatus.setText("🎯 Entering AR mode to catch " + creature.getName() + "!");
+            if (distanceRounded <= 150) {
+                tvStatus.setText("Entering AR mode to catch " + creature.getName() + "!");
 
-                // Pass creature to AR activity
                 Intent intent = new Intent(MapsActivity.this, ARActivity.class);
                 intent.putExtra("creature_name", creature.getName());
                 intent.putExtra("creature_xp", creature.getPointsValue());
                 startActivityForResult(intent, 1);
             } else {
-                // Too far
-                tvStatus.setText("❌ Too far! You're " + distanceRounded + "m away. Walk closer! (Need < 100m)");
-                Toast.makeText(this, "Walk closer to " + distanceRounded + "m away!", Toast.LENGTH_SHORT).show();
+                tvStatus.setText("Too far! You're " + distanceRounded + "m away. Walk closer!");
+                Toast.makeText(this, "Walk closer! " + distanceRounded + "m away!", Toast.LENGTH_SHORT).show();
             }
         }
         return true;
@@ -309,38 +347,57 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         if (requestCode == 1 && resultCode == RESULT_OK) {
-            // Creature was captured in AR mode
             if (data != null) {
                 String creatureName = data.getStringExtra("captured_creature");
+                int newCaptureCount = data.getIntExtra("new_capture_count", 0);
                 int xpGained = data.getIntExtra("xp_gained", 0);
 
-                // Update creature as captured
+                // Update the creature in our list
                 for (Creature creature : allCreatures) {
                     if (creature.getName().equals(creatureName)) {
+                        creature.setCaptureCount(newCaptureCount);
                         creature.setCaptured(true);
                         break;
                     }
                 }
 
-                saveManager.saveCreatures(allCreatures);
-                addXP(xpGained);
-                loadSavedData(); // Refresh list
+                // Save everything immediately
+                saveAllData();
 
-                // Remove marker from map
-                for (Marker marker : creatureMarkers.keySet()) {
-                    Creature c = creatureMarkers.get(marker);
-                    if (c != null && c.getName().equals(creatureName)) {
-                        marker.remove();
-                        creatureMarkers.remove(marker);
+                // Update XP
+                addXP(xpGained);
+
+                // Remove the captured marker from map
+                Marker toRemove = null;
+                for (Map.Entry<Marker, Creature> entry : creatureMarkers.entrySet()) {
+                    if (entry.getValue().getName().equals(creatureName)) {
+                        toRemove = entry.getKey();
                         break;
                     }
                 }
+                if (toRemove != null) {
+                    toRemove.remove();
+                    creatureMarkers.remove(toRemove);
+                }
 
-                tvStatus.setText("✅ Captured " + creatureName + "! +" + xpGained + " XP!");
+                tvStatus.setText("Captured " + creatureName + "! (Now " + newCaptureCount + " total) +" + xpGained + " XP!");
 
-                if (uncapturedCreatures.isEmpty()) {
-                    tvStatus.setText("🎉 CONGRATULATIONS! Master Hunter! 🎉");
-                    btnFindNearby.setEnabled(false);
+                // Update snippets for remaining markers
+                for (Map.Entry<Marker, Creature> entry : creatureMarkers.entrySet()) {
+                    Creature c = entry.getValue();
+                    // Get the latest capture count from allCreatures
+                    for (Creature creature : allCreatures) {
+                        if (creature.getName().equals(c.getName())) {
+                            c.setCaptureCount(creature.getCaptureCount());
+                            break;
+                        }
+                    }
+                    String newSnippet = c.getPointsValue() + " XP | Caught: " + c.getCaptureCount() + "x";
+                    entry.getKey().setSnippet(newSnippet);
+                }
+
+                if (creatureMarkers.size() > 0) {
+                    tvStatus.setText(creatureMarkers.size() + " creatures remaining!");
                 }
             }
         }
@@ -357,10 +414,10 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                     if (mMap != null) {
                         mMap.setMyLocationEnabled(true);
                     }
-                    getCurrentLocation();
+                    startLocationUpdates();
                 }
             } else {
-                Toast.makeText(this, "Location permission needed to find creatures!", Toast.LENGTH_LONG).show();
+                Toast.makeText(this, "Location permission needed!", Toast.LENGTH_LONG).show();
             }
         }
     }
@@ -368,10 +425,19 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
     @Override
     protected void onResume() {
         super.onResume();
-        // Refresh creatures list
         loadSavedData();
-        if (currentLocation != null) {
+        if (currentLocation != null && !creaturesSpawned) {
             spawnNearbyCreatures();
         }
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
+                == PackageManager.PERMISSION_GRANTED) {
+            startLocationUpdates();
+        }
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        stopLocationUpdates();
     }
 }

@@ -185,9 +185,11 @@ public class GameActivity extends AppCompatActivity {
 
     private void captureCreature() {
         try {
+
             if (currentCreature != null && !currentCreature.isCaptured()) {
                 // Capture the creature
                 currentCreature.setCaptured(true);
+                currentCreature.incrementCaptureCount();  // NEW: increment capture count
                 currentPoints += currentCreature.getPointsValue();
 
                 // Save after capturing

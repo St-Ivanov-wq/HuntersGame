@@ -24,6 +24,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import java.io.IOException;
+import java.util.List;
 
 public class ARActivity extends AppCompatActivity implements SurfaceHolder.Callback, SensorEventListener {
 
@@ -41,6 +42,8 @@ public class ARActivity extends AppCompatActivity implements SurfaceHolder.Callb
     private TextView powerMeterText;
     private View powerBar;
     private FrameLayout spriteContainer;
+
+    private List<Creature> allCreatures;
 
     // Gyroscope variables
     private SensorManager sensorManager;
@@ -116,12 +119,15 @@ public class ARActivity extends AppCompatActivity implements SurfaceHolder.Callb
         String creatureName = intent.getStringExtra("creature_name");
         int creatureXP = intent.getIntExtra("creature_xp", 0);
 
+        // Initialize all creatures
+        allCreatures = CreatureData.getCreatures();
+
         // Create creature object
         currentCreature = new Creature("temp", creatureName, "", "", "", creatureXP, 0);
 
         // Set up UI
         tvCreatureName.setText(creatureName);
-        tvCreaturePoints.setText("⭐ " + creatureXP + " XP");
+        tvCreaturePoints.setText(creatureXP + " XP");
 
         // Load creature image
         if (creatureName != null && !creatureName.isEmpty()) {
@@ -139,7 +145,9 @@ public class ARActivity extends AppCompatActivity implements SurfaceHolder.Callb
         // Hide net initially
         netImageView.setVisibility(View.GONE);
 
-        tvStatus.setText("📷 Move your phone to find " + creatureName + "!");
+        tvStatus.setText("MOVE YOUR PHONE");
+        tvStatus.setTextSize(18);
+        tvStatus.setTextColor(Color.parseColor("#FFD700"));
 
         // Set up throw button
         btnThrow.setOnClickListener(new View.OnClickListener() {
@@ -297,12 +305,14 @@ public class ARActivity extends AppCompatActivity implements SurfaceHolder.Callb
         creatureSprite.setScaleX(scale);
         creatureSprite.setScaleY(scale);
 
-        if (proximity > 0.7f) {
-            tvStatus.setText("⚠️ " + currentCreature.getName() + " is CLOSE! Throw when power is GREEN!");
-        } else if (proximity > 0.3f) {
-            tvStatus.setText("🔍 Getting closer! Keep moving your phone...");
-        } else {
-            tvStatus.setText("📍 " + currentCreature.getName() + " is out there. Move your phone!");
+        if (!isThrowing && canThrow && powerLevel < 70) {
+            if (proximity > 0.7f) {
+                tvStatus.setText("CREATURE CLOSE");
+            } else if (proximity > 0.3f) {
+                tvStatus.setText("GETTING CLOSER");
+            } else {
+                tvStatus.setText("MOVE YOUR PHONE");
+            }
         }
     }
 
@@ -314,7 +324,6 @@ public class ARActivity extends AppCompatActivity implements SurfaceHolder.Callb
             @Override
             public void run() {
                 if (!isThrowing && canThrow) {
-                    // Update power level
                     if (powerIncreasing) {
                         powerLevel += 5;
                         if (powerLevel >= 100) {
@@ -329,29 +338,26 @@ public class ARActivity extends AppCompatActivity implements SurfaceHolder.Callb
                         }
                     }
 
-                    // Update percentage text
                     powerMeterText.setText(powerLevel + "%");
 
-                    // Update power bar width (moving bar)
                     if (powerBarMaxWidth > 0) {
                         int targetWidth = (int)(powerBarMaxWidth * (powerLevel / 100f));
                         powerBar.getLayoutParams().width = targetWidth;
                         powerBar.requestLayout();
                     }
 
-                    // Change power bar COLOR based on zone
                     if (powerLevel >= 70 && powerLevel <= 90) {
                         powerBar.setBackgroundColor(Color.parseColor("#4CAF50"));
                         btnThrow.setBackgroundColor(Color.parseColor("#4CAF50"));
-                        tvStatus.setText("🔥 PERFECT! THROW NOW!");
+                        tvStatus.setText("OPTIMAL POWER");
                     } else if (powerLevel >= 50) {
                         powerBar.setBackgroundColor(Color.parseColor("#FFC107"));
                         btnThrow.setBackgroundColor(Color.parseColor("#FFC107"));
-                        tvStatus.setText("👍 Getting there! Wait for GREEN!");
+                        tvStatus.setText("POWER BUILDING");
                     } else {
                         powerBar.setBackgroundColor(Color.parseColor("#F44336"));
                         btnThrow.setBackgroundColor(Color.parseColor("#F44336"));
-                        tvStatus.setText("⚠️ Too weak! Wait for power to build!");
+                        tvStatus.setText("TOO WEAK");
                     }
 
                     powerHandler.postDelayed(this, 100);
@@ -366,16 +372,35 @@ public class ARActivity extends AppCompatActivity implements SurfaceHolder.Callb
         powerHandler.removeCallbacksAndMessages(null);
 
         boolean isHit;
+        final int xpGained;
+        String resultText = "";
 
         if (powerLevel >= 70 && powerLevel <= 90) {
             isHit = true;
-            tvStatus.setText("🔥 PERFECT HIT!");
+            xpGained = currentCreature.getPointsValue();
+            resultText = "PERFECT THROW";
+            tvStatus.setText(resultText);
+            tvStatus.setTextColor(Color.parseColor("#4CAF50"));
         } else if (powerLevel >= 50 && powerLevel <= 95) {
             isHit = true;
-            tvStatus.setText("✨ GOOD HIT!");
+            xpGained = currentCreature.getPointsValue() / 2;
+            resultText = "GOOD THROW";
+            tvStatus.setText(resultText);
+            tvStatus.setTextColor(Color.parseColor("#FFC107"));
         } else {
             isHit = false;
-            tvStatus.setText("❌ MISS! Power: " + powerLevel + "%");
+            xpGained = 0;
+            resultText = "FAIL";
+            tvStatus.setText(resultText);
+            tvStatus.setTextColor(Color.parseColor("#F44336"));
+        }
+
+        if (isHit) {
+            tvStatus.setText(resultText + " +" + xpGained + " XP");
+            tvStatus.setTextSize(16);
+        } else {
+            tvStatus.setText(resultText);
+            tvStatus.setTextSize(16);
         }
 
         netImageView.setVisibility(View.VISIBLE);
@@ -414,9 +439,11 @@ public class ARActivity extends AppCompatActivity implements SurfaceHolder.Callb
                                             hitCount++;
 
                                             if (hitCount >= requiredHits) {
-                                                catchSuccess();
+                                                catchSuccess(xpGained);
                                             } else {
-                                                tvStatus.setText("🎯 HIT! " + hitCount + "/" + requiredHits + " hits!");
+                                                tvStatus.setText("HIT " + hitCount + "/" + requiredHits);
+                                                tvStatus.setTextSize(16);
+                                                tvStatus.setTextColor(Color.parseColor("#FFD700"));
 
                                                 creatureSprite.animate()
                                                         .alpha(0.5f)
@@ -434,6 +461,8 @@ public class ARActivity extends AppCompatActivity implements SurfaceHolder.Callb
                                                     public void run() {
                                                         isThrowing = false;
                                                         canThrow = true;
+                                                        tvStatus.setTextSize(14);
+                                                        tvStatus.setTextColor(Color.parseColor("#FFD700"));
                                                         startPowerMeter();
                                                     }
                                                 }, 500);
@@ -467,6 +496,8 @@ public class ARActivity extends AppCompatActivity implements SurfaceHolder.Callb
                                                 public void run() {
                                                     isThrowing = false;
                                                     canThrow = true;
+                                                    tvStatus.setTextSize(14);
+                                                    tvStatus.setTextColor(Color.parseColor("#FFD700"));
                                                     startPowerMeter();
                                                 }
                                             }, 800);
@@ -479,14 +510,30 @@ public class ARActivity extends AppCompatActivity implements SurfaceHolder.Callb
                 .start();
     }
 
-    private void catchSuccess() {
-        int totalXP = currentCreature.getPointsValue();
+    private void catchSuccess(int xpGained) {
+        int totalXP = xpGained;
 
-        tvStatus.setText("✅ CAUGHT! +" + totalXP + " XP!");
-        Toast.makeText(this, "You caught " + currentCreature.getName() + "! +" + totalXP + " XP!", Toast.LENGTH_LONG).show();
+        // Get current capture count from the main list first
+        int currentCaptureCount = 0;
+        for (Creature creature : allCreatures) {
+            if (creature.getName().equals(currentCreature.getName())) {
+                currentCaptureCount = creature.getCaptureCount();
+                break;
+            }
+        }
 
+        // Increment capture count
+        int newCount = currentCaptureCount + 1;
+        currentCreature.setCaptureCount(newCount);
+        currentCreature.setCaptured(true);
+
+        tvStatus.setText("CAPTURED! +" + totalXP + " XP");
+        Toast.makeText(this, "Captured " + currentCreature.getName() + "! (" + newCount + " total) +" + totalXP + " XP", Toast.LENGTH_LONG).show();
+
+        // Return the updated creature data to MapsActivity
         Intent resultIntent = new Intent();
         resultIntent.putExtra("captured_creature", currentCreature.getName());
+        resultIntent.putExtra("new_capture_count", newCount);
         resultIntent.putExtra("xp_gained", totalXP);
         setResult(RESULT_OK, resultIntent);
 
@@ -503,7 +550,6 @@ public class ARActivity extends AppCompatActivity implements SurfaceHolder.Callb
             }
         }, 1000);
     }
-
     private void openCamera() {
         try {
             camera = Camera.open(Camera.CameraInfo.CAMERA_FACING_BACK);
@@ -511,7 +557,7 @@ public class ARActivity extends AppCompatActivity implements SurfaceHolder.Callb
             camera.setPreviewDisplay(surfaceHolder);
             camera.startPreview();
         } catch (Exception e) {
-            tvStatus.setText("⚠️ Camera error");
+            tvStatus.setText("CAMERA ERROR");
         }
     }
 
@@ -552,7 +598,7 @@ public class ARActivity extends AppCompatActivity implements SurfaceHolder.Callb
             if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                 openCamera();
             } else {
-                Toast.makeText(this, "Camera permission needed!", Toast.LENGTH_LONG).show();
+                Toast.makeText(this, "Camera permission needed", Toast.LENGTH_LONG).show();
             }
         }
     }
