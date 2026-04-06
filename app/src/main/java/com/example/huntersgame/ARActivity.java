@@ -536,6 +536,19 @@ public class ARActivity extends AppCompatActivity implements SurfaceHolder.Callb
             }
         });
 
+        // Record for daily challenges
+        dbManager.recordCapture(currentCreature.getName(), wasPerfect, new DatabaseManager.Callback<Void>() {
+            @Override
+            public void onSuccess(Void result) {
+                Log.d("ARActivity", "Challenge progress recorded");
+            }
+
+            @Override
+            public void onError(String error) {
+                Log.e("ARActivity", "Error recording challenge: " + error);
+            }
+        });
+
         // Save XP
         dbManager.getTotalXP(new DatabaseManager.Callback<Integer>() {
             @Override
@@ -560,8 +573,11 @@ public class ARActivity extends AppCompatActivity implements SurfaceHolder.Callb
         });
 
         tvStatus.setText("CAPTURED! +" + totalXP + " XP");
+        tvStatus.setTextSize(22);
+        tvStatus.setTextColor(Color.parseColor("#4CAF50"));
         Toast.makeText(this, "Captured " + currentCreature.getName() + "! +" + totalXP + " XP", Toast.LENGTH_LONG).show();
 
+        // Return the updated creature data to MapsActivity
         Intent resultIntent = new Intent();
         resultIntent.putExtra("captured_creature", currentCreature.getName());
         resultIntent.putExtra("xp_gained", totalXP);
