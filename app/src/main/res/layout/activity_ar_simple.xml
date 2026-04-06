@@ -1,0 +1,242 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <!-- Camera Preview -->
+    <SurfaceView
+        android:id="@+id/surface_view"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" />
+
+    <!-- Dark Gradient Overlay -->
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@drawable/gradient_overlay" />
+
+    <!-- Top Bar -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="top"
+        android:orientation="horizontal"
+        android:background="#CC000000"
+        android:padding="20dp"
+        android:paddingTop="48dp">
+
+        <TextView
+            android:id="@+id/tv_creature_name"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="Vila"
+            android:textSize="22sp"
+            android:fontFamily="sans-serif-medium"
+            android:textColor="#FFFFFF"
+            android:letterSpacing="0.5"/>
+
+        <TextView
+            android:id="@+id/tv_creature_points"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="110 XP"
+            android:textSize="16sp"
+            android:fontFamily="sans-serif-medium"
+            android:textColor="#FFD700"
+            android:textStyle="bold"/>
+    </LinearLayout>
+
+    <!-- Creature Sprite Container -->
+    <FrameLayout
+        android:id="@+id/sprite_container"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:clipChildren="false">
+
+        <!-- Creature Image -->
+        <ImageView
+            android:id="@+id/creature_sprite"
+            android:layout_width="220dp"
+            android:layout_height="220dp"
+            android:layout_gravity="center"
+            android:layout_marginTop="60dp"
+            android:visibility="visible"
+            android:scaleType="fitCenter"
+            android:contentDescription="Creature"/>
+
+        <!-- Hint Text -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:layout_marginTop="320dp"
+            android:text="Move your phone to aim"
+            android:textSize="12sp"
+            android:fontFamily="sans-serif"
+            android:textColor="#88FFFFFF"
+            android:letterSpacing="1"
+            android:alpha="0.6"/>
+    </FrameLayout>
+
+    <!-- Net Image -->
+    <ImageView
+        android:id="@+id/net_image"
+        android:layout_width="64dp"
+        android:layout_height="64dp"
+        android:src="@drawable/net_icon"
+        android:visibility="gone"
+        android:contentDescription="Net"
+        android:scaleType="fitCenter"/>
+
+    <!-- Bottom Control Panel -->
+    <LinearLayout
+        android:id="@+id/bottom_panel"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom"
+        android:orientation="vertical"
+        android:background="@drawable/bottom_panel_bg"
+        android:padding="24dp"
+        android:elevation="10dp">
+
+        <!-- Status Text -->
+        <TextView
+            android:id="@+id/tv_ar_status"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Get close to the creature"
+            android:textSize="13sp"
+            android:fontFamily="sans-serif"
+            android:textColor="#CCCCCC"
+            android:gravity="center"
+            android:layout_marginBottom="20dp"/>
+
+        <!-- Power Meter Section -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:layout_marginBottom="24dp">
+
+            <!-- Power Label and Percentage -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:layout_marginBottom="10dp">
+
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="THROW POWER"
+                    android:textSize="11sp"
+                    android:fontFamily="sans-serif"
+                    android:textColor="#999999"
+                    android:letterSpacing="1.5"/>
+
+                <TextView
+                    android:id="@+id/power_meter_text"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="0%"
+                    android:textSize="16sp"
+                    android:fontFamily="sans-serif-medium"
+                    android:textColor="#FFD700"
+                    android:textStyle="bold"/>
+            </LinearLayout>
+
+            <!-- Power Bar Container -->
+            <FrameLayout
+                android:layout_width="match_parent"
+                android:layout_height="4dp"
+                android:background="#333333">
+
+                <!-- Power Bar Fill -->
+                <View
+                    android:id="@+id/power_bar"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:background="#F44336"/>
+            </FrameLayout>
+
+            <!-- Zone Labels -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:layout_marginTop="8dp">
+
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="WEAK"
+                    android:textSize="9sp"
+                    android:fontFamily="sans-serif"
+                    android:textColor="#666666"
+                    android:letterSpacing="1"/>
+
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="OPTIMAL"
+                    android:textSize="9sp"
+                    android:fontFamily="sans-serif"
+                    android:textColor="#4CAF50"
+                    android:gravity="center"
+                    android:letterSpacing="1"/>
+
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="OVER"
+                    android:textSize="9sp"
+                    android:fontFamily="sans-serif"
+                    android:textColor="#F44336"
+                    android:gravity="end"
+                    android:letterSpacing="1"/>
+            </LinearLayout>
+        </LinearLayout>
+
+        <!-- Buttons -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center">
+
+            <Button
+                android:id="@+id/btn_throw"
+                android:layout_width="0dp"
+                android:layout_height="48dp"
+                android:layout_weight="1"
+                android:text="THROW"
+                android:textSize="12sp"
+                android:fontFamily="sans-serif-medium"
+                android:textColor="#FFFFFF"
+                android:background="@drawable/throw_button"
+                android:letterSpacing="1.5"
+                android:layout_marginEnd="12dp"/>
+
+            <Button
+                android:id="@+id/btn_ar_back"
+                android:layout_width="0dp"
+                android:layout_height="48dp"
+                android:layout_weight="1"
+                android:text="BACK"
+                android:textSize="13sp"
+                android:fontFamily="sans-serif-medium"
+                android:textColor="#FFFFFF"
+                android:background="@drawable/back_button"
+                android:letterSpacing="1.5"
+                android:layout_marginStart="12dp"/>
+        </LinearLayout>
+
+    </LinearLayout>
+
+</FrameLayout>

@@ -1,0 +1,42 @@
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="80dp"
+    android:height="80dp"
+    android:viewportWidth="100"
+    android:viewportHeight="100">
+
+    <!-- Diamond/Net Shape -->
+    <path
+        android:fillColor="#88FFFFFF"
+        android:strokeColor="#4CAF50"
+        android:strokeWidth="3"
+        android:pathData="M50,10 L90,50 L50,90 L10,50 Z" />
+
+    <!-- Horizontal Line -->
+    <path
+        android:strokeColor="#4CAF50"
+        android:strokeWidth="2"
+        android:pathData="M10,50 L90,50" />
+
+    <!-- Vertical Line -->
+    <path
+        android:strokeColor="#4CAF50"
+        android:strokeWidth="2"
+        android:pathData="M50,10 L50,90" />
+
+    <!-- Diagonal Lines -->
+    <path
+        android:strokeColor="#4CAF50"
+        android:strokeWidth="2"
+        android:pathData="M30,30 L70,70" />
+
+    <path
+        android:strokeColor="#4CAF50"
+        android:strokeWidth="2"
+        android:pathData="M30,70 L70,30" />
+
+    <!-- Center Knot (using path instead of circle) -->
+    <path
+        android:fillColor="#FFD700"
+        android:pathData="M47,47 L53,47 L53,53 L47,53 Z" />
+
+</vector>
