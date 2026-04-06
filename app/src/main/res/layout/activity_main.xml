@@ -18,12 +18,12 @@
         android:layout_marginBottom="48dp"/>
 
     <Button
-        android:id="@+id/btn_start_game"
+        android:id="@+id/btn_map"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Start Hunting"
+        android:text="START"
         android:textSize="18sp"
-        android:backgroundTint="#4CAF50"
+        android:backgroundTint="#008000"
         android:layout_marginBottom="16dp"/>
 
     <Button
@@ -36,29 +36,21 @@
         android:layout_marginBottom="16dp"/>
 
     <Button
+        android:id="@+id/btn_challenges"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="🏆 CHALLENGES"
+        android:textSize="18sp"
+        android:backgroundTint="#FF5722"
+        android:layout_marginBottom="16dp"/>
+
+    <Button
         android:id="@+id/btn_profile"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Hunter Profile"
+        android:text="HUNTER PROFILE"
         android:textSize="18sp"
         android:backgroundTint="#FF9800"/>
 
-    <Button
-        android:id="@+id/btn_map"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="🗺️ Hunt on Map"
-        android:textSize="18sp"
-        android:backgroundTint="#9C27B0"
-        android:layout_marginBottom="16dp"/>
-
-    <Button
-        android:id="@+id/btn_ar"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="🕶️ AR Hunting"
-        android:textSize="18sp"
-        android:backgroundTint="#E91E63"
-        android:layout_marginBottom="16dp"/>
 
 </LinearLayout>

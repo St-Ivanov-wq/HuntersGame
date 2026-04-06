@@ -8,12 +8,10 @@ import androidx.appcompat.app.AppCompatActivity;
 
 public class MainActivity extends AppCompatActivity {
 
-    private Button btnStartGame;
-    private Button btnCollection;
     private Button btnProfile;
     private Button btnMap;  // <-- ADD THIS LINE
-    private Button btnAR;
 
+    private Button btnChallenges;
     private Button btnBestiary;
 
     @Override
@@ -21,18 +19,14 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        btnStartGame = findViewById(R.id.btn_start_game);
         btnProfile = findViewById(R.id.btn_profile);
         btnMap = findViewById(R.id.btn_map);  // <-- ADD THIS LINE
-        btnAR = findViewById(R.id.btn_ar);
         btnBestiary = findViewById(R.id.btn_bestiary);
+        btnChallenges = findViewById(R.id.btn_challenges);
 
-        btnStartGame.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent intent = new Intent(MainActivity.this, GameActivity.class);
-                startActivity(intent);
-            }
+        btnChallenges.setOnClickListener(v -> {
+            Intent intent = new Intent(MainActivity.this, ChallengesActivity.class);
+            startActivity(intent);
         });
 
 
@@ -61,12 +55,5 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-        btnAR.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent intent = new Intent(MainActivity.this, ARActivity.class);
-                startActivity(intent);
-            }
-        });
     }
 }

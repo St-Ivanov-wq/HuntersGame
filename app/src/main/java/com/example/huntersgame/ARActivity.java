@@ -11,6 +11,7 @@ import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 import android.os.Bundle;
 import android.os.Handler;
+import android.util.Log;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 import android.view.View;
@@ -44,6 +45,7 @@ public class ARActivity extends AppCompatActivity implements SurfaceHolder.Callb
     private FrameLayout spriteContainer;
 
     private List<Creature> allCreatures;
+    private DatabaseManager dbManager;  // ADD THIS LINE
 
     // Gyroscope variables
     private SensorManager sensorManager;
@@ -104,6 +106,9 @@ public class ARActivity extends AppCompatActivity implements SurfaceHolder.Callb
 
         surfaceHolder = surfaceView.getHolder();
         surfaceHolder.addCallback(this);
+
+        // Initialize Database Manager
+        dbManager = new DatabaseManager(this);  // ADD THIS LINE
 
         // Initialize sensors
         sensorManager = (SensorManager) getSystemService(SENSOR_SERVICE);
@@ -372,23 +377,27 @@ public class ARActivity extends AppCompatActivity implements SurfaceHolder.Callb
         powerHandler.removeCallbacksAndMessages(null);
 
         boolean isHit;
+        final boolean wasPerfect;
         final int xpGained;
         String resultText = "";
 
         if (powerLevel >= 70 && powerLevel <= 90) {
             isHit = true;
+            wasPerfect = true;
             xpGained = currentCreature.getPointsValue();
             resultText = "PERFECT THROW";
             tvStatus.setText(resultText);
             tvStatus.setTextColor(Color.parseColor("#4CAF50"));
         } else if (powerLevel >= 50 && powerLevel <= 95) {
             isHit = true;
+            wasPerfect = false;
             xpGained = currentCreature.getPointsValue() / 2;
             resultText = "GOOD THROW";
             tvStatus.setText(resultText);
             tvStatus.setTextColor(Color.parseColor("#FFC107"));
         } else {
             isHit = false;
+            wasPerfect = false;
             xpGained = 0;
             resultText = "FAIL";
             tvStatus.setText(resultText);
@@ -439,7 +448,7 @@ public class ARActivity extends AppCompatActivity implements SurfaceHolder.Callb
                                             hitCount++;
 
                                             if (hitCount >= requiredHits) {
-                                                catchSuccess(xpGained);
+                                                catchSuccess(xpGained, wasPerfect);
                                             } else {
                                                 tvStatus.setText("HIT " + hitCount + "/" + requiredHits);
                                                 tvStatus.setTextSize(16);
@@ -510,31 +519,53 @@ public class ARActivity extends AppCompatActivity implements SurfaceHolder.Callb
                 .start();
     }
 
-    private void catchSuccess(int xpGained) {
+    private void catchSuccess(int xpGained, boolean wasPerfect) {
         int totalXP = xpGained;
 
-        // Get current capture count from the main list first
-        int currentCaptureCount = 0;
-        for (Creature creature : allCreatures) {
-            if (creature.getName().equals(currentCreature.getName())) {
-                currentCaptureCount = creature.getCaptureCount();
-                break;
+        // Update database with new capture count
+        dbManager.incrementCaptureCount(currentCreature.getName(), new DatabaseManager.Callback<Integer>() {
+            @Override
+            public void onSuccess(Integer newCount) {
+                Log.d("ARActivity", "Capture count updated to: " + newCount);
+                currentCreature.setCaptureCount(newCount);
             }
-        }
 
-        // Increment capture count
-        int newCount = currentCaptureCount + 1;
-        currentCreature.setCaptureCount(newCount);
-        currentCreature.setCaptured(true);
+            @Override
+            public void onError(String error) {
+                Log.e("ARActivity", "Error updating capture count: " + error);
+            }
+        });
+
+        // Save XP
+        dbManager.getTotalXP(new DatabaseManager.Callback<Integer>() {
+            @Override
+            public void onSuccess(Integer currentXP) {
+                dbManager.saveXP(currentXP + totalXP, new DatabaseManager.Callback<Boolean>() {
+                    @Override
+                    public void onSuccess(Boolean result) {
+                        Log.d("ARActivity", "XP saved successfully");
+                    }
+
+                    @Override
+                    public void onError(String error) {
+                        Log.e("ARActivity", "Error saving XP: " + error);
+                    }
+                });
+            }
+
+            @Override
+            public void onError(String error) {
+                Log.e("ARActivity", "Error getting XP: " + error);
+            }
+        });
 
         tvStatus.setText("CAPTURED! +" + totalXP + " XP");
-        Toast.makeText(this, "Captured " + currentCreature.getName() + "! (" + newCount + " total) +" + totalXP + " XP", Toast.LENGTH_LONG).show();
+        Toast.makeText(this, "Captured " + currentCreature.getName() + "! +" + totalXP + " XP", Toast.LENGTH_LONG).show();
 
-        // Return the updated creature data to MapsActivity
         Intent resultIntent = new Intent();
         resultIntent.putExtra("captured_creature", currentCreature.getName());
-        resultIntent.putExtra("new_capture_count", newCount);
         resultIntent.putExtra("xp_gained", totalXP);
+        resultIntent.putExtra("new_capture_count", currentCreature.getCaptureCount() + 1);
         setResult(RESULT_OK, resultIntent);
 
         creatureSprite.animate()
@@ -550,6 +581,7 @@ public class ARActivity extends AppCompatActivity implements SurfaceHolder.Callb
             }
         }, 1000);
     }
+
     private void openCamera() {
         try {
             camera = Camera.open(Camera.CameraInfo.CAMERA_FACING_BACK);
