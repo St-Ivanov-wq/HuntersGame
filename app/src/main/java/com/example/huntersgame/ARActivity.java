@@ -43,9 +43,10 @@ public class ARActivity extends AppCompatActivity implements SurfaceHolder.Callb
     private TextView powerMeterText;
     private View powerBar;
     private FrameLayout spriteContainer;
+    private TextView tvCombo;
 
-    private List<Creature> allCreatures;
-    private DatabaseManager dbManager;  // ADD THIS LINE
+    private List<CreatureEntity> allCreatures;
+    private DatabaseManager dbManager;
 
     // Gyroscope variables
     private SensorManager sensorManager;
@@ -81,13 +82,20 @@ public class ARActivity extends AppCompatActivity implements SurfaceHolder.Callb
     private int requiredHits = 3;
     private int powerBarMaxWidth = 0;
 
-    private Creature currentCreature;
-    private SaveManager saveManager;
+    // Combo system
+    private int currentCombo = 0;
+    private int bestCombo = 0;
+    private int currentLevel = 1;
+
+    private CreatureEntity currentCreature;
 
     private static final int CAMERA_PERMISSION_REQUEST = 101;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        SoundManager.getInstance(this).playEncounterCreature();
+        SoundManager.getInstance(this).stopMainTheme();
+        SoundManager.getInstance(this).playHuntingTheme();  // Switch to hunting music
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_ar_simple);
 
@@ -103,12 +111,13 @@ public class ARActivity extends AppCompatActivity implements SurfaceHolder.Callb
         powerMeterText = findViewById(R.id.power_meter_text);
         powerBar = findViewById(R.id.power_bar);
         spriteContainer = findViewById(R.id.sprite_container);
+        tvCombo = findViewById(R.id.tv_combo);
 
         surfaceHolder = surfaceView.getHolder();
         surfaceHolder.addCallback(this);
 
         // Initialize Database Manager
-        dbManager = new DatabaseManager(this);  // ADD THIS LINE
+        dbManager = new DatabaseManager(this);
 
         // Initialize sensors
         sensorManager = (SensorManager) getSystemService(SENSOR_SERVICE);
@@ -117,18 +126,16 @@ public class ARActivity extends AppCompatActivity implements SurfaceHolder.Callb
             magnetometer = sensorManager.getDefaultSensor(Sensor.TYPE_MAGNETIC_FIELD);
         }
 
-        saveManager = new SaveManager(this);
-
         // Get creature from intent
         Intent intent = getIntent();
         String creatureName = intent.getStringExtra("creature_name");
         int creatureXP = intent.getIntExtra("creature_xp", 0);
 
         // Initialize all creatures
-        allCreatures = CreatureData.getCreatures();
+        loadAllCreatures();
 
         // Create creature object
-        currentCreature = new Creature("temp", creatureName, "", "", "", creatureXP, 0);
+        currentCreature = new CreatureEntity("temp", creatureName, "", "", "", creatureXP, 0);
 
         // Set up UI
         tvCreatureName.setText(creatureName);
@@ -149,6 +156,7 @@ public class ARActivity extends AppCompatActivity implements SurfaceHolder.Callb
 
         // Hide net initially
         netImageView.setVisibility(View.GONE);
+        tvCombo.setVisibility(View.GONE);
 
         tvStatus.setText("MOVE YOUR PHONE");
         tvStatus.setTextSize(18);
@@ -167,6 +175,7 @@ public class ARActivity extends AppCompatActivity implements SurfaceHolder.Callb
         btnCancel.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                SoundManager.getInstance(ARActivity.this).playButtonClick();
                 setResult(RESULT_CANCELED);
                 finish();
             }
@@ -213,6 +222,20 @@ public class ARActivity extends AppCompatActivity implements SurfaceHolder.Callb
         } else {
             openCamera();
         }
+    }
+
+    private void loadAllCreatures() {
+        dbManager.getAllCreatures(new DatabaseManager.Callback<List<CreatureEntity>>() {
+            @Override
+            public void onSuccess(List<CreatureEntity> creatures) {
+                allCreatures = creatures;
+            }
+
+            @Override
+            public void onError(String error) {
+                Log.e("ARActivity", "Error loading creatures: " + error);
+            }
+        });
     }
 
     private void createColoredCircle(String creatureName) {
@@ -376,9 +399,13 @@ public class ARActivity extends AppCompatActivity implements SurfaceHolder.Callb
         canThrow = false;
         powerHandler.removeCallbacksAndMessages(null);
 
+        // Play throw sound
+        SoundManager.getInstance(this).playThrowSound();
+
         boolean isHit;
         final boolean wasPerfect;
         final int xpGained;
+        final boolean isCritical;
         String resultText = "";
 
         if (powerLevel >= 70 && powerLevel <= 90) {
@@ -388,9 +415,22 @@ public class ARActivity extends AppCompatActivity implements SurfaceHolder.Callb
             resultText = "PERFECT THROW";
             tvStatus.setText(resultText);
             tvStatus.setTextColor(Color.parseColor("#4CAF50"));
+
+            // Play perfect throw sound
+            SoundManager.getInstance(this).playPerfectThrowSound();
+
+            // CRITICAL CATCH CHANCE (20% on perfect throws)
+            if (Math.random() < 0.2) {
+                isCritical = true;
+                resultText = "CRITICAL CATCH!";
+                tvStatus.setText(resultText);
+            } else {
+                isCritical = false;
+            }
         } else if (powerLevel >= 50 && powerLevel <= 95) {
             isHit = true;
             wasPerfect = false;
+            isCritical = false;
             xpGained = currentCreature.getPointsValue() / 2;
             resultText = "GOOD THROW";
             tvStatus.setText(resultText);
@@ -398,14 +438,19 @@ public class ARActivity extends AppCompatActivity implements SurfaceHolder.Callb
         } else {
             isHit = false;
             wasPerfect = false;
+            isCritical = false;
             xpGained = 0;
             resultText = "FAIL";
             tvStatus.setText(resultText);
             tvStatus.setTextColor(Color.parseColor("#F44336"));
+
+            // Play miss sound
+            SoundManager.getInstance(this).playMissSound();
         }
 
         if (isHit) {
-            tvStatus.setText(resultText + " +" + xpGained + " XP");
+            int finalXp = isCritical ? xpGained * 2 : xpGained;
+            tvStatus.setText(resultText + " +" + finalXp + " XP");
             tvStatus.setTextSize(16);
         } else {
             tvStatus.setText(resultText);
@@ -448,7 +493,7 @@ public class ARActivity extends AppCompatActivity implements SurfaceHolder.Callb
                                             hitCount++;
 
                                             if (hitCount >= requiredHits) {
-                                                catchSuccess(xpGained, wasPerfect);
+                                                catchSuccess(xpGained, wasPerfect, isCritical);
                                             } else {
                                                 tvStatus.setText("HIT " + hitCount + "/" + requiredHits);
                                                 tvStatus.setTextSize(16);
@@ -477,6 +522,10 @@ public class ARActivity extends AppCompatActivity implements SurfaceHolder.Callb
                                                 }, 500);
                                             }
                                         } else {
+                                            // Reset combo on miss
+                                            currentCombo = 0;
+                                            updateComboDisplay();
+
                                             creatureSprite.animate()
                                                     .translationXBy(30)
                                                     .setDuration(50)
@@ -519,15 +568,79 @@ public class ARActivity extends AppCompatActivity implements SurfaceHolder.Callb
                 .start();
     }
 
-    private void catchSuccess(int xpGained, boolean wasPerfect) {
+    private void updateComboDisplay() {
+        if (tvCombo != null) {
+            if (currentCombo > 0) {
+                tvCombo.setVisibility(View.VISIBLE);
+                tvCombo.setText("COMBO x" + currentCombo);
+                tvCombo.setTextColor(Color.parseColor("#FF5722"));
+            } else {
+                tvCombo.setVisibility(View.GONE);
+            }
+        }
+    }
+
+    private void checkLevelUp(int xpGained) {
+        dbManager.getTotalXP(new DatabaseManager.Callback<Integer>() {
+            @Override
+            public void onSuccess(Integer totalXP) {
+                int newLevel = 1 + (totalXP / 100);
+                if (newLevel > currentLevel) {
+                    currentLevel = newLevel;
+                    // Play level up sound
+                    SoundManager.getInstance(ARActivity.this).playLevelUpSound();
+                    tvStatus.setText("LEVEL UP! Now Level " + currentLevel + "!");
+                    tvStatus.setTextSize(18);
+                    tvStatus.setTextColor(Color.parseColor("#FFD700"));
+                }
+            }
+
+            @Override
+            public void onError(String error) {
+                Log.e("ARActivity", "Error checking level: " + error);
+            }
+        });
+    }
+
+    private void catchSuccess(int xpGained, boolean wasPerfect, boolean isCritical) {
         int totalXP = xpGained;
 
+        // COMBO SYSTEM
+        if (wasPerfect) {
+            currentCombo++;
+            if (currentCombo > bestCombo) {
+                bestCombo = currentCombo;
+            }
+            // Combo bonus XP (5% per combo)
+            int comboBonus = (int)(totalXP * (currentCombo * 0.05));
+            totalXP += comboBonus;
+            tvStatus.setText("CAPTURED! +" + totalXP + " XP (Combo: " + currentCombo + "x!)");
+        } else {
+            currentCombo = 0; // Reset combo on non-perfect catch
+        }
+
+        // Critical catch bonus
+        if (isCritical) {
+            totalXP = totalXP * 2;
+            tvStatus.setText("CRITICAL CATCH! +" + totalXP + " XP");
+        }
+
+        // Play catch sound
+        SoundManager.getInstance(this).playCatchSound();
+
+        // Update combo display
+        updateComboDisplay();
+
         // Update database with new capture count
+        final int finalTotalXP = totalXP;
         dbManager.incrementCaptureCount(currentCreature.getName(), new DatabaseManager.Callback<Integer>() {
             @Override
             public void onSuccess(Integer newCount) {
                 Log.d("ARActivity", "Capture count updated to: " + newCount);
                 currentCreature.setCaptureCount(newCount);
+
+                // Check for level up
+                checkLevelUp(finalTotalXP);
             }
 
             @Override
@@ -553,7 +666,7 @@ public class ARActivity extends AppCompatActivity implements SurfaceHolder.Callb
         dbManager.getTotalXP(new DatabaseManager.Callback<Integer>() {
             @Override
             public void onSuccess(Integer currentXP) {
-                dbManager.saveXP(currentXP + totalXP, new DatabaseManager.Callback<Boolean>() {
+                dbManager.saveXP(currentXP + finalTotalXP, new DatabaseManager.Callback<Boolean>() {
                     @Override
                     public void onSuccess(Boolean result) {
                         Log.d("ARActivity", "XP saved successfully");
@@ -572,15 +685,15 @@ public class ARActivity extends AppCompatActivity implements SurfaceHolder.Callb
             }
         });
 
-        tvStatus.setText("CAPTURED! +" + totalXP + " XP");
-        tvStatus.setTextSize(22);
-        tvStatus.setTextColor(Color.parseColor("#4CAF50"));
-        Toast.makeText(this, "Captured " + currentCreature.getName() + "! +" + totalXP + " XP", Toast.LENGTH_LONG).show();
+        String message = "Captured " + currentCreature.getName() + "! +" + finalTotalXP + " XP";
+        if (wasPerfect) message += " (Perfect! Combo: " + currentCombo + ")";
+        if (isCritical) message += " CRITICAL!";
+        Toast.makeText(this, message, Toast.LENGTH_LONG).show();
 
         // Return the updated creature data to MapsActivity
         Intent resultIntent = new Intent();
         resultIntent.putExtra("captured_creature", currentCreature.getName());
-        resultIntent.putExtra("xp_gained", totalXP);
+        resultIntent.putExtra("xp_gained", finalTotalXP);
         resultIntent.putExtra("new_capture_count", currentCreature.getCaptureCount() + 1);
         setResult(RESULT_OK, resultIntent);
 

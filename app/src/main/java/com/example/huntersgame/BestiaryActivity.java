@@ -33,6 +33,9 @@ public class BestiaryActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_bestiary);
 
+        // Play menu open sound AFTER super and setContentView
+        SoundManager.getInstance(this).playMenuOpen();
+
         creaturesContainer = findViewById(R.id.creatures_container);
         btnBack = findViewById(R.id.btn_back_bestiary);
         tvTotalCount = findViewById(R.id.tv_total_count);
@@ -41,7 +44,10 @@ public class BestiaryActivity extends AppCompatActivity {
         dbManager = new DatabaseManager(this);
         allCreatures = new ArrayList<>();
 
-        btnBack.setOnClickListener(v -> finish());
+        btnBack.setOnClickListener(v -> {
+            SoundManager.getInstance(this).playMenuClose();
+            finish();
+        });
 
         loadCreaturesFromDatabase();
     }
@@ -179,6 +185,7 @@ public class BestiaryActivity extends AppCompatActivity {
         card.addView(contentLayout);
 
         card.setOnClickListener(v -> {
+            SoundManager.getInstance(this).playCardFlip();
             if (hasCaptured) {
                 showCreatureDetails(creature);
             } else {
@@ -236,7 +243,9 @@ public class BestiaryActivity extends AppCompatActivity {
 
         builder.setView(dialogView);
         AlertDialog dialog = builder.create();
-        dialogView.findViewById(R.id.btn_close_dialog).setOnClickListener(v -> dialog.dismiss());
+        dialogView.findViewById(R.id.btn_close_dialog).setOnClickListener(v -> {
+            SoundManager.getInstance(this).playButtonClick();
+            dialog.dismiss();});
         dialog.show();
 
         if (dialog.getWindow() != null) {

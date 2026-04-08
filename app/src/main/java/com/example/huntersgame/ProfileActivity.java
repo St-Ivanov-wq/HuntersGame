@@ -1,5 +1,7 @@
 package com.example.huntersgame;
 
+import android.app.AlertDialog;
+import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.graphics.Typeface;
 import android.os.Bundle;
@@ -18,7 +20,6 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
-import android.app.AlertDialog;
 
 public class ProfileActivity extends AppCompatActivity {
 
@@ -26,6 +27,7 @@ public class ProfileActivity extends AppCompatActivity {
     private LinearLayout profileContainer;
     private Button btnBack;
     private Button btnResetAll;
+    private SharedPreferences achievementPrefs;
 
     // Stats
     private int totalXP = 0;
@@ -38,6 +40,14 @@ public class ProfileActivity extends AppCompatActivity {
     private String topCreature = "";
     private int topCreatureCount = 0;
 
+    // Achievement tracking
+    private boolean hadFirstCatch = false;
+    private boolean hadLevel5 = false;
+    private boolean hadCollector = false;
+    private boolean hadPerfectMaster = false;
+    private boolean hadLegend = false;
+    private boolean hadMasterHunter = false;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -47,11 +57,19 @@ public class ProfileActivity extends AppCompatActivity {
         btnBack = findViewById(R.id.btn_back_profile);
         btnResetAll = findViewById(R.id.btn_reset_all);
 
+        achievementPrefs = getSharedPreferences("achievements", MODE_PRIVATE);
+
         dbManager = new DatabaseManager(this);
 
-        btnBack.setOnClickListener(v -> finish());
+        btnBack.setOnClickListener(v -> {
+            SoundManager.getInstance(this).playButtonClick();
+            finish();
+        });
 
-        btnResetAll.setOnClickListener(v -> showResetDialog());
+        btnResetAll.setOnClickListener(v -> {
+            SoundManager.getInstance(this).playButtonClick();
+            showResetDialog();
+        });
 
         loadProfileData();
     }
@@ -67,6 +85,7 @@ public class ProfileActivity extends AppCompatActivity {
             @Override
             public void onSuccess(List<CreatureEntity> creatures) {
                 calculateStats(creatures);
+                checkAchievements();  // Check and play sound for new achievements
                 displayProfile();
             }
 
@@ -116,22 +135,86 @@ public class ProfileActivity extends AppCompatActivity {
         });
     }
 
+    private void checkAchievements() {
+        // First Catch achievement
+        boolean hasFirstCatch = totalCaptures > 0;
+        if (hasFirstCatch && !hadFirstCatch) {
+            hadFirstCatch = true;
+            SoundManager.getInstance(this).playAchievement();
+            Toast.makeText(this, "ACHIEVEMENT UNLOCKED: First Catch!", Toast.LENGTH_LONG).show();
+        }
+
+        // Level 5 achievement
+        boolean hasLevel5 = currentLevel >= 5;
+        if (hasLevel5 && !hadLevel5) {
+            hadLevel5 = true;
+            SoundManager.getInstance(this).playAchievement();
+            Toast.makeText(this, "ACHIEVEMENT UNLOCKED: Level 5 Hunter!", Toast.LENGTH_LONG).show();
+        }
+
+        // Collector achievement (3 different species)
+        boolean hasCollector = discoveredSpecies >= 3;
+        if (hasCollector && !hadCollector) {
+            hadCollector = true;
+            SoundManager.getInstance(this).playAchievement();
+            Toast.makeText(this, "ACHIEVEMENT UNLOCKED: Collector!", Toast.LENGTH_LONG).show();
+        }
+
+        // Perfect Master achievement (10 perfect throws)
+        boolean hasPerfectMaster = perfectThrows >= 10;
+        if (hasPerfectMaster && !hadPerfectMaster) {
+            hadPerfectMaster = true;
+            SoundManager.getInstance(this).playAchievement();
+            Toast.makeText(this, "ACHIEVEMENT UNLOCKED: Perfect Master!", Toast.LENGTH_LONG).show();
+        }
+
+        // Legend achievement (Level 10)
+        boolean hasLegend = currentLevel >= 10;
+        if (hasLegend && !hadLegend) {
+            hadLegend = true;
+            SoundManager.getInstance(this).playAchievement();
+            Toast.makeText(this, "ACHIEVEMENT UNLOCKED: Legendary Hunter!", Toast.LENGTH_LONG).show();
+        }
+
+        // Master Hunter achievement (all species)
+        boolean hasMasterHunter = discoveredSpecies == totalSpecies;
+        if (hasMasterHunter && !hadMasterHunter) {
+            hadMasterHunter = true;
+            SoundManager.getInstance(this).playAchievement();
+            Toast.makeText(this, "ACHIEVEMENT UNLOCKED: Master Hunter!", Toast.LENGTH_LONG).show();
+        }
+
+        // Save achievement states
+        saveAchievementStates();
+    }
+
+    private void saveAchievementStates() {
+        achievementPrefs.edit()
+                .putBoolean("first_catch", hadFirstCatch)
+                .putBoolean("level_5", hadLevel5)
+                .putBoolean("collector", hadCollector)
+                .putBoolean("perfect_master", hadPerfectMaster)
+                .putBoolean("legend", hadLegend)
+                .putBoolean("master_hunter", hadMasterHunter)
+                .apply();
+    }
+
+    private void loadAchievementStates() {
+        hadFirstCatch = achievementPrefs.getBoolean("first_catch", false);
+        hadLevel5 = achievementPrefs.getBoolean("level_5", false);
+        hadCollector = achievementPrefs.getBoolean("collector", false);
+        hadPerfectMaster = achievementPrefs.getBoolean("perfect_master", false);
+        hadLegend = achievementPrefs.getBoolean("legend", false);
+        hadMasterHunter = achievementPrefs.getBoolean("master_hunter", false);
+    }
+
     private void displayProfile() {
         profileContainer.removeAllViews();
 
-        // Header Card
         addHeaderCard();
-
-        // Stats Card
         addStatsCard();
-
-        // Progress Card
         addProgressCard();
-
-        // Achievements Card
         addAchievementsCard();
-
-        // Reset Button already exists in layout
     }
 
     private void addHeaderCard() {
@@ -142,7 +225,6 @@ public class ProfileActivity extends AppCompatActivity {
         content.setPadding(40, 40, 40, 40);
         content.setGravity(Gravity.CENTER);
 
-        // Hunter Icon and Level
         TextView levelText = new TextView(this);
         levelText.setText("🏹");
         levelText.setTextSize(48);
@@ -179,7 +261,6 @@ public class ProfileActivity extends AppCompatActivity {
         content.setOrientation(LinearLayout.VERTICAL);
         content.setPadding(40, 30, 40, 30);
 
-        // Title
         TextView title = new TextView(this);
         title.setText("HUNTER STATS");
         title.setTextSize(18);
@@ -188,11 +269,9 @@ public class ProfileActivity extends AppCompatActivity {
         title.setPadding(0, 0, 0, 20);
         content.addView(title);
 
-        // Stats Grid
         LinearLayout grid = new LinearLayout(this);
         grid.setOrientation(LinearLayout.VERTICAL);
 
-        // Row 1
         LinearLayout row1 = new LinearLayout(this);
         row1.setOrientation(LinearLayout.HORIZONTAL);
         row1.setPadding(0, 0, 0, 16);
@@ -200,7 +279,6 @@ public class ProfileActivity extends AppCompatActivity {
         addStatItem(row1, "🎯", "Total Captures", String.valueOf(totalCaptures));
         addStatItem(row1, "✨", "Perfect Throws", String.valueOf(perfectThrows));
 
-        // Row 2
         LinearLayout row2 = new LinearLayout(this);
         row2.setOrientation(LinearLayout.HORIZONTAL);
         row2.setPadding(0, 0, 0, 16);
@@ -208,7 +286,6 @@ public class ProfileActivity extends AppCompatActivity {
         addStatItem(row2, "📖", "Bestiary", discoveredSpecies + "/" + totalSpecies);
         addStatItem(row2, "⭐", "Total XP", String.valueOf(totalXP));
 
-        // Row 3
         LinearLayout row3 = new LinearLayout(this);
         row3.setOrientation(LinearLayout.HORIZONTAL);
 
@@ -264,7 +341,6 @@ public class ProfileActivity extends AppCompatActivity {
         content.setOrientation(LinearLayout.VERTICAL);
         content.setPadding(40, 30, 40, 30);
 
-        // Title
         TextView title = new TextView(this);
         title.setText("PROGRESS");
         title.setTextSize(18);
@@ -273,14 +349,12 @@ public class ProfileActivity extends AppCompatActivity {
         title.setPadding(0, 0, 0, 20);
         content.addView(title);
 
-        // XP Progress
         TextView xpLabel = new TextView(this);
         xpLabel.setText("Next Level");
         xpLabel.setTextSize(12);
         xpLabel.setTextColor(Color.parseColor("#AAAAAA"));
         content.addView(xpLabel);
 
-        // Progress Bar
         ProgressBar progressBar = new ProgressBar(this, null, android.R.attr.progressBarStyleHorizontal);
         progressBar.setLayoutParams(new LinearLayout.LayoutParams(
                 LinearLayout.LayoutParams.MATCH_PARENT,
@@ -314,7 +388,6 @@ public class ProfileActivity extends AppCompatActivity {
         xpRow.addView(neededXpText);
         content.addView(xpRow);
 
-        // Bestiary Progress
         TextView bestiaryLabel = new TextView(this);
         bestiaryLabel.setText("Bestiary Completion");
         bestiaryLabel.setTextSize(12);
@@ -349,7 +422,6 @@ public class ProfileActivity extends AppCompatActivity {
         content.setOrientation(LinearLayout.VERTICAL);
         content.setPadding(40, 30, 40, 30);
 
-        // Title
         TextView title = new TextView(this);
         title.setText("ACHIEVEMENTS");
         title.setTextSize(18);
@@ -358,11 +430,9 @@ public class ProfileActivity extends AppCompatActivity {
         title.setPadding(0, 0, 0, 20);
         content.addView(title);
 
-        // Achievement Grid
         LinearLayout grid = new LinearLayout(this);
         grid.setOrientation(LinearLayout.VERTICAL);
 
-        // Row 1
         LinearLayout row1 = new LinearLayout(this);
         row1.setOrientation(LinearLayout.HORIZONTAL);
         row1.setPadding(0, 0, 0, 16);
@@ -370,7 +440,6 @@ public class ProfileActivity extends AppCompatActivity {
         addAchievementItem(row1, "🎯", "First Catch", totalCaptures > 0);
         addAchievementItem(row1, "⭐", "Level 5", currentLevel >= 5);
 
-        // Row 2
         LinearLayout row2 = new LinearLayout(this);
         row2.setOrientation(LinearLayout.HORIZONTAL);
         row2.setPadding(0, 0, 0, 16);
@@ -378,7 +447,6 @@ public class ProfileActivity extends AppCompatActivity {
         addAchievementItem(row2, "📖", "Collector", discoveredSpecies >= 3);
         addAchievementItem(row2, "✨", "Perfect Master", perfectThrows >= 10);
 
-        // Row 3
         LinearLayout row3 = new LinearLayout(this);
         row3.setOrientation(LinearLayout.HORIZONTAL);
 
@@ -442,6 +510,9 @@ public class ProfileActivity extends AppCompatActivity {
         dbManager.resetAllProgress(new DatabaseManager.Callback<Boolean>() {
             @Override
             public void onSuccess(Boolean result) {
+                // Reset achievement preferences
+                achievementPrefs.edit().clear().apply();
+                loadAchievementStates();
                 Toast.makeText(ProfileActivity.this, "All progress has been reset!", Toast.LENGTH_LONG).show();
                 loadProfileData();
             }

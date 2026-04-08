@@ -26,6 +26,7 @@ public class ChallengesActivity extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        SoundManager.getInstance(this).playMenuOpen();
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_challenges);
 
@@ -38,20 +39,26 @@ public class ChallengesActivity extends AppCompatActivity {
         // Check if buttons exist (for safety)
         if (btnBack == null) {
             Log.e("ChallengesActivity", "btn_back_challenges not found!");
+            SoundManager.getInstance(this).playMenuClose();
             finish();
             return;
         }
 
         dbManager = new DatabaseManager(this);
 
-        btnBack.setOnClickListener(v -> finish());
+        btnBack.setOnClickListener(v -> {
+            SoundManager.getInstance(this).playMenuClose();
+            finish();});
 
         if (btnClaimAll != null) {
-            btnClaimAll.setOnClickListener(v -> claimAllRewards());
+            btnClaimAll.setOnClickListener(v -> {SoundManager.getInstance(this).playButtonClick();
+                claimAllRewards();});
         }
 
         if (btnReset != null) {
-            btnReset.setOnClickListener(v -> showResetDialog());
+            btnReset.setOnClickListener(v -> {
+                SoundManager.getInstance(this).playButtonClick();
+                showResetDialog();});
         }
 
         loadChallenges();

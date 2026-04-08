@@ -90,8 +90,11 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
             mapFragment.getMapAsync(this);
         }
 
-        btnFindNearby.setOnClickListener(v -> spawnNearbyCreatures());
+        btnFindNearby.setOnClickListener(v -> {
+            SoundManager.getInstance(this).playButtonClick();
+            spawnNearbyCreatures();});
         btnBack.setOnClickListener(v -> {
+            SoundManager.getInstance(this).playButtonClick();
             stopLocationUpdates();
             finish();
         });
@@ -344,6 +347,8 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
 
     @Override
     protected void onResume() {
+        SoundManager.getInstance(this).stopHuntingTheme();
+        SoundManager.getInstance(this).playMainTheme();
         super.onResume();
         loadCreaturesFromDatabase();
         loadXPData();

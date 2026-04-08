@@ -16,15 +16,15 @@
         android:layout_height="match_parent"
         android:background="@drawable/gradient_overlay" />
 
-    <!-- Top Bar -->
+    <!-- Top Bar with Creature Name -->
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_gravity="top"
         android:orientation="horizontal"
         android:background="#CC000000"
-        android:padding="20dp"
-        android:paddingTop="48dp">
+        android:padding="16dp"
+        android:paddingTop="40dp">
 
         <TextView
             android:id="@+id/tv_creature_name"
@@ -32,10 +32,10 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:text="Vila"
-            android:textSize="22sp"
-            android:fontFamily="sans-serif-medium"
+            android:textSize="24sp"
+            android:textStyle="bold"
             android:textColor="#FFFFFF"
-            android:letterSpacing="0.5"/>
+            android:letterSpacing="0.05"/>
 
         <TextView
             android:id="@+id/tv_creature_points"
@@ -43,10 +43,24 @@
             android:layout_height="wrap_content"
             android:text="110 XP"
             android:textSize="16sp"
-            android:fontFamily="sans-serif-medium"
             android:textColor="#FFD700"
             android:textStyle="bold"/>
     </LinearLayout>
+
+    <!-- Combo Display -->
+    <TextView
+        android:id="@+id/tv_combo"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal"
+        android:layout_marginTop="120dp"
+        android:text="COMBO x3"
+        android:textSize="18sp"
+        android:textStyle="bold"
+        android:textColor="#FF5722"
+        android:visibility="gone"
+        android:padding="8dp"
+        android:background="#80000000"/>
 
     <!-- Creature Sprite Container -->
     <FrameLayout
@@ -58,10 +72,10 @@
         <!-- Creature Image -->
         <ImageView
             android:id="@+id/creature_sprite"
-            android:layout_width="220dp"
-            android:layout_height="220dp"
+            android:layout_width="200dp"
+            android:layout_height="200dp"
             android:layout_gravity="center"
-            android:layout_marginTop="60dp"
+            android:layout_marginTop="80dp"
             android:visibility="visible"
             android:scaleType="fitCenter"
             android:contentDescription="Creature"/>
@@ -216,11 +230,11 @@
                 android:layout_height="48dp"
                 android:layout_weight="1"
                 android:text="THROW"
-                android:textSize="12sp"
+                android:textSize="10sp"
                 android:fontFamily="sans-serif-medium"
                 android:textColor="#FFFFFF"
                 android:background="@drawable/throw_button"
-                android:letterSpacing="1.5"
+                android:letterSpacing="2"
                 android:layout_marginEnd="12dp"/>
 
             <Button
@@ -229,11 +243,11 @@
                 android:layout_height="48dp"
                 android:layout_weight="1"
                 android:text="BACK"
-                android:textSize="13sp"
+                android:textSize="12sp"
                 android:fontFamily="sans-serif-medium"
                 android:textColor="#FFFFFF"
                 android:background="@drawable/back_button"
-                android:letterSpacing="1.5"
+                android:letterSpacing="2"
                 android:layout_marginStart="12dp"/>
         </LinearLayout>
 
