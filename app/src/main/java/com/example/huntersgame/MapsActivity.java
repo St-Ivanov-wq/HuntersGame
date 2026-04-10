@@ -50,6 +50,8 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
     private TextView tvStatus;
     private TextView tvXP;
 
+    private VibrationManager vibrationManager;
+
     private List<CreatureEntity> allCreatures;
     private HashMap<Marker, CreatureEntity> creatureMarkers;
     private Location currentLocation;
@@ -72,6 +74,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         btnBack = findViewById(R.id.btn_back_maps);
         tvStatus = findViewById(R.id.tv_map_status);
         tvXP = findViewById(R.id.tv_xp);
+        vibrationManager = new VibrationManager(this);
 
         dbManager = new DatabaseManager(this);
         allCreatures = new ArrayList<>();
@@ -257,7 +260,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
             mMap.setMyLocationEnabled(true);
         }
 
-        int creatureCount = Math.min(5 + random.nextInt(4), allCreatures.size());
+        int creatureCount = 5 + random.nextInt(8);  // Spawn 5-12 creatures
         List<String> spawnedThisBatch = new ArrayList<>();
 
         for (int i = 0; i < creatureCount; i++) {
@@ -291,6 +294,8 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         LatLng playerLocation = new LatLng(currentLocation.getLatitude(), currentLocation.getLongitude());
         mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(playerLocation, 16));
         creaturesSpawned = true;
+        vibrationManager.tap();
+
         tvStatus.setText(creatureCount + " creatures nearby! Tap to hunt!");
     }
 
@@ -306,6 +311,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
             int distanceRounded = Math.round(distanceMeters);
 
             if (distanceRounded <= 150) {
+                vibrationManager.tap();
                 tvStatus.setText("Entering AR mode to catch " + creature.getName() + "!");
                 Intent intent = new Intent(MapsActivity.this, ARActivity.class);
                 intent.putExtra("creature_name", creature.getName());

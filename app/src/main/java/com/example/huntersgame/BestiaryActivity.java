@@ -28,6 +28,8 @@ public class BestiaryActivity extends AppCompatActivity {
     private DatabaseManager dbManager;
     private List<CreatureEntity> allCreatures;
     private TextView tvEmptyMessage;
+    private VibrationManager vibrationManager;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -41,6 +43,7 @@ public class BestiaryActivity extends AppCompatActivity {
        btnBack = findViewById(R.id.btn_back_bestiary);
         tvTotalCount = findViewById(R.id.tv_total_count);
         tvEmptyMessage = findViewById(R.id.tv_empty_message);
+        vibrationManager = new VibrationManager(this);
 
         dbManager = new DatabaseManager(this);
         allCreatures = new ArrayList<>();
@@ -194,6 +197,7 @@ public class BestiaryActivity extends AppCompatActivity {
         card.addView(contentLayout);
 
         card.setOnClickListener(v -> {
+            vibrationManager.tap();
             SoundManager.getInstance(this).playCardFlip();
             if (hasCaptured) {
                 showCreatureDetails(creature);

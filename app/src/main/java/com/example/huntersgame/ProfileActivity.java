@@ -38,6 +38,7 @@ public class ProfileActivity extends AppCompatActivity {
    // private Button btnSettings;
     private TextView tvUsername;
     private SettingsManager settingsManager;
+    private VibrationManager vibrationManager;
 
     // Stats
     private int totalXP = 0;
@@ -46,7 +47,7 @@ public class ProfileActivity extends AppCompatActivity {
     private int totalCaptures = 0;
     private int perfectThrows = 0;
     private int discoveredSpecies = 0;
-    private int totalSpecies = 5;
+    private int totalSpecies = 15;
     private String topCreature = "";
     private int topCreatureCount = 0;
 
@@ -70,6 +71,8 @@ public class ProfileActivity extends AppCompatActivity {
         //btnSettings = findViewById(R.id.btn_settings);
         tvUsername = findViewById(R.id.tv_username);
         ImageView ivEditUsername = findViewById(R.id.iv_edit_username);
+        vibrationManager = new VibrationManager(this);
+
 
         settingsManager = new SettingsManager(this);
         achievementPrefs = getSharedPreferences("achievements", MODE_PRIVATE);
@@ -121,64 +124,6 @@ public class ProfileActivity extends AppCompatActivity {
             }
         });
         builder.setNegativeButton("Cancel", null);
-        builder.show();
-    }
-
-    private void showSettingsDialog() {
-        AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        View dialogView = getLayoutInflater().inflate(R.layout.dialog_settings, null);
-
-        SeekBar musicSeekBar = dialogView.findViewById(R.id.music_volume_seekbar);
-        SeekBar sfxSeekBar = dialogView.findViewById(R.id.sfx_volume_seekbar);
-        Switch vibrationSwitch = dialogView.findViewById(R.id.vibration_switch);
-        TextView musicPercent = dialogView.findViewById(R.id.music_volume_percent);
-        TextView sfxPercent = dialogView.findViewById(R.id.sfx_volume_percent);
-
-        // Load current values
-        float musicVol = settingsManager.getMusicVolume();
-        float sfxVol = settingsManager.getSfxVolume();
-        musicSeekBar.setProgress((int)(musicVol * 100));
-        sfxSeekBar.setProgress((int)(sfxVol * 100));
-        musicPercent.setText((int)(musicVol * 100) + "%");
-        sfxPercent.setText((int)(sfxVol * 100) + "%");
-        vibrationSwitch.setChecked(settingsManager.isVibrationEnabled());
-
-        musicSeekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
-            @Override
-            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-                float vol = progress / 100f;
-                settingsManager.setMusicVolume(vol);
-                musicPercent.setText(progress + "%");
-                SoundManager.getInstance(ProfileActivity.this).setMusicVolume(vol);
-            }
-            @Override public void onStartTrackingTouch(SeekBar seekBar) {}
-            @Override public void onStopTrackingTouch(SeekBar seekBar) {}
-        });
-
-        sfxSeekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
-            @Override
-            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-                float vol = progress / 100f;
-                settingsManager.setSfxVolume(vol);
-                sfxPercent.setText(progress + "%");
-                SoundManager.getInstance(ProfileActivity.this).setSfxVolume(vol);
-                // Test sound
-                SoundManager.getInstance(ProfileActivity.this).playButtonClick();
-            }
-            @Override public void onStartTrackingTouch(SeekBar seekBar) {}
-            @Override public void onStopTrackingTouch(SeekBar seekBar) {}
-        });
-
-        vibrationSwitch.setOnCheckedChangeListener((buttonView, isChecked) -> {
-            settingsManager.setVibrationEnabled(isChecked);
-            if (isChecked) {
-                vibrate(50);
-            }
-        });
-
-        builder.setView(dialogView);
-        builder.setTitle("Settings");
-        builder.setPositiveButton("Close", null);
         builder.show();
     }
 
@@ -314,6 +259,7 @@ public class ProfileActivity extends AppCompatActivity {
     }
 
     private void showAchievementPopup(String title, String description) {
+        vibrationManager.celebration();
         SoundManager.getInstance(this).playAchievement();
         vibrate(100);
 

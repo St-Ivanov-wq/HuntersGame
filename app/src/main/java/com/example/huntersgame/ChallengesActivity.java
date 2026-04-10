@@ -26,6 +26,8 @@ public class ChallengesActivity extends AppCompatActivity {
     private Button btnBack;
     private List<ChallengeEntity> allChallenges;
 
+    private VibrationManager vibrationManager;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         SoundManager.getInstance(this).playMenuOpen();
@@ -37,6 +39,7 @@ public class ChallengesActivity extends AppCompatActivity {
         btnClaimAll = findViewById(R.id.btn_claim_all);
         btnReset = findViewById(R.id.btn_reset_challenges);
         btnBack = findViewById(R.id.btn_back_challenges);
+        vibrationManager = new VibrationManager(this);
 
         // Check if buttons exist (for safety)
         if (btnBack == null) {
@@ -82,6 +85,7 @@ public class ChallengesActivity extends AppCompatActivity {
     }
 
     private void resetChallenges() {
+        vibrationManager.tap();
         dbManager.manualResetChallenges(new DatabaseManager.Callback<Boolean>() {
             @Override
             public void onSuccess(Boolean result) {
@@ -229,6 +233,7 @@ public class ChallengesActivity extends AppCompatActivity {
     }
 
     private void claimAllRewards() {
+        vibrationManager.success();
         dbManager.claimAllRewards(new DatabaseManager.Callback<Integer>() {
             @Override
             public void onSuccess(Integer totalXP) {

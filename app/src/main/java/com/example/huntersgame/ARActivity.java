@@ -45,6 +45,8 @@ public class ARActivity extends AppCompatActivity implements SurfaceHolder.Callb
     private FrameLayout spriteContainer;
     private TextView tvCombo;
 
+    private VibrationManager vibrationManager;
+
     private List<CreatureEntity> allCreatures;
     private DatabaseManager dbManager;
 
@@ -112,6 +114,7 @@ public class ARActivity extends AppCompatActivity implements SurfaceHolder.Callb
         powerBar = findViewById(R.id.power_bar);
         spriteContainer = findViewById(R.id.sprite_container);
         tvCombo = findViewById(R.id.tv_combo);
+        vibrationManager = new VibrationManager(this);
 
         surfaceHolder = surfaceView.getHolder();
         surfaceHolder.addCallback(this);
@@ -444,6 +447,8 @@ public class ARActivity extends AppCompatActivity implements SurfaceHolder.Callb
             tvStatus.setText(resultText);
             tvStatus.setTextColor(Color.parseColor("#F44336"));
 
+            vibrationManager.failure();
+
             // Play miss sound
             SoundManager.getInstance(this).playMissSound();
         }
@@ -495,6 +500,7 @@ public class ARActivity extends AppCompatActivity implements SurfaceHolder.Callb
                                             if (hitCount >= requiredHits) {
                                                 catchSuccess(xpGained, wasPerfect, isCritical);
                                             } else {
+                                                vibrationManager.tap();
                                                 tvStatus.setText("HIT " + hitCount + "/" + requiredHits);
                                                 tvStatus.setTextSize(16);
                                                 tvStatus.setTextColor(Color.parseColor("#FFD700"));
@@ -587,6 +593,9 @@ public class ARActivity extends AppCompatActivity implements SurfaceHolder.Callb
                 int newLevel = 1 + (totalXP / 100);
                 if (newLevel > currentLevel) {
                     currentLevel = newLevel;
+
+                    vibrationManager.celebration();
+
                     // Play level up sound
                     SoundManager.getInstance(ARActivity.this).playLevelUpSound();
                     tvStatus.setText("LEVEL UP! Now Level " + currentLevel + "!");
@@ -605,9 +614,20 @@ public class ARActivity extends AppCompatActivity implements SurfaceHolder.Callb
     private void catchSuccess(int xpGained, boolean wasPerfect, boolean isCritical) {
         int totalXP = xpGained;
 
+        // ===== VIBRATION: CATCH RESULT =====
+        if (isCritical) {
+            vibrationManager.celebration();  // Strong pattern vibration for critical catch
+        } else if (wasPerfect) {
+            vibrationManager.success();      // Medium vibration for perfect catch
+        } else {
+            vibrationManager.tap();          // Light tap for normal catch
+        }
+        // ===================================
+
         // COMBO SYSTEM
         if (wasPerfect) {
             currentCombo++;
+            checkComboMilestone();  // This also has vibration for combo milestones
             if (currentCombo > bestCombo) {
                 bestCombo = currentCombo;
             }
@@ -622,7 +642,7 @@ public class ARActivity extends AppCompatActivity implements SurfaceHolder.Callb
         // Critical catch bonus
         if (isCritical) {
             totalXP = totalXP * 2;
-            tvStatus.setText("CRITICAL CATCH! +" + totalXP + " XP");
+            tvStatus.setText("🔥 CRITICAL CATCH! +" + totalXP + " XP 🔥");
         }
 
         // Play catch sound
@@ -639,7 +659,7 @@ public class ARActivity extends AppCompatActivity implements SurfaceHolder.Callb
                 Log.d("ARActivity", "Capture count updated to: " + newCount);
                 currentCreature.setCaptureCount(newCount);
 
-                // Check for level up
+                // Check for level up (level up has its own vibration)
                 checkLevelUp(finalTotalXP);
             }
 
@@ -697,6 +717,7 @@ public class ARActivity extends AppCompatActivity implements SurfaceHolder.Callb
         resultIntent.putExtra("new_capture_count", currentCreature.getCaptureCount() + 1);
         setResult(RESULT_OK, resultIntent);
 
+        // Catch animation
         creatureSprite.animate()
                 .scaleX(2f).scaleY(2f)
                 .alpha(0f)
@@ -709,6 +730,18 @@ public class ARActivity extends AppCompatActivity implements SurfaceHolder.Callb
                 finish();
             }
         }, 1000);
+    }
+
+    private void checkComboMilestone() {
+        int[] milestones = {3, 5, 10, 15, 20};
+        for (int m : milestones) {
+            if (currentCombo == m) {
+                // ➕ ADD VIBRATION HERE - COMBO MILESTONE
+                vibrationManager.success();
+                tvStatus.setText("COMBO x" + currentCombo + "! ON FIRE!");
+                break;
+            }
+        }
     }
 
     private void openCamera() {

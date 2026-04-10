@@ -78,7 +78,7 @@
         android:text="COMBO x3"
         android:textSize="18sp"
         android:textStyle="bold"
-        android:textColor="#FFA500"
+        android:textColor="#FFAC1C"
         android:visibility="gone"
         android:padding="8dp"
         android:background="#D62612"/>
