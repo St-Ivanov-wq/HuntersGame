@@ -4,25 +4,30 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    android:background="#1A1A2E">
+    android:background="@drawable/bulgarian_forest_gradient">
 
     <!-- Header -->
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        android:padding="20dp"
-        android:paddingTop="40dp"
-        android:background="#16213E">
+        android:padding="24dp"
+        android:paddingTop="48dp"
+        android:background="#1A3F2C">
 
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="BESTIARY"
-            android:textSize="24sp"
+            android:textSize="28sp"
             android:textStyle="bold"
+            android:fontFamily="serif"
             android:textColor="#FFD700"
-            android:letterSpacing="1"
+            android:shadowColor="#8B0000"
+            android:shadowDx="1"
+            android:shadowDy="1"
+            android:shadowRadius="4"
+            android:letterSpacing="0.5"
             android:gravity="center"/>
 
         <TextView
@@ -30,26 +35,30 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="0 / 0 CAPTURED"
-            android:textSize="12sp"
-            android:textColor="#CCCCCC"
+            android:textSize="14sp"
+            android:textColor="#D4AF37"
+            android:fontFamily="sans-serif-medium"
             android:gravity="center"
-            android:layout_marginTop="8dp"
-            android:letterSpacing="1"/>
+            android:layout_marginTop="12dp"
+            android:letterSpacing="0.5"/>
     </LinearLayout>
 
-    <!-- Empty State -->
     <TextView
         android:id="@+id/tv_empty_message"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="No creatures captured yet.\nGo hunting!"
-        android:textSize="16sp"
-        android:textColor="#666666"
+        android:text="Hunt some creatures first!"
+        android:textSize="14sp"
+        android:textColor="#A8A8A8"
         android:gravity="center"
-        android:padding="40dp"
-        android:visibility="gone"/>
+        android:padding="24dp"
+        android:layout_marginTop="20dp"
+        android:layout_marginBottom="20dp"
+        android:visibility="gone"
+        android:lineSpacingExtra="0dp"
+        android:minHeight="0dp" />
 
-    <!-- Scrollable Creature List -->
+    <!-- Scrollable Creature Cards -->
     <ScrollView
         android:layout_width="match_parent"
         android:layout_height="0dp"
@@ -60,20 +69,26 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            android:padding="8dp"/>
+            android:padding="20dp"
+            android:paddingBottom="100dp"/>
     </ScrollView>
 
-    <!-- Back Button -->
-    <Button
+    <com.google.android.material.button.MaterialButton
         android:id="@+id/btn_back_bestiary"
+        style="@style/Widget.Material3.Button"
         android:layout_width="match_parent"
-        android:layout_height="52dp"
-        android:text="BACK"
-        android:textSize="14sp"
+        android:layout_height="56dp"
+        android:text="← BACK TO MENU"
+        android:textSize="18sp"
         android:textStyle="bold"
-        android:textColor="#FFFFFF"
-        android:background="#E94560"
-        android:letterSpacing="2"
-        android:layout_margin="16dp"/>
+        app:backgroundTint="#E94560"
+        app:strokeColor="#FFD700"
+        app:strokeWidth="2dp"
+        app:icon="@android:drawable/ic_menu_revert"
+        app:iconTint="#FFD700"
+        app:iconGravity="start"
+        app:iconPadding="16dp"
+        android:layout_margin="20dp"
+        app:iconSize="24dp"/>
 
 </LinearLayout>

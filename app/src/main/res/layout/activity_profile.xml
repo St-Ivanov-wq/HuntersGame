@@ -1,30 +1,73 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    android:background="#1A1A2E">
+    android:background="#1A3F2C">
 
-    <!-- Header -->
+    <!-- Black Header -->
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        android:padding="20dp"
-        android:paddingTop="40dp"
-        android:background="#16213E">
+        android:padding="28dp"
+        android:paddingTop="56dp"
+        android:background="#1A1A1A">
 
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="HUNTER PROFILE"
-            android:textSize="24sp"
+            android:text="👤 HUNTER PROFILE"
+            android:textSize="32sp"
             android:textStyle="bold"
+            android:fontFamily="serif"
             android:textColor="#FFD700"
-            android:gravity="center"/>
+            android:shadowColor="#FF9800"
+            android:shadowDx="2"
+            android:shadowDy="2"
+            android:shadowRadius="6"
+            android:letterSpacing="0.5"
+            android:gravity="center" />
+
+        <TextView
+            android:id="@+id/tv_profile_level"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="LEVEL 1 • 0 XP"
+            android:textSize="16sp"
+            android:textColor="#D4AF37"
+            android:gravity="center"
+            android:layout_marginTop="8dp" />
+
+        <!-- Username Row -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center"
+            android:layout_marginTop="16dp">
+
+            <TextView
+                android:id="@+id/tv_username"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Hunter"
+                android:textSize="18sp"
+                android:textColor="#CCCCCC"
+                android:textStyle="bold"/>
+
+            <ImageView
+                android:id="@+id/iv_edit_username"
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                android:src="@android:drawable/ic_menu_edit"
+                android:layout_marginStart="8dp"
+                android:alpha="0.7"/>
+        </LinearLayout>
     </LinearLayout>
 
-    <!-- Scrollable Profile Container -->
+    <!-- Profile Content -->
     <ScrollView
         android:layout_width="match_parent"
         android:layout_height="0dp"
@@ -35,29 +78,54 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            android:padding="8dp"/>
+            android:padding="28dp"
+            android:paddingBottom="160dp" />
     </ScrollView>
 
-    <!-- Reset Button -->
-    <Button
-        android:id="@+id/btn_reset_all"
+    <!-- Action Buttons -->
+    <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="52dp"
-        android:text="RESET ALL PROGRESS"
-        android:textSize="14sp"
-        android:textStyle="bold"
-        android:backgroundTint="#F44336"
-        android:layout_margin="16dp"/>
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="24dp"
+        android:background="#1A1A1A">
 
-    <!-- Back Button -->
-    <Button
-        android:id="@+id/btn_back_profile"
-        android:layout_width="match_parent"
-        android:layout_height="52dp"
-        android:text="BACK"
-        android:textSize="14sp"
-        android:textStyle="bold"
-        android:backgroundTint="#E94560"
-        android:layout_margin="16dp"/>
+        <!-- Reset (Red Danger) -->
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btn_reset_all"
+            style="@style/Widget.Material3.Button.OutlinedButton"
+            android:layout_width="match_parent"
+            android:layout_height="60dp"
+            android:layout_marginBottom="16dp"
+            android:text="⚠️ RESET ALL PROGRESS"
+            android:textSize="18sp"
+            android:textStyle="bold"
+            android:textColor="#FFFFFF"
+            app:backgroundTint="#F44336"
+            app:strokeColor="#FFD700"
+            app:strokeWidth="2dp"
+            app:icon="@android:drawable/ic_delete"
+            app:iconTint="#FFD700"
+            app:iconGravity="start"
+            app:iconPadding="16dp" />
+
+        <!-- Back (Orange Pop - Fixed!) -->
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btn_back_profile"
+            style="@style/Widget.Material3.Button.ElevatedButton"
+            android:layout_width="match_parent"
+            android:layout_height="60dp"
+            android:text="← BACK TO MENU"
+            android:textSize="18sp"
+            android:textStyle="bold"
+            android:textColor="#1A1A1A"
+            app:backgroundTint="#FF9800"
+            app:strokeColor="#FFD700"
+            app:strokeWidth="2dp"
+            app:icon="@android:drawable/ic_menu_revert"
+            app:iconTint="#1A1A1A"
+            app:iconGravity="start"
+            app:iconPadding="16dp" />
+    </LinearLayout>
 
 </LinearLayout>

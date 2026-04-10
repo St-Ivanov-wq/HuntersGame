@@ -16,6 +16,7 @@
     <uses-permission android:name="android.permission.CAMERA" />
     <uses-feature android:name="android.hardware.camera" android:required="false" />
 
+    <uses-permission android:name="android.permission.VIBRATE" />
     <application
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
@@ -44,7 +45,7 @@
         <activity android:name=".ARActivity" />        <!-- ADD THIS LINE -->
         <activity android:name=".BestiaryActivity" />
         <activity android:name=".ChallengesActivity" />
-
+        <activity android:name=".SettingsActivity" />
 
     </application>
 

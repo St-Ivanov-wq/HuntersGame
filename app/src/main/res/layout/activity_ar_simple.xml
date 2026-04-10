@@ -10,41 +10,62 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent" />
 
-    <!-- Dark Gradient Overlay -->
+    <!-- Dark Green Overlay -->
     <View
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:background="@drawable/gradient_overlay" />
+        android:background="#AA1A3A2A" />
 
-    <!-- Top Bar with Creature Name -->
+    <!-- Top Bar -->
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_gravity="top"
-        android:orientation="horizontal"
-        android:background="#CC000000"
-        android:padding="16dp"
-        android:paddingTop="40dp">
+        android:orientation="vertical">
 
-        <TextView
-            android:id="@+id/tv_creature_name"
-            android:layout_width="0dp"
+        <!-- Bulgarian Flag Stripes -->
+        <LinearLayout
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:text="Vila"
-            android:textSize="24sp"
-            android:textStyle="bold"
-            android:textColor="#FFFFFF"
-            android:letterSpacing="0.05"/>
+            android:orientation="horizontal">
+            <View android:layout_width="0dp" android:layout_height="4dp" android:layout_weight="1" android:background="#FFFFFF"/>
+            <View android:layout_width="0dp" android:layout_height="4dp" android:layout_weight="1" android:background="#00966E"/>
+            <View android:layout_width="0dp" android:layout_height="4dp" android:layout_weight="1" android:background="#D62612"/>
+        </LinearLayout>
 
-        <TextView
-            android:id="@+id/tv_creature_points"
-            android:layout_width="wrap_content"
+        <!-- Header -->
+        <LinearLayout
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="110 XP"
-            android:textSize="16sp"
-            android:textColor="#FFD700"
-            android:textStyle="bold"/>
+            android:orientation="horizontal"
+            android:background="#CC1A3A2A"
+            android:padding="16dp"
+            android:paddingTop="20dp">
+
+            <TextView
+                android:id="@+id/tv_creature_name"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="Vila"
+                android:textSize="24sp"
+                android:textStyle="bold"
+                android:textColor="#FFD700"/>
+
+            <TextView
+                android:id="@+id/tv_creature_points"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="110 XP"
+                android:textSize="16sp"
+                android:textColor="#FFFFFF"
+                android:textStyle="bold"
+                android:background="#D62612"
+                android:paddingLeft="12dp"
+                android:paddingRight="12dp"
+                android:paddingTop="4dp"
+                android:paddingBottom="4dp"/>
+        </LinearLayout>
     </LinearLayout>
 
     <!-- Combo Display -->
@@ -57,10 +78,10 @@
         android:text="COMBO x3"
         android:textSize="18sp"
         android:textStyle="bold"
-        android:textColor="#FF5722"
+        android:textColor="#FFA500"
         android:visibility="gone"
         android:padding="8dp"
-        android:background="#80000000"/>
+        android:background="#D62612"/>
 
     <!-- Creature Sprite Container -->
     <FrameLayout
@@ -69,7 +90,6 @@
         android:layout_height="match_parent"
         android:clipChildren="false">
 
-        <!-- Creature Image -->
         <ImageView
             android:id="@+id/creature_sprite"
             android:layout_width="200dp"
@@ -77,21 +97,7 @@
             android:layout_gravity="center"
             android:layout_marginTop="80dp"
             android:visibility="visible"
-            android:scaleType="fitCenter"
-            android:contentDescription="Creature"/>
-
-        <!-- Hint Text -->
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:layout_marginTop="320dp"
-            android:text="Move your phone to aim"
-            android:textSize="12sp"
-            android:fontFamily="sans-serif"
-            android:textColor="#88FFFFFF"
-            android:letterSpacing="1"
-            android:alpha="0.6"/>
+            android:scaleType="fitCenter"/>
     </FrameLayout>
 
     <!-- Net Image -->
@@ -101,40 +107,35 @@
         android:layout_height="64dp"
         android:src="@drawable/net_icon"
         android:visibility="gone"
-        android:contentDescription="Net"
         android:scaleType="fitCenter"/>
 
-    <!-- Bottom Control Panel -->
+    <!-- Bottom Panel -->
     <LinearLayout
         android:id="@+id/bottom_panel"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_gravity="bottom"
         android:orientation="vertical"
-        android:background="@drawable/bottom_panel_bg"
-        android:padding="24dp"
-        android:elevation="10dp">
+        android:background="#CC1A3A2A"
+        android:padding="24dp">
 
-        <!-- Status Text -->
         <TextView
             android:id="@+id/tv_ar_status"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="Get close to the creature"
             android:textSize="13sp"
-            android:fontFamily="sans-serif"
-            android:textColor="#CCCCCC"
+            android:textColor="#FFD700"
             android:gravity="center"
             android:layout_marginBottom="20dp"/>
 
-        <!-- Power Meter Section -->
+        <!-- Power Meter -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
             android:layout_marginBottom="24dp">
 
-            <!-- Power Label and Percentage -->
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -147,9 +148,7 @@
                     android:layout_weight="1"
                     android:text="THROW POWER"
                     android:textSize="11sp"
-                    android:fontFamily="sans-serif"
-                    android:textColor="#999999"
-                    android:letterSpacing="1.5"/>
+                    android:textColor="#FFFFFF"/>
 
                 <TextView
                     android:id="@+id/power_meter_text"
@@ -157,26 +156,22 @@
                     android:layout_height="wrap_content"
                     android:text="0%"
                     android:textSize="16sp"
-                    android:fontFamily="sans-serif-medium"
                     android:textColor="#FFD700"
                     android:textStyle="bold"/>
             </LinearLayout>
 
-            <!-- Power Bar Container -->
             <FrameLayout
                 android:layout_width="match_parent"
-                android:layout_height="4dp"
+                android:layout_height="6dp"
                 android:background="#333333">
 
-                <!-- Power Bar Fill -->
                 <View
                     android:id="@+id/power_bar"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
-                    android:background="#F44336"/>
+                    android:background="#D62612"/>
             </FrameLayout>
 
-            <!-- Zone Labels -->
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -189,9 +184,7 @@
                     android:layout_weight="1"
                     android:text="WEAK"
                     android:textSize="9sp"
-                    android:fontFamily="sans-serif"
-                    android:textColor="#666666"
-                    android:letterSpacing="1"/>
+                    android:textColor="#D62612"/>
 
                 <TextView
                     android:layout_width="0dp"
@@ -199,10 +192,8 @@
                     android:layout_weight="1"
                     android:text="OPTIMAL"
                     android:textSize="9sp"
-                    android:fontFamily="sans-serif"
                     android:textColor="#4CAF50"
-                    android:gravity="center"
-                    android:letterSpacing="1"/>
+                    android:gravity="center"/>
 
                 <TextView
                     android:layout_width="0dp"
@@ -210,10 +201,8 @@
                     android:layout_weight="1"
                     android:text="OVER"
                     android:textSize="9sp"
-                    android:fontFamily="sans-serif"
-                    android:textColor="#F44336"
-                    android:gravity="end"
-                    android:letterSpacing="1"/>
+                    android:textColor="#D62612"
+                    android:gravity="end"/>
             </LinearLayout>
         </LinearLayout>
 
@@ -221,8 +210,7 @@
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:gravity="center">
+            android:orientation="horizontal">
 
             <Button
                 android:id="@+id/btn_throw"
@@ -230,11 +218,9 @@
                 android:layout_height="48dp"
                 android:layout_weight="1"
                 android:text="THROW"
-                android:textSize="10sp"
-                android:fontFamily="sans-serif-medium"
+                android:textSize="20sp"
                 android:textColor="#FFFFFF"
-                android:background="@drawable/throw_button"
-                android:letterSpacing="2"
+                app:backgroundTint="#D62612"
                 android:layout_marginEnd="12dp"/>
 
             <Button
@@ -243,11 +229,9 @@
                 android:layout_height="48dp"
                 android:layout_weight="1"
                 android:text="BACK"
-                android:textSize="12sp"
-                android:fontFamily="sans-serif-medium"
+                android:textSize="20sp"
                 android:textColor="#FFFFFF"
-                android:background="@drawable/back_button"
-                android:letterSpacing="2"
+                app:backgroundTint="#2A5A3A"
                 android:layout_marginStart="12dp"/>
         </LinearLayout>
 

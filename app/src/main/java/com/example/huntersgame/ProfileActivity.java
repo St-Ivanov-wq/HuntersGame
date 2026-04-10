@@ -1,16 +1,24 @@
 package com.example.huntersgame;
 
 import android.app.AlertDialog;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.graphics.Typeface;
+import android.graphics.drawable.GradientDrawable;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Vibrator;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.View;
 import android.widget.Button;
+import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
+import android.widget.SeekBar;
+import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
@@ -27,7 +35,9 @@ public class ProfileActivity extends AppCompatActivity {
     private LinearLayout profileContainer;
     private Button btnBack;
     private Button btnResetAll;
-    private SharedPreferences achievementPrefs;
+   // private Button btnSettings;
+    private TextView tvUsername;
+    private SettingsManager settingsManager;
 
     // Stats
     private int totalXP = 0;
@@ -41,6 +51,7 @@ public class ProfileActivity extends AppCompatActivity {
     private int topCreatureCount = 0;
 
     // Achievement tracking
+    private SharedPreferences achievementPrefs;
     private boolean hadFirstCatch = false;
     private boolean hadLevel5 = false;
     private boolean hadCollector = false;
@@ -56,10 +67,18 @@ public class ProfileActivity extends AppCompatActivity {
         profileContainer = findViewById(R.id.profile_container);
         btnBack = findViewById(R.id.btn_back_profile);
         btnResetAll = findViewById(R.id.btn_reset_all);
+        //btnSettings = findViewById(R.id.btn_settings);
+        tvUsername = findViewById(R.id.tv_username);
+        ImageView ivEditUsername = findViewById(R.id.iv_edit_username);
 
+        settingsManager = new SettingsManager(this);
         achievementPrefs = getSharedPreferences("achievements", MODE_PRIVATE);
 
         dbManager = new DatabaseManager(this);
+
+        // Load username
+        String username = settingsManager.getUsername();
+        tvUsername.setText(username);
 
         btnBack.setOnClickListener(v -> {
             SoundManager.getInstance(this).playButtonClick();
@@ -71,7 +90,105 @@ public class ProfileActivity extends AppCompatActivity {
             showResetDialog();
         });
 
+        //btnSettings.setOnClickListener(v -> {
+           // SoundManager.getInstance(this).playButtonClick();
+            //showSettingsDialog();
+       // });
+
+        ivEditUsername.setOnClickListener(v -> {
+            SoundManager.getInstance(this).playButtonClick();
+            showEditUsernameDialog();
+        });
+
         loadProfileData();
+    }
+
+    private void showEditUsernameDialog() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle("Change Hunter Name");
+        final EditText input = new EditText(this);
+        input.setText(settingsManager.getUsername());
+        input.setHint("Enter your hunter name");
+        builder.setView(input);
+        builder.setPositiveButton("Save", (dialog, which) -> {
+            String newName = input.getText().toString().trim();
+            if (!newName.isEmpty()) {
+                settingsManager.setUsername(newName);
+                tvUsername.setText(newName);
+                Toast.makeText(this, "Name changed to " + newName, Toast.LENGTH_SHORT).show();
+            } else {
+                Toast.makeText(this, "Name cannot be empty", Toast.LENGTH_SHORT).show();
+            }
+        });
+        builder.setNegativeButton("Cancel", null);
+        builder.show();
+    }
+
+    private void showSettingsDialog() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        View dialogView = getLayoutInflater().inflate(R.layout.dialog_settings, null);
+
+        SeekBar musicSeekBar = dialogView.findViewById(R.id.music_volume_seekbar);
+        SeekBar sfxSeekBar = dialogView.findViewById(R.id.sfx_volume_seekbar);
+        Switch vibrationSwitch = dialogView.findViewById(R.id.vibration_switch);
+        TextView musicPercent = dialogView.findViewById(R.id.music_volume_percent);
+        TextView sfxPercent = dialogView.findViewById(R.id.sfx_volume_percent);
+
+        // Load current values
+        float musicVol = settingsManager.getMusicVolume();
+        float sfxVol = settingsManager.getSfxVolume();
+        musicSeekBar.setProgress((int)(musicVol * 100));
+        sfxSeekBar.setProgress((int)(sfxVol * 100));
+        musicPercent.setText((int)(musicVol * 100) + "%");
+        sfxPercent.setText((int)(sfxVol * 100) + "%");
+        vibrationSwitch.setChecked(settingsManager.isVibrationEnabled());
+
+        musicSeekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+            @Override
+            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+                float vol = progress / 100f;
+                settingsManager.setMusicVolume(vol);
+                musicPercent.setText(progress + "%");
+                SoundManager.getInstance(ProfileActivity.this).setMusicVolume(vol);
+            }
+            @Override public void onStartTrackingTouch(SeekBar seekBar) {}
+            @Override public void onStopTrackingTouch(SeekBar seekBar) {}
+        });
+
+        sfxSeekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+            @Override
+            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+                float vol = progress / 100f;
+                settingsManager.setSfxVolume(vol);
+                sfxPercent.setText(progress + "%");
+                SoundManager.getInstance(ProfileActivity.this).setSfxVolume(vol);
+                // Test sound
+                SoundManager.getInstance(ProfileActivity.this).playButtonClick();
+            }
+            @Override public void onStartTrackingTouch(SeekBar seekBar) {}
+            @Override public void onStopTrackingTouch(SeekBar seekBar) {}
+        });
+
+        vibrationSwitch.setOnCheckedChangeListener((buttonView, isChecked) -> {
+            settingsManager.setVibrationEnabled(isChecked);
+            if (isChecked) {
+                vibrate(50);
+            }
+        });
+
+        builder.setView(dialogView);
+        builder.setTitle("Settings");
+        builder.setPositiveButton("Close", null);
+        builder.show();
+    }
+
+    private void vibrate(long milliseconds) {
+        if (settingsManager.isVibrationEnabled()) {
+            Vibrator vibrator = (Vibrator) getSystemService(VIBRATOR_SERVICE);
+            if (vibrator != null && vibrator.hasVibrator()) {
+                vibrator.vibrate(milliseconds);
+            }
+        }
     }
 
     @Override
@@ -85,7 +202,8 @@ public class ProfileActivity extends AppCompatActivity {
             @Override
             public void onSuccess(List<CreatureEntity> creatures) {
                 calculateStats(creatures);
-                checkAchievements();  // Check and play sound for new achievements
+                loadAchievementStates();
+                checkAchievements();
                 displayProfile();
             }
 
@@ -135,57 +253,13 @@ public class ProfileActivity extends AppCompatActivity {
         });
     }
 
-    private void checkAchievements() {
-        // First Catch achievement
-        boolean hasFirstCatch = totalCaptures > 0;
-        if (hasFirstCatch && !hadFirstCatch) {
-            hadFirstCatch = true;
-            SoundManager.getInstance(this).playAchievement();
-            Toast.makeText(this, "ACHIEVEMENT UNLOCKED: First Catch!", Toast.LENGTH_LONG).show();
-        }
-
-        // Level 5 achievement
-        boolean hasLevel5 = currentLevel >= 5;
-        if (hasLevel5 && !hadLevel5) {
-            hadLevel5 = true;
-            SoundManager.getInstance(this).playAchievement();
-            Toast.makeText(this, "ACHIEVEMENT UNLOCKED: Level 5 Hunter!", Toast.LENGTH_LONG).show();
-        }
-
-        // Collector achievement (3 different species)
-        boolean hasCollector = discoveredSpecies >= 3;
-        if (hasCollector && !hadCollector) {
-            hadCollector = true;
-            SoundManager.getInstance(this).playAchievement();
-            Toast.makeText(this, "ACHIEVEMENT UNLOCKED: Collector!", Toast.LENGTH_LONG).show();
-        }
-
-        // Perfect Master achievement (10 perfect throws)
-        boolean hasPerfectMaster = perfectThrows >= 10;
-        if (hasPerfectMaster && !hadPerfectMaster) {
-            hadPerfectMaster = true;
-            SoundManager.getInstance(this).playAchievement();
-            Toast.makeText(this, "ACHIEVEMENT UNLOCKED: Perfect Master!", Toast.LENGTH_LONG).show();
-        }
-
-        // Legend achievement (Level 10)
-        boolean hasLegend = currentLevel >= 10;
-        if (hasLegend && !hadLegend) {
-            hadLegend = true;
-            SoundManager.getInstance(this).playAchievement();
-            Toast.makeText(this, "ACHIEVEMENT UNLOCKED: Legendary Hunter!", Toast.LENGTH_LONG).show();
-        }
-
-        // Master Hunter achievement (all species)
-        boolean hasMasterHunter = discoveredSpecies == totalSpecies;
-        if (hasMasterHunter && !hadMasterHunter) {
-            hadMasterHunter = true;
-            SoundManager.getInstance(this).playAchievement();
-            Toast.makeText(this, "ACHIEVEMENT UNLOCKED: Master Hunter!", Toast.LENGTH_LONG).show();
-        }
-
-        // Save achievement states
-        saveAchievementStates();
+    private void loadAchievementStates() {
+        hadFirstCatch = achievementPrefs.getBoolean("first_catch", false);
+        hadLevel5 = achievementPrefs.getBoolean("level_5", false);
+        hadCollector = achievementPrefs.getBoolean("collector", false);
+        hadPerfectMaster = achievementPrefs.getBoolean("perfect_master", false);
+        hadLegend = achievementPrefs.getBoolean("legend", false);
+        hadMasterHunter = achievementPrefs.getBoolean("master_hunter", false);
     }
 
     private void saveAchievementStates() {
@@ -199,13 +273,62 @@ public class ProfileActivity extends AppCompatActivity {
                 .apply();
     }
 
-    private void loadAchievementStates() {
-        hadFirstCatch = achievementPrefs.getBoolean("first_catch", false);
-        hadLevel5 = achievementPrefs.getBoolean("level_5", false);
-        hadCollector = achievementPrefs.getBoolean("collector", false);
-        hadPerfectMaster = achievementPrefs.getBoolean("perfect_master", false);
-        hadLegend = achievementPrefs.getBoolean("legend", false);
-        hadMasterHunter = achievementPrefs.getBoolean("master_hunter", false);
+    private void checkAchievements() {
+        boolean firstCatch = totalCaptures > 0;
+        if (firstCatch && !hadFirstCatch) {
+            hadFirstCatch = true;
+            showAchievementPopup("First Catch!", "You caught your first creature!");
+        }
+
+        boolean level5 = currentLevel >= 5;
+        if (level5 && !hadLevel5) {
+            hadLevel5 = true;
+            showAchievementPopup("Level 5 Hunter!", "Reached Hunter Level 5");
+        }
+
+        boolean collector = discoveredSpecies >= 3;
+        if (collector && !hadCollector) {
+            hadCollector = true;
+            showAchievementPopup("Collector!", "Discovered 3 different species");
+        }
+
+        boolean perfectMaster = perfectThrows >= 10;
+        if (perfectMaster && !hadPerfectMaster) {
+            hadPerfectMaster = true;
+            showAchievementPopup("Perfect Master!", "Made 10 perfect throws");
+        }
+
+        boolean legend = currentLevel >= 10;
+        if (legend && !hadLegend) {
+            hadLegend = true;
+            showAchievementPopup("Legendary Hunter!", "Reached Hunter Level 10");
+        }
+
+        boolean masterHunter = discoveredSpecies == totalSpecies;
+        if (masterHunter && !hadMasterHunter) {
+            hadMasterHunter = true;
+            showAchievementPopup("Master Hunter!", "Discovered all species");
+        }
+
+        saveAchievementStates();
+    }
+
+    private void showAchievementPopup(String title, String description) {
+        SoundManager.getInstance(this).playAchievement();
+        vibrate(100);
+
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        View dialogView = getLayoutInflater().inflate(R.layout.dialog_achievement, null);
+        TextView tvTitle = dialogView.findViewById(R.id.achievement_title);
+        TextView tvDesc = dialogView.findViewById(R.id.achievement_desc);
+        tvTitle.setText(title);
+        tvDesc.setText(description);
+        builder.setView(dialogView);
+        builder.setCancelable(true);
+        AlertDialog dialog = builder.create();
+        dialog.show();
+
+        new Handler().postDelayed(dialog::dismiss, 2000);
     }
 
     private void displayProfile() {
@@ -510,7 +633,6 @@ public class ProfileActivity extends AppCompatActivity {
         dbManager.resetAllProgress(new DatabaseManager.Callback<Boolean>() {
             @Override
             public void onSuccess(Boolean result) {
-                // Reset achievement preferences
                 achievementPrefs.edit().clear().apply();
                 loadAchievementStates();
                 Toast.makeText(ProfileActivity.this, "All progress has been reset!", Toast.LENGTH_LONG).show();
@@ -544,13 +666,21 @@ public class ProfileActivity extends AppCompatActivity {
     private CardView createCard() {
         CardView card = new CardView(this);
         LinearLayout.LayoutParams cardParams = new LinearLayout.LayoutParams(
-                LinearLayout.LayoutParams.MATCH_PARENT,
-                LinearLayout.LayoutParams.WRAP_CONTENT);
-        cardParams.setMargins(20, 12, 20, 12);
+                LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT);
+        cardParams.setMargins(24, 16, 24, 16);
         card.setLayoutParams(cardParams);
-        card.setRadius(20f);
-        card.setCardElevation(8f);
-        card.setCardBackgroundColor(Color.parseColor("#2D2D44"));
+        card.setRadius(24f);
+        card.setCardElevation(12f);
+        card.setCardBackgroundColor(Color.parseColor("#1A1A1A"));  // Black bg
+
+        // Legacy CardView stroke (no setStrokeColor - use background drawable)
+        GradientDrawable stroke = new GradientDrawable();
+        stroke.setShape(GradientDrawable.RECTANGLE);
+        stroke.setColor(Color.parseColor("#1A1A1A"));              // Card color
+        stroke.setStroke(3, Color.parseColor("#FF9800"));          // Orange stroke!
+        stroke.setCornerRadius(24f);
+        card.setBackground(stroke);
+
         return card;
     }
 }

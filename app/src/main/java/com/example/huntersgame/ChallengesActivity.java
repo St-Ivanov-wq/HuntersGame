@@ -2,6 +2,8 @@ package com.example.huntersgame;
 
 import android.app.AlertDialog;
 import android.graphics.Color;
+import android.graphics.Typeface;
+import android.graphics.drawable.GradientDrawable;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Gravity;
@@ -145,65 +147,81 @@ public class ChallengesActivity extends AppCompatActivity {
         LinearLayout.LayoutParams cardParams = new LinearLayout.LayoutParams(
                 LinearLayout.LayoutParams.MATCH_PARENT,
                 LinearLayout.LayoutParams.WRAP_CONTENT);
-        cardParams.setMargins(20, 12, 20, 12);
+        cardParams.setMargins(24, 16, 24, 16);
         card.setLayoutParams(cardParams);
-        card.setRadius(20f);
-        card.setCardElevation(8f);
+        card.setRadius(24f);
+        card.setCardElevation(12f);
+        card.setCardBackgroundColor(Color.parseColor("#1A1A1A"));  // Black card
+
+        // Stroke effect (legacy CardView)
+        GradientDrawable stroke = new GradientDrawable();
+        stroke.setShape(GradientDrawable.RECTANGLE);
+        stroke.setColor(Color.parseColor("#1A1A1A"));
+        stroke.setStroke(2, Color.parseColor("#FF5722"));  // Red stroke!
+        stroke.setCornerRadius(24f);
+        card.setBackground(stroke);
 
         LinearLayout layout = new LinearLayout(this);
         layout.setOrientation(LinearLayout.HORIZONTAL);
-        layout.setPadding(30, 25, 30, 25);
+        layout.setPadding(32, 32, 32, 32);
+        layout.setGravity(Gravity.CENTER_VERTICAL);
 
-        // Status icon
+        // Status Icon (Themed)
         TextView statusText = new TextView(this);
-        statusText.setTextSize(24);
+        statusText.setTextSize(28);
         if (challenge.isCompleted()) {
             if (challenge.isClaimed()) {
-                statusText.setText("✓");
-                statusText.setTextColor(getResources().getColor(android.R.color.holo_green_dark));
+                statusText.setText("✅");
+                statusText.setTextColor(Color.parseColor("#4CAF50"));  // Green complete
+                statusText.setShadowLayer(2, 1, 1, Color.parseColor("#FFD700"));
             } else {
-                statusText.setText("!");
-                statusText.setTextColor(getResources().getColor(android.R.color.holo_orange_dark));
+                statusText.setText("⭐");
+                statusText.setTextColor(Color.parseColor("#FF9800"));  // Orange ready!
+                statusText.setShadowLayer(2, 1, 1, Color.parseColor("#FFD700"));
             }
         } else {
-            statusText.setText("○");
-            statusText.setTextColor(getResources().getColor(android.R.color.darker_gray));
+            statusText.setText("⚪");
+            statusText.setTextColor(Color.parseColor("#666666"));    // Gray pending
         }
 
-        // Text container
+        // Challenge Name (Gold)
         LinearLayout textLayout = new LinearLayout(this);
         textLayout.setOrientation(LinearLayout.VERTICAL);
-        textLayout.setPadding(20, 0, 0, 0);
+        textLayout.setPadding(24, 0, 0, 0);
 
         TextView nameText = new TextView(this);
         nameText.setText(challenge.getName());
-        nameText.setTextSize(16);
-        nameText.setTextColor(getResources().getColor(android.R.color.white));
+        nameText.setTextSize(18);
+        nameText.setTextColor(Color.parseColor("#FFD700"));      // Gold title
+        nameText.setTypeface(null, Typeface.BOLD);
+        nameText.setShadowLayer(1, 1, 1, Color.parseColor("#1A1A1A"));
 
+        // Progress (Orange/Red)
         TextView progressText = new TextView(this);
         if (challenge.isCompleted()) {
             progressText.setText("COMPLETE! +" + challenge.getRewardXP() + " XP");
-            progressText.setTextColor(getResources().getColor(android.R.color.holo_green_light));
+            progressText.setTextColor(Color.parseColor("#FF5722"));  // Red complete
         } else {
             progressText.setText("Progress: " + challenge.getProgress() + "/" + challenge.getTarget());
-            progressText.setTextColor(getResources().getColor(android.R.color.darker_gray));
+            progressText.setTextColor(Color.parseColor("#FF9800"));  // Orange active
         }
-        progressText.setTextSize(12);
-        progressText.setPadding(0, 4, 0, 0);
+        progressText.setTextSize(14);
+        progressText.setPadding(0, 8, 0, 0);
 
         textLayout.addView(nameText);
         textLayout.addView(progressText);
 
+        // Reward Badge (Fiery Gold)
+        TextView rewardBadge = new TextView(this);
+        rewardBadge.setText("+" + challenge.getRewardXP() + " XP");
+        rewardBadge.setTextSize(16);
+        rewardBadge.setTextColor(Color.parseColor("#FFD700"));    // Gold XP
+        rewardBadge.setTypeface(null, Typeface.BOLD);
+        rewardBadge.setShadowLayer(3, 1, 1, Color.parseColor("#FF5722")); // Red glow!
+        rewardBadge.setPadding(24, 0, 0, 0);
+
         layout.addView(statusText);
         layout.addView(textLayout);
-
-        // Reward badge
-        TextView rewardBadge = new TextView(this);
-        rewardBadge.setText("+" + challenge.getRewardXP());
-        rewardBadge.setTextSize(14);
-        rewardBadge.setTextColor(Color.parseColor("#FFD700"));
-        rewardBadge.setPadding(16, 0, 0, 0);
-
         layout.addView(rewardBadge);
 
         card.addView(layout);

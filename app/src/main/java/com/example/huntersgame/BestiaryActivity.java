@@ -5,6 +5,7 @@ import android.graphics.Color;
 import android.graphics.PorterDuff;
 import android.graphics.Typeface;
 import android.graphics.drawable.ColorDrawable;
+import android.graphics.drawable.GradientDrawable;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Gravity;
@@ -37,7 +38,7 @@ public class BestiaryActivity extends AppCompatActivity {
         SoundManager.getInstance(this).playMenuOpen();
 
         creaturesContainer = findViewById(R.id.creatures_container);
-        btnBack = findViewById(R.id.btn_back_bestiary);
+       btnBack = findViewById(R.id.btn_back_bestiary);
         tvTotalCount = findViewById(R.id.tv_total_count);
         tvEmptyMessage = findViewById(R.id.tv_empty_message);
 
@@ -94,78 +95,86 @@ public class BestiaryActivity extends AppCompatActivity {
         LinearLayout.LayoutParams cardParams = new LinearLayout.LayoutParams(
                 LinearLayout.LayoutParams.MATCH_PARENT,
                 LinearLayout.LayoutParams.WRAP_CONTENT);
-        cardParams.setMargins(20, 16, 20, 16);
+        cardParams.setMargins(24, 16, 24, 16);
         card.setLayoutParams(cardParams);
-        card.setRadius(30f);
-        card.setCardElevation(10f);
+        card.setRadius(28f);
+        card.setCardElevation(16f);
         card.setUseCompatPadding(true);
+
+        // Forest card bg + gold stroke
+        GradientDrawable cardBg = new GradientDrawable();
+        cardBg.setShape(GradientDrawable.RECTANGLE);
+        cardBg.setColor(Color.parseColor("#2A4F3A"));  // Dark forest green
+        cardBg.setStroke(3, Color.parseColor("#FFD700"));  // Gold border
+        cardBg.setCornerRadius(28f);
+        card.setBackground(cardBg);
 
         boolean hasCaptured = creature.getCaptureCount() > 0;
 
-        if (hasCaptured) {
-            card.setCardBackgroundColor(Color.parseColor("#2D2D44"));
-            card.setAlpha(1f);
-        } else {
-            card.setCardBackgroundColor(Color.parseColor("#1A1A2E"));
+        if (!hasCaptured) {
             card.setAlpha(0.85f);
         }
 
         LinearLayout contentLayout = new LinearLayout(this);
         contentLayout.setOrientation(LinearLayout.HORIZONTAL);
-        contentLayout.setPadding(35, 35, 35, 35);
+        contentLayout.setPadding(36, 36, 36, 36);
         contentLayout.setGravity(Gravity.CENTER_VERTICAL);
 
         // Creature Image
         ImageView creatureImage = new ImageView(this);
-        LinearLayout.LayoutParams imageParams = new LinearLayout.LayoutParams(180, 180);
-        imageParams.setMargins(0, 0, 30, 0);
+        LinearLayout.LayoutParams imageParams = new LinearLayout.LayoutParams(140, 140);
+        imageParams.setMargins(0, 0, 28, 0);
         creatureImage.setLayoutParams(imageParams);
         creatureImage.setScaleType(ImageView.ScaleType.FIT_CENTER);
 
-        int imageResId = creature.getImageResId();
+        // Load image resource - FIXED
+        String creatureName = creature.getName().toLowerCase();
+        int imageResId = getResources().getIdentifier(creatureName, "drawable", getPackageName());
+
         if (imageResId != 0) {
             creatureImage.setImageResource(imageResId);
         } else {
+            // Fallback to a default image
             creatureImage.setImageResource(android.R.drawable.star_on);
         }
 
         if (!hasCaptured) {
-            creatureImage.setColorFilter(Color.BLACK, PorterDuff.Mode.SRC_IN);
-            creatureImage.setAlpha(0.4f);
+            creatureImage.setColorFilter(Color.parseColor("#666666"), PorterDuff.Mode.SRC_IN);
+            creatureImage.setAlpha(0.6f);
         } else {
             creatureImage.setColorFilter(null);
             creatureImage.setAlpha(1f);
         }
 
-        // Text Container
+        // Name Container
         LinearLayout textContainer = new LinearLayout(this);
         textContainer.setOrientation(LinearLayout.VERTICAL);
-        textContainer.setLayoutParams(new LinearLayout.LayoutParams(0, -2, 1));
+        textContainer.setLayoutParams(new LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1));
 
-        // Name
         TextView nameText = new TextView(this);
-        nameText.setTextSize(18);
+        nameText.setTextSize(20);
         nameText.setTypeface(null, Typeface.BOLD);
 
         if (hasCaptured) {
-            nameText.setText(creature.getName() + " (" + creature.getNameBulgarian() + ")");
+            nameText.setText(creature.getName() + "\n(" + creature.getNameBulgarian() + ")");
             nameText.setTextColor(Color.parseColor("#FFD700"));
         } else {
             nameText.setText("???");
-            nameText.setTextColor(Color.parseColor("#666666"));
+            nameText.setTextColor(Color.parseColor("#D4AF37"));
         }
+        nameText.setLineSpacing(6, 1f);
 
         // Capture count info
         TextView infoText = new TextView(this);
-        infoText.setTextSize(12);
-        infoText.setPadding(0, 8, 0, 0);
+        infoText.setTextSize(14);
+        infoText.setPadding(0, 12, 0, 0);
 
         if (hasCaptured) {
-            infoText.setText("Captured " + creature.getCaptureCount() + " time" + (creature.getCaptureCount() != 1 ? "s" : ""));
-            infoText.setTextColor(Color.parseColor("#AAAAAA"));
+            infoText.setText("Captured × " + creature.getCaptureCount());
+            infoText.setTextColor(Color.parseColor("#FF8C00"));
         } else {
             infoText.setText("Not yet discovered");
-            infoText.setTextColor(Color.parseColor("#444444"));
+            infoText.setTextColor(Color.parseColor("#A8A8A8"));
         }
 
         textContainer.addView(nameText);
@@ -173,13 +182,13 @@ public class BestiaryActivity extends AppCompatActivity {
         contentLayout.addView(creatureImage);
         contentLayout.addView(textContainer);
 
-        // Badge for captured
+        // Trophy badge for captured
         if (hasCaptured) {
-            TextView badge = new TextView(this);
-            badge.setText("✓");
-            badge.setTextSize(24);
-            badge.setTextColor(Color.parseColor("#FFD700"));
-            contentLayout.addView(badge);
+            TextView trophy = new TextView(this);
+            trophy.setText("🏆");
+            trophy.setTextSize(36);
+            trophy.setTextColor(Color.parseColor("#FFD700"));
+            contentLayout.addView(trophy);
         }
 
         card.addView(contentLayout);

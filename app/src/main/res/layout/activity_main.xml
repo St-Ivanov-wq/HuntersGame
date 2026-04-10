@@ -1,55 +1,183 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
     android:gravity="center"
-    android:background="#1A3F2C"
-    android:padding="24dp">
+    android:background="@drawable/bulgarian_forest_gradient"
+    android:padding="16dp">
 
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Hunters of Mythical Creatures"
-        android:textSize="28sp"
-        android:textStyle="bold"
-        android:textColor="#FFD700"
-        android:gravity="center"
-        android:layout_marginBottom="48dp"/>
-
-    <Button
-        android:id="@+id/btn_map"
+    <!-- Outer border frame -->
+    <FrameLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="START"
-        android:textSize="18sp"
-        android:backgroundTint="#008000"
-        android:layout_marginBottom="16dp"/>
+        android:layout_height="match_parent"
+        android:background="@drawable/border_frame">
 
-    <Button
-        android:id="@+id/btn_bestiary"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="BESTIARY"
-        android:textSize="18sp"
-        android:backgroundTint="#9C27B0"
-        android:layout_marginBottom="16dp"/>
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
 
-    <Button
-        android:id="@+id/btn_challenges"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="🏆 CHALLENGES"
-        android:textSize="18sp"
-        android:backgroundTint="#FF5722"
-        android:layout_marginBottom="16dp"/>
+            <ScrollView
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:fillViewport="true"
+                android:padding="8dp">
 
-    <Button
-        android:id="@+id/btn_profile"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="HUNTER PROFILE"
-        android:textSize="18sp"
-        android:backgroundTint="#FF9800"/>
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:gravity="center"
+                    android:padding="24dp">
+
+                    <!-- Title Section -->
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical"
+                        android:gravity="center"
+                        android:layout_marginTop="20dp"
+                        android:layout_marginBottom="60dp">
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:fontFamily="serif"
+                            android:gravity="center"
+                            android:letterSpacing="0.1"
+                            android:shadowColor="#8B0000"
+                            android:shadowDx="3"
+                            android:shadowDy="3"
+                            android:shadowRadius="10"
+                            android:text="MYTHICAL"
+                            android:textColor="#FFD700"
+                            android:textSize="32sp"
+                            android:textStyle="bold" />
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:fontFamily="serif"
+                            android:gravity="center"
+                            android:letterSpacing="0.1"
+                            android:shadowColor="#8B0000"
+                            android:shadowDx="3"
+                            android:shadowDy="3"
+                            android:shadowRadius="10"
+                            android:text="HUNTERS"
+                            android:textColor="#FFD700"
+                            android:textSize="32sp"
+                            android:textStyle="bold" />
+
+                    </LinearLayout>
+
+                    <!-- START button -->
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/btn_map"
+                        style="@style/Widget.Material3.Button.ElevatedButton"
+                        android:layout_width="match_parent"
+                        android:layout_height="65dp"
+                        android:layout_marginBottom="16dp"
+                        android:text="START"
+                        android:textColor="#1A1A1A"
+                        android:textSize="18sp"
+                        android:textStyle="bold"
+                        app:backgroundTint="#FFFFFF"
+                        app:icon="@android:drawable/ic_menu_mylocation"
+                        app:iconGravity="start"
+                        app:iconTint="#1A1A1A"
+                        app:strokeColor="#D4AF37"
+                        app:strokeWidth="2dp" />
+
+                    <!-- BESTIARY button -->
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/btn_bestiary"
+                        style="@style/Widget.Material3.Button"
+                        android:layout_width="match_parent"
+                        android:layout_height="65dp"
+                        android:layout_marginBottom="16dp"
+                        android:text="BESTIARY"
+                        android:textColor="#FFD700"
+                        android:textSize="18sp"
+                        android:textStyle="bold"
+                        app:backgroundTint="#4F7F4F"
+                        app:icon="@android:drawable/ic_menu_info_details"
+                        app:iconGravity="start"
+                        app:iconTint="#FFD700"
+                        app:strokeColor="#FFD700"
+                        app:strokeWidth="2dp" />
+
+                    <!-- CHALLENGES button -->
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/btn_challenges"
+                        style="@style/Widget.Material3.Button.ElevatedButton"
+                        android:layout_width="match_parent"
+                        android:layout_height="65dp"
+                        android:layout_marginBottom="16dp"
+                        android:text="CHALLENGES"
+                        android:textColor="#FFD700"
+                        android:textSize="18sp"
+                        android:textStyle="bold"
+                        app:backgroundTint="#B22222"
+                        app:icon="@android:drawable/ic_menu_agenda"
+                        app:iconGravity="start"
+                        app:iconTint="#FFD700"
+                        app:strokeColor="#FFD700"
+                        app:strokeWidth="2dp" />
+
+                    <!-- HUNTER PROFILE button -->
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/btn_profile"
+                        style="@style/Widget.Material3.Button.OutlinedButton"
+                        android:layout_width="match_parent"
+                        android:layout_height="65dp"
+                        android:layout_marginBottom="24dp"
+                        android:text="HUNTER PROFILE"
+                        android:textColor="#FFD700"
+                        android:textSize="18sp"
+                        android:textStyle="bold"
+                        app:backgroundTint="#1A1A1A"
+                        app:icon="@android:drawable/ic_menu_my_calendar"
+                        app:iconGravity="start"
+                        app:iconTint="#FFD700"
+                        app:strokeColor="#FFD700"
+                        app:strokeWidth="3dp" />
+
+                    <!-- Spacer -->
+                    <View
+                        android:layout_width="match_parent"
+                        android:layout_height="40dp"
+                        android:visibility="invisible" />
+
+                </LinearLayout>
+
+            </ScrollView>
+
+            <!-- Settings Button - Lower Left Corner -->
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btn_settings"
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                android:layout_alignParentBottom="true"
+                android:layout_alignParentStart="true"
+                android:layout_marginStart="16dp"
+                android:layout_marginBottom="16dp"
+                android:insetTop="0dp"
+                android:insetBottom="0dp"
+                android:text=""
+                app:backgroundTint="#2C2C2C"
+                app:cornerRadius="24dp"
+                app:icon="@android:drawable/ic_menu_preferences"
+                app:iconGravity="textStart"
+                app:iconPadding="0dp"
+                app:iconSize="24dp"
+                app:iconTint="#FFD700"
+                app:strokeColor="#D4AF37"
+                app:strokeWidth="2dp" />
+
+        </RelativeLayout>
+
+    </FrameLayout>
 
 </LinearLayout>

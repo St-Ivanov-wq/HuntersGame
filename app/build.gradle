@@ -44,6 +44,8 @@ dependencies {
     annotationProcessor "androidx.room:room-compiler:2.5.2"
     implementation "androidx.room:room-ktx:2.5.2"
     implementation 'com.google.android.exoplayer:exoplayer-core:2.19.1'
+    implementation 'androidx.core:core:1.13.1'
+
 
     // ARCore - Only this is needed
     implementation 'com.google.ar:core:1.39.0'
