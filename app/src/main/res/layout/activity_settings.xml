@@ -1,0 +1,192 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:background="@drawable/bg_gradient"
+    android:padding="16dp">
+
+    <!-- Header with Bulgarian Flag Colors -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:gravity="center"
+        android:layout_marginBottom="16dp">
+
+        <!-- Bulgarian Flag Stripes -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_marginBottom="16dp">
+            <View android:layout_width="0dp" android:layout_height="4dp" android:layout_weight="1" android:background="#FFFFFF"/>
+            <View android:layout_width="0dp" android:layout_height="4dp" android:layout_weight="1" android:background="#00966E"/>
+            <View android:layout_width="0dp" android:layout_height="4dp" android:layout_weight="1" android:background="#D62612"/>
+        </LinearLayout>
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="⚙️ SETTINGS"
+            android:textSize="28sp"
+            android:textStyle="bold"
+            android:textColor="#FFD700"
+            android:gravity="center"
+            android:letterSpacing="0"
+            android:shadowColor="#8B0000"
+            android:shadowDx="2"
+            android:shadowDy="2"
+            android:shadowRadius="4"
+            android:padding="16dp"/>
+    </LinearLayout>
+
+    <!-- Settings Card -->
+    <androidx.cardview.widget.CardView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="8dp"
+        app:cardCornerRadius="20dp"
+        app:cardBackgroundColor="#2D2D44"
+        app:cardElevation="8dp"
+        app:strokeColor="#FFD700"
+        app:strokeWidth="1dp">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="24dp">
+
+            <!-- Music Volume -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:layout_marginBottom="8dp">
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="🎵 MUSIC"
+                    android:textSize="20sp"
+                    android:textColor="#FFD700"
+                    android:textStyle="bold"
+                    android:letterSpacing="0"/>
+                <TextView
+                    android:id="@+id/music_volume_percent"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="30%"
+                    android:textSize="12sp"
+                    android:textColor="#D4AF37"/>
+            </LinearLayout>
+
+            <SeekBar
+                android:id="@+id/music_volume_seekbar"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:max="100"
+                android:progress="30"
+                android:progressTint="#FFD700"
+                android:thumbTint="#FFD700"
+                android:layout_marginBottom="16dp"/>
+
+            <!-- Divider -->
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:background="#FFD700"
+                android:alpha="0.3"
+                android:layout_marginVertical="16dp"/>
+
+            <!-- Sound Effects -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:layout_marginBottom="8dp">
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="🔊 SFX"
+                    android:textSize="20sp"
+                    android:textColor="#FFD700"
+                    android:textStyle="bold"
+                    android:letterSpacing="0"/>
+                <TextView
+                    android:id="@+id/sfx_volume_percent"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="70%"
+                    android:textSize="12sp"
+                    android:textColor="#D4AF37"/>
+            </LinearLayout>
+
+            <SeekBar
+                android:id="@+id/sfx_volume_seekbar"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:max="100"
+                android:progress="70"
+                android:progressTint="#FFD700"
+                android:thumbTint="#FFD700"
+                android:layout_marginBottom="16dp"/>
+
+            <!-- Divider -->
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:background="#FFD700"
+                android:alpha="0.3"
+                android:layout_marginVertical="16dp"/>
+
+            <!-- Vibration -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center_vertical">
+
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="📳 VIBRATION"
+                    android:textSize="20sp"
+                    android:textColor="#FFD700"
+                    android:textStyle="bold"
+                    android:letterSpacing="0"/>
+
+                <Switch
+                    android:id="@+id/vibration_switch"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:thumbTint="#FFD700"
+                    android:trackTint="#FFFFFF"/>
+            </LinearLayout>
+
+
+        </LinearLayout>
+    </androidx.cardview.widget.CardView>
+
+    <!-- Back Button -->
+    <Button
+        android:id="@+id/btn_back_settings"
+        android:layout_width="match_parent"
+        android:layout_height="52dp"
+        android:text="← BACK"
+        android:textSize="20sp"
+        android:textStyle="bold"
+        android:textColor="#FFFFFF"
+        android:background="@drawable/btn_dark"
+        android:letterSpacing="0"
+        android:layout_marginTop="16dp"
+        android:layout_marginStart="16dp"
+        android:layout_marginEnd="16dp"/>
+
+</LinearLayout>

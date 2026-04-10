@@ -1,0 +1,13 @@
+<!-- res/drawable/border_frame.xml -->
+<shape xmlns:android="http://schemas.android.com/apk/res/android">
+    <stroke
+        android:width="4dp"
+        android:color="#D4AF37" />
+    <corners android:radius="16dp" />
+    <solid android:color="@android:color/transparent" />
+    <padding
+        android:left="4dp"
+        android:top="4dp"
+        android:right="4dp"
+        android:bottom="4dp" />
+</shape>

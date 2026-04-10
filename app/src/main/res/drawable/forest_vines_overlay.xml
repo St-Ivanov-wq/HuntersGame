@@ -1,0 +1,57 @@
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="200dp"
+    android:height="200dp"
+    android:viewportWidth="200"
+    android:viewportHeight="200"
+    android:tint="#4F7F4F">
+
+    <!-- Main twisting vine stems -->
+    <path
+        android:strokeWidth="3"
+        android:strokeLineCap="round"
+        android:strokeLineJoin="round"
+        android:pathData="M20,150 Q50,120 80,140 Q110,110 140,130 Q170,100 180,130" />
+
+    <path
+        android:strokeWidth="2.5"
+        android:strokeLineCap="round"
+        android:strokeLineJoin="round"
+        android:pathData="M30,180 Q60,160 90,170 Q120,150 150,160 Q170,140 190,150" />
+
+    <!-- Branching tendrils -->
+    <path
+        android:strokeWidth="1.8"
+        android:strokeLineCap="round"
+        android:pathData="M50,130 Q70,110 90,125 Q110,105 130,120" />
+
+    <path
+        android:strokeWidth="1.5"
+        android:strokeLineCap="round"
+        android:pathData="M70,155 Q85,140 100,152 Q115,135 135,148" />
+
+    <!-- Small leaves (teardrop shapes) -->
+    <path
+        android:fillColor="@android:color/white"
+        android:pathData="M60,125 Q65,118 70,125 Q65,132 60,125 Z" />
+
+    <path
+        android:fillColor="@android:color/white"
+        android:pathData="M95,115 Q100,108 105,115 Q100,122 95,115 Z" />
+
+    <path
+        android:fillColor="@android:color/white"
+        android:pathData="M125,130 Q130,123 135,130 Q130,137 125,130 Z" />
+
+    <path
+        android:fillColor="@android:color/white"
+        android:pathData="M80,145 Q85,138 90,145 Q85,152 80,145 Z" />
+
+    <path
+        android:fillColor="@android:color/white"
+        android:pathData="M115,140 Q120,133 125,140 Q120,147 115,140 Z" />
+
+    <path
+        android:fillColor="@android:color/white"
+        android:pathData="M155,125 Q160,118 165,125 Q160,132 155,125 Z" />
+
+</vector>
