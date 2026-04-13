@@ -2,19 +2,17 @@ package com.example.huntersgame;
 
 import android.app.AlertDialog;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.graphics.Typeface;
-import android.graphics.drawable.GradientDrawable;
 import android.os.Bundle;
 import android.os.Handler;
-import android.os.Vibrator;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.ScrollView;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.SeekBar;
@@ -35,30 +33,21 @@ public class ProfileActivity extends AppCompatActivity {
     private LinearLayout profileContainer;
     private Button btnBack;
     private Button btnResetAll;
-   // private Button btnSettings;
+    private Button btnSettings;
     private TextView tvUsername;
+    private TextView tvProfileLevel;
+    private ImageView ivEditUsername;
     private SettingsManager settingsManager;
-    private VibrationManager vibrationManager;
 
     // Stats
     private int totalXP = 0;
     private int currentLevel = 1;
     private int xpToNextLevel = 100;
     private int totalCaptures = 0;
-    private int perfectThrows = 0;
     private int discoveredSpecies = 0;
     private int totalSpecies = 15;
     private String topCreature = "";
     private int topCreatureCount = 0;
-
-    // Achievement tracking
-    private SharedPreferences achievementPrefs;
-    private boolean hadFirstCatch = false;
-    private boolean hadLevel5 = false;
-    private boolean hadCollector = false;
-    private boolean hadPerfectMaster = false;
-    private boolean hadLegend = false;
-    private boolean hadMasterHunter = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -68,14 +57,11 @@ public class ProfileActivity extends AppCompatActivity {
         profileContainer = findViewById(R.id.profile_container);
         btnBack = findViewById(R.id.btn_back_profile);
         btnResetAll = findViewById(R.id.btn_reset_all);
-        //btnSettings = findViewById(R.id.btn_settings);
         tvUsername = findViewById(R.id.tv_username);
-        ImageView ivEditUsername = findViewById(R.id.iv_edit_username);
-        vibrationManager = new VibrationManager(this);
-
+        tvProfileLevel = findViewById(R.id.tv_profile_level);
+        ivEditUsername = findViewById(R.id.iv_edit_username);
 
         settingsManager = new SettingsManager(this);
-        achievementPrefs = getSharedPreferences("achievements", MODE_PRIVATE);
 
         dbManager = new DatabaseManager(this);
 
@@ -93,10 +79,6 @@ public class ProfileActivity extends AppCompatActivity {
             showResetDialog();
         });
 
-        //btnSettings.setOnClickListener(v -> {
-           // SoundManager.getInstance(this).playButtonClick();
-            //showSettingsDialog();
-       // });
 
         ivEditUsername.setOnClickListener(v -> {
             SoundManager.getInstance(this).playButtonClick();
@@ -127,15 +109,6 @@ public class ProfileActivity extends AppCompatActivity {
         builder.show();
     }
 
-    private void vibrate(long milliseconds) {
-        if (settingsManager.isVibrationEnabled()) {
-            Vibrator vibrator = (Vibrator) getSystemService(VIBRATOR_SERVICE);
-            if (vibrator != null && vibrator.hasVibrator()) {
-                vibrator.vibrate(milliseconds);
-            }
-        }
-    }
-
     @Override
     protected void onResume() {
         super.onResume();
@@ -147,8 +120,7 @@ public class ProfileActivity extends AppCompatActivity {
             @Override
             public void onSuccess(List<CreatureEntity> creatures) {
                 calculateStats(creatures);
-                loadAchievementStates();
-                checkAchievements();
+                updateAchievements();
                 displayProfile();
             }
 
@@ -160,9 +132,17 @@ public class ProfileActivity extends AppCompatActivity {
         });
     }
 
+    private void updateAchievements() {
+        AchievementManager am = AchievementManager.getInstance(this);
+        am.checkFirstCatch(totalCaptures);
+        am.checkNoviceHunter(totalCaptures);
+        am.checkCollector(discoveredSpecies);
+        am.checkLevelUp(currentLevel);
+        am.checkUltimateCollector(totalCaptures);
+        am.checkMasterHunter(discoveredSpecies, totalSpecies);
+    }
     private void calculateStats(List<CreatureEntity> creatures) {
         totalCaptures = 0;
-        perfectThrows = 0;
         discoveredSpecies = 0;
         topCreatureCount = 0;
         topCreature = "";
@@ -181,13 +161,13 @@ public class ProfileActivity extends AppCompatActivity {
             }
         }
 
-        // Get total XP
         dbManager.getTotalXP(new DatabaseManager.Callback<Integer>() {
             @Override
             public void onSuccess(Integer xp) {
                 totalXP = xp;
                 currentLevel = 1 + (totalXP / 100);
                 xpToNextLevel = 100 - (totalXP % 100);
+                updateLevelDisplay();
                 displayProfile();
             }
 
@@ -198,83 +178,10 @@ public class ProfileActivity extends AppCompatActivity {
         });
     }
 
-    private void loadAchievementStates() {
-        hadFirstCatch = achievementPrefs.getBoolean("first_catch", false);
-        hadLevel5 = achievementPrefs.getBoolean("level_5", false);
-        hadCollector = achievementPrefs.getBoolean("collector", false);
-        hadPerfectMaster = achievementPrefs.getBoolean("perfect_master", false);
-        hadLegend = achievementPrefs.getBoolean("legend", false);
-        hadMasterHunter = achievementPrefs.getBoolean("master_hunter", false);
-    }
-
-    private void saveAchievementStates() {
-        achievementPrefs.edit()
-                .putBoolean("first_catch", hadFirstCatch)
-                .putBoolean("level_5", hadLevel5)
-                .putBoolean("collector", hadCollector)
-                .putBoolean("perfect_master", hadPerfectMaster)
-                .putBoolean("legend", hadLegend)
-                .putBoolean("master_hunter", hadMasterHunter)
-                .apply();
-    }
-
-    private void checkAchievements() {
-        boolean firstCatch = totalCaptures > 0;
-        if (firstCatch && !hadFirstCatch) {
-            hadFirstCatch = true;
-            showAchievementPopup("First Catch!", "You caught your first creature!");
+    private void updateLevelDisplay() {
+        if (tvProfileLevel != null) {
+            tvProfileLevel.setText("LEVEL " + currentLevel + " • " + totalXP + " XP");
         }
-
-        boolean level5 = currentLevel >= 5;
-        if (level5 && !hadLevel5) {
-            hadLevel5 = true;
-            showAchievementPopup("Level 5 Hunter!", "Reached Hunter Level 5");
-        }
-
-        boolean collector = discoveredSpecies >= 3;
-        if (collector && !hadCollector) {
-            hadCollector = true;
-            showAchievementPopup("Collector!", "Discovered 3 different species");
-        }
-
-        boolean perfectMaster = perfectThrows >= 10;
-        if (perfectMaster && !hadPerfectMaster) {
-            hadPerfectMaster = true;
-            showAchievementPopup("Perfect Master!", "Made 10 perfect throws");
-        }
-
-        boolean legend = currentLevel >= 10;
-        if (legend && !hadLegend) {
-            hadLegend = true;
-            showAchievementPopup("Legendary Hunter!", "Reached Hunter Level 10");
-        }
-
-        boolean masterHunter = discoveredSpecies == totalSpecies;
-        if (masterHunter && !hadMasterHunter) {
-            hadMasterHunter = true;
-            showAchievementPopup("Master Hunter!", "Discovered all species");
-        }
-
-        saveAchievementStates();
-    }
-
-    private void showAchievementPopup(String title, String description) {
-        vibrationManager.celebration();
-        SoundManager.getInstance(this).playAchievement();
-        vibrate(100);
-
-        AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        View dialogView = getLayoutInflater().inflate(R.layout.dialog_achievement, null);
-        TextView tvTitle = dialogView.findViewById(R.id.achievement_title);
-        TextView tvDesc = dialogView.findViewById(R.id.achievement_desc);
-        tvTitle.setText(title);
-        tvDesc.setText(description);
-        builder.setView(dialogView);
-        builder.setCancelable(true);
-        AlertDialog dialog = builder.create();
-        dialog.show();
-
-        new Handler().postDelayed(dialog::dismiss, 2000);
     }
 
     private void displayProfile() {
@@ -346,20 +253,20 @@ public class ProfileActivity extends AppCompatActivity {
         row1.setPadding(0, 0, 0, 16);
 
         addStatItem(row1, "🎯", "Total Captures", String.valueOf(totalCaptures));
-        addStatItem(row1, "✨", "Perfect Throws", String.valueOf(perfectThrows));
+        addStatItem(row1, "📖", "Bestiary", discoveredSpecies + "/" + totalSpecies);
 
         LinearLayout row2 = new LinearLayout(this);
         row2.setOrientation(LinearLayout.HORIZONTAL);
         row2.setPadding(0, 0, 0, 16);
 
-        addStatItem(row2, "📖", "Bestiary", discoveredSpecies + "/" + totalSpecies);
         addStatItem(row2, "⭐", "Total XP", String.valueOf(totalXP));
+        addStatItem(row2, "🏆", "Favorite", topCreature.isEmpty() ? "None" : topCreature);
 
         LinearLayout row3 = new LinearLayout(this);
         row3.setOrientation(LinearLayout.HORIZONTAL);
 
-        addStatItem(row3, "🏆", "Favorite", topCreature.isEmpty() ? "None" : topCreature);
         addStatItem(row3, "📅", "Date", new SimpleDateFormat("MMM dd", Locale.getDefault()).format(new Date()));
+        addStatItem(row3, "🎮", "Version", "1.0.0");
 
         grid.addView(row1);
         grid.addView(row2);
@@ -499,44 +406,93 @@ public class ProfileActivity extends AppCompatActivity {
         title.setPadding(0, 0, 0, 20);
         content.addView(title);
 
+        AchievementManager am = AchievementManager.getInstance(this);
+
+        // Use a ScrollView inside for many achievements
+        ScrollView scrollView = new ScrollView(this);
+        scrollView.setLayoutParams(new LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.MATCH_PARENT,
+                LinearLayout.LayoutParams.WRAP_CONTENT));
+
         LinearLayout grid = new LinearLayout(this);
         grid.setOrientation(LinearLayout.VERTICAL);
 
+        // Row 1
         LinearLayout row1 = new LinearLayout(this);
         row1.setOrientation(LinearLayout.HORIZONTAL);
         row1.setPadding(0, 0, 0, 16);
+        addAchievementItem(row1, "🎯", "First Catch", am.hasFirstCatch(), 0, am);
+        addAchievementItem(row1, "⭐", "Novice Hunter", am.hasNoviceHunter(), 1, am);
+        grid.addView(row1);
 
-        addAchievementItem(row1, "🎯", "First Catch", totalCaptures > 0);
-        addAchievementItem(row1, "⭐", "Level 5", currentLevel >= 5);
-
+        // Row 2
         LinearLayout row2 = new LinearLayout(this);
         row2.setOrientation(LinearLayout.HORIZONTAL);
         row2.setPadding(0, 0, 0, 16);
+        addAchievementItem(row2, "📖", "Collector", am.hasCollector(), 2, am);
+        addAchievementItem(row2, "✨", "Perfect Start", am.hasPerfectStart(), 3, am);
+        grid.addView(row2);
 
-        addAchievementItem(row2, "📖", "Collector", discoveredSpecies >= 3);
-        addAchievementItem(row2, "✨", "Perfect Master", perfectThrows >= 10);
-
+        // Row 3
         LinearLayout row3 = new LinearLayout(this);
         row3.setOrientation(LinearLayout.HORIZONTAL);
-
-        addAchievementItem(row3, "🏆", "Legend", currentLevel >= 10);
-        addAchievementItem(row3, "🔍", "Master Hunter", discoveredSpecies == totalSpecies);
-
-        grid.addView(row1);
-        grid.addView(row2);
+        row3.setPadding(0, 0, 0, 16);
+        addAchievementItem(row3, "🏆", "Level 5", am.hasLevel5(), 4, am);
+        addAchievementItem(row3, "⚡", "Combo Novice", am.hasComboNovice(), 5, am);
         grid.addView(row3);
 
-        content.addView(grid);
+        // Row 4
+        LinearLayout row4 = new LinearLayout(this);
+        row4.setOrientation(LinearLayout.HORIZONTAL);
+        row4.setPadding(0, 0, 0, 16);
+        addAchievementItem(row4, "🐉", "Species Master", am.hasSpeciesMaster(), 6, am);
+        addAchievementItem(row4, "👑", "Level 10", am.hasLevel10(), 7, am);
+        grid.addView(row4);
+
+        // Row 5
+        LinearLayout row5 = new LinearLayout(this);
+        row5.setOrientation(LinearLayout.HORIZONTAL);
+        row5.setPadding(0, 0, 0, 16);
+        addAchievementItem(row5, "🎯", "Perfect Master", am.hasPerfectMaster(), 8, am);
+        addAchievementItem(row5, "🔥", "Combo Expert", am.hasComboExpert(), 9, am);
+        grid.addView(row5);
+
+        // Row 6
+        LinearLayout row6 = new LinearLayout(this);
+        row6.setOrientation(LinearLayout.HORIZONTAL);
+        row6.setPadding(0, 0, 0, 16);
+        addAchievementItem(row6, "🌟", "Master Hunter", am.hasMasterHunter(), 10, am);
+        addAchievementItem(row6, "💥", "Combo Legend", am.hasComboLegend(), 11, am);
+        grid.addView(row6);
+
+        // Row 7
+        LinearLayout row7 = new LinearLayout(this);
+        row7.setOrientation(LinearLayout.HORIZONTAL);
+        addAchievementItem(row7, "🏅", "Ultimate Collector", am.hasUltimateCollector(), 12, am);
+        addAchievementItem(row7, "🎯", "Perfectionist", am.hasPerfectionist(), 13, am);
+        grid.addView(row7);
+
+        // Row 8 (single item centered)
+        LinearLayout row8 = new LinearLayout(this);
+        row8.setOrientation(LinearLayout.HORIZONTAL);
+        row8.setGravity(Gravity.CENTER);
+        addAchievementItem(row8, "🏆", "Mythical Legend", am.hasLevel25(), 14, am);
+        grid.addView(row8);
+
+        scrollView.addView(grid);
+        content.addView(scrollView);
         card.addView(content);
         profileContainer.addView(card);
     }
 
-    private void addAchievementItem(LinearLayout parent, String icon, String name, boolean unlocked) {
+    private void addAchievementItem(LinearLayout parent, String icon, String name, boolean unlocked, int index, AchievementManager am) {
         LinearLayout item = new LinearLayout(this);
         item.setOrientation(LinearLayout.VERTICAL);
         item.setGravity(Gravity.CENTER);
         LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1);
         item.setLayoutParams(params);
+        item.setClickable(true);
+        item.setFocusable(true);
 
         TextView iconText = new TextView(this);
         iconText.setText(icon);
@@ -563,6 +519,13 @@ public class ProfileActivity extends AppCompatActivity {
         item.addView(nameText);
         item.addView(statusText);
 
+        // Single click listener
+        final int achievementIndex = index;
+        item.setOnClickListener(v -> {
+            SoundManager.getInstance(this).playButtonClick();
+            am.showAchievementInfo(achievementIndex);
+        });
+
         parent.addView(item);
     }
 
@@ -579,8 +542,8 @@ public class ProfileActivity extends AppCompatActivity {
         dbManager.resetAllProgress(new DatabaseManager.Callback<Boolean>() {
             @Override
             public void onSuccess(Boolean result) {
-                achievementPrefs.edit().clear().apply();
-                loadAchievementStates();
+                AchievementManager am = AchievementManager.getInstance(ProfileActivity.this);
+                am.resetAllAchievements();
                 Toast.makeText(ProfileActivity.this, "All progress has been reset!", Toast.LENGTH_LONG).show();
                 loadProfileData();
             }
@@ -612,21 +575,13 @@ public class ProfileActivity extends AppCompatActivity {
     private CardView createCard() {
         CardView card = new CardView(this);
         LinearLayout.LayoutParams cardParams = new LinearLayout.LayoutParams(
-                LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT);
-        cardParams.setMargins(24, 16, 24, 16);
+                LinearLayout.LayoutParams.MATCH_PARENT,
+                LinearLayout.LayoutParams.WRAP_CONTENT);
+        cardParams.setMargins(20, 12, 20, 12);
         card.setLayoutParams(cardParams);
-        card.setRadius(24f);
-        card.setCardElevation(12f);
-        card.setCardBackgroundColor(Color.parseColor("#1A1A1A"));  // Black bg
-
-        // Legacy CardView stroke (no setStrokeColor - use background drawable)
-        GradientDrawable stroke = new GradientDrawable();
-        stroke.setShape(GradientDrawable.RECTANGLE);
-        stroke.setColor(Color.parseColor("#1A1A1A"));              // Card color
-        stroke.setStroke(3, Color.parseColor("#FF9800"));          // Orange stroke!
-        stroke.setCornerRadius(24f);
-        card.setBackground(stroke);
-
+        card.setRadius(20f);
+        card.setCardElevation(8f);
+        card.setCardBackgroundColor(Color.parseColor("#2D2D44"));
         return card;
     }
 }

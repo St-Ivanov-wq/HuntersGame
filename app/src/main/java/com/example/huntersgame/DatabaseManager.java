@@ -3,7 +3,7 @@ package com.example.huntersgame;
 import android.content.Context;
 import android.os.Handler;
 import android.os.Looper;
-import android.util.Log;
+
 import java.util.List;
 import java.util.Random;
 import java.util.concurrent.ExecutorService;
@@ -22,15 +22,28 @@ public class DatabaseManager {
         mainHandler = new Handler(Looper.getMainLooper());
 
         initializeDatabase();
+        ensureAllCreaturesExist();  // ADD THIS LINE
         initializeChallenges();
     }
 
     private void initializeDatabase() {
         executorService.execute(() -> {
-            if (db.creatureDao().getAllCreatures().isEmpty()) {
+            List<CreatureEntity> existing = db.creatureDao().getAllCreatures();
+            android.util.Log.d("DatabaseManager", "=== EXISTING CREATURES COUNT: " + existing.size());
+
+            if (existing.isEmpty()) {
                 List<CreatureEntity> creatures = getDefaultCreatures();
+                android.util.Log.d("DatabaseManager", "=== INSERTING " + creatures.size() + " CREATURES ===");
+                for (CreatureEntity c : creatures) {
+                    android.util.Log.d("DatabaseManager", "Inserting: " + c.getName());
+                }
                 db.creatureDao().insertAll(creatures);
-                Log.d("DatabaseManager", "Database initialized with default creatures");
+                android.util.Log.d("DatabaseManager", "Database initialized successfully!");
+            } else {
+                android.util.Log.d("DatabaseManager", "Database already has " + existing.size() + " creatures");
+                for (CreatureEntity c : existing) {
+                    android.util.Log.d("DatabaseManager", "Existing: " + c.getName());
+                }
             }
         });
     }
@@ -81,6 +94,61 @@ public class DatabaseManager {
         });
     }
 
+    private void ensureAllCreaturesExist() {
+        executorService.execute(() -> {
+            List<CreatureEntity> existing = db.creatureDao().getAllCreatures();
+            List<CreatureEntity> defaultCreatures = getDefaultCreatures();
+
+            android.util.Log.d("DatabaseManager", "=== ENSURING ALL CREATURES EXIST ===");
+            android.util.Log.d("DatabaseManager", "Existing: " + existing.size());
+            android.util.Log.d("DatabaseManager", "Default: " + defaultCreatures.size());
+
+            // For each default creature, check if it exists in database
+            for (CreatureEntity defaultCreature : defaultCreatures) {
+                boolean exists = false;
+                for (CreatureEntity existingCreature : existing) {
+                    if (existingCreature.getName().equals(defaultCreature.getName())) {
+                        exists = true;
+                        break;
+                    }
+                }
+
+                if (!exists) {
+                    android.util.Log.d("DatabaseManager", "Adding missing creature: " + defaultCreature.getName());
+                    db.creatureDao().insert(defaultCreature);
+                } else {
+                    android.util.Log.d("DatabaseManager", "Already exists: " + defaultCreature.getName());
+                }
+            }
+
+            // Verify final count
+            List<CreatureEntity> finalList = db.creatureDao().getAllCreatures();
+            android.util.Log.d("DatabaseManager", "=== FINAL CREATURE COUNT: " + finalList.size() + " ===");
+            for (CreatureEntity c : finalList) {
+                android.util.Log.d("DatabaseManager", " - " + c.getName());
+            }
+        });
+    }
+
+    public void getPerfectThrowsCount(Callback<Integer> callback) {
+        executorService.execute(() -> {
+            // This would need a separate table to track perfect throws
+            // For now, we'll estimate based on capture counts
+            List<CreatureEntity> creatures = db.creatureDao().getAllCreatures();
+            int perfectThrows = 0;
+            // You can store perfect throws in SharedPreferences as a temporary fix
+            mainHandler.post(() -> callback.onSuccess(perfectThrows));
+        });
+    }
+
+    public void saveCreatures(List<CreatureEntity> creatures) {
+        executorService.execute(() -> {
+            for (CreatureEntity creature : creatures) {
+                db.creatureDao().update(creature);
+            }
+        });
+    }
+
     private List<ChallengeEntity> getRandomChallenges() {
         List<ChallengeEntity> challenges = new java.util.ArrayList<>();
         Random random = new Random();
@@ -105,7 +173,7 @@ public class DatabaseManager {
                 {"catch_vila", "Catch 4 Vilas", "catch_specific", "4", "100"},
                 {"master_hunter", "Catch 15 creatures total", "total", "15", "120"},
                 {"perfect_master", "Get 10 perfect throws", "perfect", "10", "110"},
-                {"complete_collection", "Catch all 5 species", "species", "5", "150"}
+                {"complete_collection", "Catch all 15 species", "species", "15", "250"}
         };
 
         // Pick 3 random challenges
@@ -287,26 +355,88 @@ public class DatabaseManager {
     }
 
     // Default creatures
+    // Default creatures
+    // Default creatures
     private List<CreatureEntity> getDefaultCreatures() {
         List<CreatureEntity> creatures = new java.util.ArrayList<>();
+
+        // 1. Samodiva
         creatures.add(new CreatureEntity("1", "Samodiva", "Самодива",
-                "Beautiful woodland fairies with magical powers. They live in forests and mountains, dancing in circles called 'horo'.",
+                "Beautiful woodland fairies with magical powers. They live in forests and mountains, dancing in circles called 'horo'. They can heal or curse humans.",
                 "Forests and mountains", 100, R.drawable.samodiva));
+
+        // 2. Zmey
         creatures.add(new CreatureEntity("2", "Zmey", "Змей",
-                "A dragon-like creature that protects villages but also falls in love with human women.",
+                "A dragon-like creature that protects villages but also falls in love with human women. It can fly and breathe fire.",
                 "Mountains and caves", 150, R.drawable.zmey));
+
+        // 3. Karakondzul
         creatures.add(new CreatureEntity("3", "Karakondzul", "Караконджул",
-                "A mischievous goblin that appears during the 12 days of Christmas. It rides on people's backs.",
+                "A mischievous goblin that appears during the 12 days of Christmas. It rides on people's backs and causes chaos.",
                 "Villages and forests", 80, R.drawable.karakondzul));
+
+        // 4. Torbalan
         creatures.add(new CreatureEntity("4", "Torbalan", "Торбалан",
-                "A vampire-like creature that rises from the dead to haunt the living.",
+                "A vampire-like creature that rises from the dead to haunt the living. It is said to suck blood and bring nightmares.",
                 "Graveyards and abandoned places", 120, R.drawable.torbalan));
+
+        // 5. Vila
         creatures.add(new CreatureEntity("5", "Vila", "Вила",
-                "Mountain spirits with long hair who can heal or harm humans.",
+                "Mountain spirits with long hair who can heal or harm humans. They are known to dance in meadows and protect nature.",
                 "Mountain peaks and springs", 110, R.drawable.vila));
+
+        // 6. Poludnitsa
+        creatures.add(new CreatureEntity("6", "Poludnitsa", "Полудница",
+                "A noon demon that appears during the hottest hours of the day. She causes heatstroke and madness to those who work in the fields.",
+                "Fields and meadows", 90, R.drawable.poludnitsa));
+
+        // 7. Talasam
+        creatures.add(new CreatureEntity("7", "Talasam", "Таласъм",
+                "A water spirit that drowns people near rivers and lakes. It appears as a handsome man to lure victims.",
+                "Rivers and lakes", 130, R.drawable.talasam));
+
+        // 8. Lamia
+        creatures.add(new CreatureEntity("8", "Lamia", "Ламия",
+                "A multi-headed serpent monster that terrorizes villages. It is known to kidnap young maidens and guard treasures.",
+                "Caves and mountains", 180, R.drawable.lamia));
+
+        // 9. Baba Yaga (note: your drawable is baba_qga, but should be baba_yaga)
+        creatures.add(new CreatureEntity("9", "Baba Yaga", "Баба Яга",
+                "An old forest witch who lures children into the woods. She possesses dark magic and can transform into animals.",
+                "Deep forests", 140, R.drawable.babayaga));
+
+        // 10. Orisnizi
+        creatures.add(new CreatureEntity("10", "Orisnizi", "Орисници",
+                "A trio of female creatures that looked like women. It is said that they go into homes where there's a newborn, and when the baby is three days old, they would predict its fate.",
+                "Abandoned places", 95, R.drawable.orisnizi));
+
+        // 11. Hala
+        creatures.add(new CreatureEntity("11", "Hala", "Хала",
+                "A female demonic creature which is considered good by some, and evil by others. She would sometimes cast hails and storms on crops and destroy them.",
+                "Mountains and springs", 160, R.drawable.hala));
+
+        // 12. Borislav
+        creatures.add(new CreatureEntity("12", "Borislav", "Борислав",
+                "A noble forest guardian who protects animals and travelers. He appears as a glowing figure in the woods.",
+                "Forest clearings", 125, R.drawable.borislav));
+
+        // 13. Chuma
+        creatures.add(new CreatureEntity("13", "Chuma", "Чума",
+                "It is represented as an ugly old woman with long arms and bony hands. It only appeared in places where there were lots of sinners, killing them with arrows.",
+                "Dark forests", 85, R.drawable.rusalka));
+
+        // 14. Drekavac
+        creatures.add(new CreatureEntity("14", "Drekavac", "Дрекавац",
+                "A creature that screams loudly to frighten people. It is born from the spirit of a deceased child.",
+                "Swamps and forests", 105, R.drawable.drekavac));
+
+        // 15. Rusalka
+        creatures.add(new CreatureEntity("15", "Rusalka", "Русалка",
+                "A water nymph with long green hair. She lures men into the water with her enchanting voice.",
+                "Lakes and rivers", 115, R.drawable.drekavac));
+
         return creatures;
     }
-
     // Callback interfaces
     public interface Callback<T> {
         void onSuccess(T result);

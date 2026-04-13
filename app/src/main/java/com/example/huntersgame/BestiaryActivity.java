@@ -66,6 +66,10 @@ public class BestiaryActivity extends AppCompatActivity {
         dbManager.getAllCreatures(new DatabaseManager.Callback<List<CreatureEntity>>() {
             @Override
             public void onSuccess(List<CreatureEntity> creatures) {
+                android.util.Log.d("Bestiary", "=== LOADED " + creatures.size() + " CREATURES ===");
+                for (CreatureEntity c : creatures) {
+                    android.util.Log.d("Bestiary", "Creature: " + c.getName());
+                }
                 allCreatures = creatures;
                 displayBestiary();
             }
@@ -126,7 +130,7 @@ public class BestiaryActivity extends AppCompatActivity {
         // Creature Image
         ImageView creatureImage = new ImageView(this);
         LinearLayout.LayoutParams imageParams = new LinearLayout.LayoutParams(140, 140);
-        imageParams.setMargins(0, 0, 28, 0);
+        imageParams.setMargins(0, 0, 20, 0);
         creatureImage.setLayoutParams(imageParams);
         creatureImage.setScaleType(ImageView.ScaleType.FIT_CENTER);
 
@@ -214,16 +218,15 @@ public class BestiaryActivity extends AppCompatActivity {
         View dialogView = getLayoutInflater().inflate(R.layout.dialog_creature_details, null);
 
         ImageView ivSprite = dialogView.findViewById(R.id.dialog_creature_sprite);
-        LinearLayout.LayoutParams layoutParams = new LinearLayout.LayoutParams(350, 350);
-        layoutParams.gravity = Gravity.CENTER;
-        layoutParams.bottomMargin = 24;
-        ivSprite.setLayoutParams(layoutParams);
-        ivSprite.setScaleType(ImageView.ScaleType.FIT_CENTER);
 
-        int imageResId = creature.getImageResId();
+        // Load the creature image - FIXED
+        String imageName = creature.getName().toLowerCase();
+        int imageResId = getResources().getIdentifier(imageName, "drawable", getPackageName());
+
         if (imageResId != 0) {
             ivSprite.setImageResource(imageResId);
         } else {
+            // Fallback
             ivSprite.setImageResource(android.R.drawable.star_on);
         }
 
@@ -264,5 +267,25 @@ public class BestiaryActivity extends AppCompatActivity {
         if (dialog.getWindow() != null) {
             dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
         }
+    }
+
+    private void createColoredCircle(ImageView imageView, String creatureName) {
+        android.graphics.drawable.GradientDrawable drawable = new android.graphics.drawable.GradientDrawable();
+        drawable.setShape(android.graphics.drawable.GradientDrawable.OVAL);
+
+        int color;
+        switch(creatureName.toLowerCase()) {
+            case "samodiva": color = 0xFFFFD966; break;
+            case "zmey": color = 0xFFFF5722; break;
+            case "karakondzul": color = 0xFF8D6E63; break;
+            case "torbalan": color = 0xFF37474F; break;
+            case "vila": color = 0xFFF06292; break;
+            default: color = 0xFF4CAF50;
+        }
+
+        drawable.setColor(color);
+        drawable.setStroke(4, Color.WHITE);
+        drawable.setSize(140, 140);
+        imageView.setImageDrawable(drawable);
     }
 }

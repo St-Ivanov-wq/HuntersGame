@@ -68,21 +68,25 @@
         </LinearLayout>
     </LinearLayout>
 
-    <!-- Combo Display -->
+    <!-- Combo Display - More Visible -->
     <TextView
         android:id="@+id/tv_combo"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center_horizontal"
         android:layout_marginTop="120dp"
-        android:text="COMBO x3"
-        android:textSize="18sp"
+        android:text="⚡ COMBO x3 ⚡"
+        android:textSize="22sp"
         android:textStyle="bold"
-        android:textColor="#FFAC1C"
+        android:textColor="#FFD700"
         android:visibility="gone"
-        android:padding="8dp"
-        android:background="#D62612"/>
-
+        android:padding="12dp"
+        android:background="#D62612"
+        android:shadowColor="#000000"
+        android:shadowDx="2"
+        android:shadowDy="2"
+        android:shadowRadius="4"
+        android:letterSpacing="0"/>
     <!-- Creature Sprite Container -->
     <FrameLayout
         android:id="@+id/sprite_container"

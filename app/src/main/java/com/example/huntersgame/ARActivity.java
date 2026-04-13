@@ -4,6 +4,7 @@ import android.Manifest;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
+import android.graphics.Typeface;
 import android.hardware.Camera;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
@@ -97,7 +98,7 @@ public class ARActivity extends AppCompatActivity implements SurfaceHolder.Callb
     protected void onCreate(Bundle savedInstanceState) {
         SoundManager.getInstance(this).playEncounterCreature();
         SoundManager.getInstance(this).stopMainTheme();
-        SoundManager.getInstance(this).playHuntingTheme();  // Switch to hunting music
+        SoundManager.getInstance(this).playHuntingTheme();
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_ar_simple);
 
@@ -133,6 +134,11 @@ public class ARActivity extends AppCompatActivity implements SurfaceHolder.Callb
         Intent intent = getIntent();
         String creatureName = intent.getStringExtra("creature_name");
         int creatureXP = intent.getIntExtra("creature_xp", 0);
+        int incomingCombo = intent.getIntExtra("current_combo", 0);
+
+        // Set combo from previous session
+        currentCombo = incomingCombo;
+        Log.d("COMBO", "Starting with combo: " + currentCombo);
 
         // Initialize all creatures
         loadAllCreatures();
@@ -159,54 +165,42 @@ public class ARActivity extends AppCompatActivity implements SurfaceHolder.Callb
 
         // Hide net initially
         netImageView.setVisibility(View.GONE);
-        tvCombo.setVisibility(View.GONE);
+
+        // Update combo display
+        updateComboDisplay();
 
         tvStatus.setText("MOVE YOUR PHONE");
         tvStatus.setTextSize(18);
         tvStatus.setTextColor(Color.parseColor("#FFD700"));
 
         // Set up throw button
-        btnThrow.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (canThrow && !isThrowing) {
-                    throwNet();
-                }
+        btnThrow.setOnClickListener(v -> {
+            if (canThrow && !isThrowing) {
+                throwNet();
             }
         });
 
-        btnCancel.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                SoundManager.getInstance(ARActivity.this).playButtonClick();
-                setResult(RESULT_CANCELED);
-                finish();
-            }
+        btnCancel.setOnClickListener(v -> {
+            SoundManager.getInstance(ARActivity.this).playButtonClick();
+            setResult(RESULT_CANCELED);
+            finish();
         });
 
         // Get power bar max width
-        powerBar.post(new Runnable() {
-            @Override
-            public void run() {
-                powerBarMaxWidth = powerBar.getWidth();
-            }
-        });
+        powerBar.post(() -> powerBarMaxWidth = powerBar.getWidth());
 
         // Get sprite container dimensions
-        spriteContainer.post(new Runnable() {
-            @Override
-            public void run() {
-                containerWidth = spriteContainer.getWidth();
-                containerHeight = spriteContainer.getHeight();
-                spriteWidth = creatureSprite.getWidth();
-                spriteHeight = creatureSprite.getHeight();
+        spriteContainer.post(() -> {
+            containerWidth = spriteContainer.getWidth();
+            containerHeight = spriteContainer.getHeight();
+            spriteWidth = creatureSprite.getWidth();
+            spriteHeight = creatureSprite.getHeight();
 
-                if (containerWidth > 0 && containerHeight > 0 && spriteWidth > 0 && spriteHeight > 0) {
-                    spriteX = (containerWidth - spriteWidth) / 2;
-                    spriteY = (containerHeight - spriteHeight) / 2;
-                    creatureSprite.setX(spriteX);
-                    creatureSprite.setY(spriteY);
-                }
+            if (containerWidth > 0 && containerHeight > 0 && spriteWidth > 0 && spriteHeight > 0) {
+                spriteX = (containerWidth - spriteWidth) / 2;
+                spriteY = (containerHeight - spriteHeight) / 2;
+                creatureSprite.setX(spriteX);
+                creatureSprite.setY(spriteY);
             }
         });
 
@@ -227,13 +221,24 @@ public class ARActivity extends AppCompatActivity implements SurfaceHolder.Callb
         }
     }
 
+    private void openCamera() {
+        try {
+            camera = Camera.open(Camera.CameraInfo.CAMERA_FACING_BACK);
+            camera.setDisplayOrientation(90);
+            camera.setPreviewDisplay(surfaceHolder);
+            camera.startPreview();
+        } catch (Exception e) {
+            tvStatus.setText("CAMERA ERROR");
+            Log.e("ARActivity", "Camera error: " + e.getMessage());
+        }
+    }
+
     private void loadAllCreatures() {
         dbManager.getAllCreatures(new DatabaseManager.Callback<List<CreatureEntity>>() {
             @Override
             public void onSuccess(List<CreatureEntity> creatures) {
                 allCreatures = creatures;
             }
-
             @Override
             public void onError(String error) {
                 Log.e("ARActivity", "Error loading creatures: " + error);
@@ -244,7 +249,6 @@ public class ARActivity extends AppCompatActivity implements SurfaceHolder.Callb
     private void createColoredCircle(String creatureName) {
         android.graphics.drawable.GradientDrawable drawable = new android.graphics.drawable.GradientDrawable();
         drawable.setShape(android.graphics.drawable.GradientDrawable.OVAL);
-
         int color;
         switch(creatureName.toLowerCase()) {
             case "samodiva": color = 0xFFFFD966; break;
@@ -254,7 +258,6 @@ public class ARActivity extends AppCompatActivity implements SurfaceHolder.Callb
             case "vila": color = 0xFFF06292; break;
             default: color = 0xFF4CAF50;
         }
-
         drawable.setColor(color);
         drawable.setStroke(4, Color.WHITE);
         drawable.setSize(200, 200);
@@ -288,7 +291,6 @@ public class ARActivity extends AppCompatActivity implements SurfaceHolder.Callb
                 calibrationX += roll;
                 calibrationY += pitch;
                 calibrationSamples++;
-
                 if (calibrationSamples == 30) {
                     calibrationX = calibrationX / 30;
                     calibrationY = calibrationY / 30;
@@ -323,13 +325,9 @@ public class ARActivity extends AppCompatActivity implements SurfaceHolder.Callb
         float centerX = (containerWidth - spriteWidth) / 2;
         float centerY = (containerHeight - spriteHeight) / 2;
         float distanceToCenter = (float) Math.sqrt(
-                Math.pow(spriteX - centerX, 2) +
-                        Math.pow(spriteY - centerY, 2)
-        );
-
+                Math.pow(spriteX - centerX, 2) + Math.pow(spriteY - centerY, 2));
         float maxDistance = (float) Math.sqrt(Math.pow(containerWidth, 2) + Math.pow(containerHeight, 2)) / 2;
         float proximity = maxDistance > 0 ? 1 - (distanceToCenter / maxDistance) : 0;
-
         float minScale = 1.0f;
         float maxScale = 2.2f;
         float scale = minScale + (proximity * (maxScale - minScale));
@@ -402,7 +400,6 @@ public class ARActivity extends AppCompatActivity implements SurfaceHolder.Callb
         canThrow = false;
         powerHandler.removeCallbacksAndMessages(null);
 
-        // Play throw sound
         SoundManager.getInstance(this).playThrowSound();
 
         boolean isHit;
@@ -419,10 +416,25 @@ public class ARActivity extends AppCompatActivity implements SurfaceHolder.Callb
             tvStatus.setText(resultText);
             tvStatus.setTextColor(Color.parseColor("#4CAF50"));
 
-            // Play perfect throw sound
-            SoundManager.getInstance(this).playPerfectThrowSound();
+            // Track perfect throw for achievements - FIXED
+            AchievementManager am = AchievementManager.getInstance(ARActivity.this);
+            am.updatePerfectThrow();
 
-            // CRITICAL CATCH CHANCE (20% on perfect throws)
+            // COMBO INCREASES ON PERFECT THROW
+            currentCombo++;
+            updateComboDisplay();
+            checkComboMilestone();
+
+            if (currentCombo == 3 || currentCombo == 5 || currentCombo == 10) {
+                SoundManager.getInstance(ARActivity.this).playPerfectThrowSound();
+            }
+
+            if (currentCombo > bestCombo) {
+                bestCombo = currentCombo;
+            }
+
+            SoundManager.getInstance(ARActivity.this).playPerfectThrowSound();
+
             if (Math.random() < 0.2) {
                 isCritical = true;
                 resultText = "CRITICAL CATCH!";
@@ -430,26 +442,34 @@ public class ARActivity extends AppCompatActivity implements SurfaceHolder.Callb
             } else {
                 isCritical = false;
             }
-        } else if (powerLevel >= 50 && powerLevel <= 95) {
+        }else if (powerLevel >= 50 && powerLevel <= 95) {
             isHit = true;
             wasPerfect = false;
-            isCritical = false;
             xpGained = currentCreature.getPointsValue() / 2;
             resultText = "GOOD THROW";
             tvStatus.setText(resultText);
             tvStatus.setTextColor(Color.parseColor("#FFC107"));
+
+            // COMBO RESETS ON NORMAL THROW
+            currentCombo = 0;
+            updateComboDisplay();
+            isCritical = false;
+            AchievementManager am = AchievementManager.getInstance(this);
+            am.resetCombo();
         } else {
             isHit = false;
             wasPerfect = false;
-            isCritical = false;
             xpGained = 0;
             resultText = "FAIL";
             tvStatus.setText(resultText);
             tvStatus.setTextColor(Color.parseColor("#F44336"));
 
-            vibrationManager.failure();
-
-            // Play miss sound
+            // COMBO RESETS ON FAIL
+            currentCombo = 0;
+            updateComboDisplay();
+            isCritical = false;
+            AchievementManager am = AchievementManager.getInstance(this);
+            am.resetCombo();
             SoundManager.getInstance(this).playMissSound();
         }
 
@@ -486,86 +506,60 @@ public class ARActivity extends AppCompatActivity implements SurfaceHolder.Callb
                                 .scaleY(1.5f)
                                 .alpha(0f)
                                 .setDuration(150)
-                                .withEndAction(new Runnable() {
-                                    @Override
-                                    public void run() {
-                                        netImageView.setVisibility(View.GONE);
-                                        netImageView.setAlpha(1f);
-                                        netImageView.setScaleX(1f);
-                                        netImageView.setScaleY(1f);
+                                .withEndAction(() -> {
+                                    netImageView.setVisibility(View.GONE);
+                                    netImageView.setAlpha(1f);
+                                    netImageView.setScaleX(1f);
+                                    netImageView.setScaleY(1f);
 
-                                        if (isHit) {
-                                            hitCount++;
-
-                                            if (hitCount >= requiredHits) {
-                                                catchSuccess(xpGained, wasPerfect, isCritical);
-                                            } else {
-                                                vibrationManager.tap();
-                                                tvStatus.setText("HIT " + hitCount + "/" + requiredHits);
-                                                tvStatus.setTextSize(16);
-                                                tvStatus.setTextColor(Color.parseColor("#FFD700"));
-
-                                                creatureSprite.animate()
-                                                        .alpha(0.5f)
-                                                        .setDuration(100)
-                                                        .withEndAction(new Runnable() {
-                                                            @Override
-                                                            public void run() {
-                                                                creatureSprite.animate().alpha(1f).setDuration(100).start();
-                                                            }
-                                                        })
-                                                        .start();
-
-                                                new Handler().postDelayed(new Runnable() {
-                                                    @Override
-                                                    public void run() {
-                                                        isThrowing = false;
-                                                        canThrow = true;
-                                                        tvStatus.setTextSize(14);
-                                                        tvStatus.setTextColor(Color.parseColor("#FFD700"));
-                                                        startPowerMeter();
-                                                    }
-                                                }, 500);
-                                            }
+                                    if (isHit) {
+                                        hitCount++;
+                                        if (hitCount >= requiredHits) {
+                                            catchSuccess(xpGained, wasPerfect, isCritical);
                                         } else {
-                                            // Reset combo on miss
-                                            currentCombo = 0;
-                                            updateComboDisplay();
+                                            vibrationManager.tap();
+                                            tvStatus.setText("HIT " + hitCount + "/" + requiredHits);
+                                            tvStatus.setTextSize(16);
+                                            tvStatus.setTextColor(Color.parseColor("#FFD700"));
 
                                             creatureSprite.animate()
-                                                    .translationXBy(30)
-                                                    .setDuration(50)
-                                                    .withEndAction(new Runnable() {
-                                                        @Override
-                                                        public void run() {
-                                                            creatureSprite.animate()
-                                                                    .translationXBy(-60)
-                                                                    .setDuration(50)
-                                                                    .withEndAction(new Runnable() {
-                                                                        @Override
-                                                                        public void run() {
-                                                                            creatureSprite.animate()
-                                                                                    .translationXBy(30)
-                                                                                    .setDuration(50)
-                                                                                    .start();
-                                                                        }
-                                                                    })
-                                                                    .start();
-                                                        }
-                                                    })
+                                                    .alpha(0.5f)
+                                                    .setDuration(100)
+                                                    .withEndAction(() -> creatureSprite.animate().alpha(1f).setDuration(100).start())
                                                     .start();
 
-                                            new Handler().postDelayed(new Runnable() {
-                                                @Override
-                                                public void run() {
-                                                    isThrowing = false;
-                                                    canThrow = true;
-                                                    tvStatus.setTextSize(14);
-                                                    tvStatus.setTextColor(Color.parseColor("#FFD700"));
-                                                    startPowerMeter();
-                                                }
-                                            }, 800);
+                                            new Handler().postDelayed(() -> {
+                                                isThrowing = false;
+                                                canThrow = true;
+                                                tvStatus.setTextSize(14);
+                                                tvStatus.setTextColor(Color.parseColor("#FFD700"));
+                                                startPowerMeter();
+                                            }, 500);
                                         }
+                                    } else {
+                                        currentCombo = 0;
+                                        updateComboDisplay();
+
+                                        creatureSprite.animate()
+                                                .translationXBy(30)
+                                                .setDuration(50)
+                                                .withEndAction(() -> creatureSprite.animate()
+                                                        .translationXBy(-60)
+                                                        .setDuration(50)
+                                                        .withEndAction(() -> creatureSprite.animate()
+                                                                .translationXBy(30)
+                                                                .setDuration(50)
+                                                                .start())
+                                                        .start())
+                                                .start();
+
+                                        new Handler().postDelayed(() -> {
+                                            isThrowing = false;
+                                            canThrow = true;
+                                            tvStatus.setTextSize(14);
+                                            tvStatus.setTextColor(Color.parseColor("#FFD700"));
+                                            startPowerMeter();
+                                        }, 800);
                                     }
                                 })
                                 .start();
@@ -578,10 +572,39 @@ public class ARActivity extends AppCompatActivity implements SurfaceHolder.Callb
         if (tvCombo != null) {
             if (currentCombo > 0) {
                 tvCombo.setVisibility(View.VISIBLE);
-                tvCombo.setText("COMBO x" + currentCombo);
-                tvCombo.setTextColor(Color.parseColor("#FF5722"));
+                tvCombo.setText("⚡ COMBO x" + currentCombo + " ⚡");
+                tvCombo.setTextSize(24);
+                tvCombo.setTextColor(Color.WHITE);
+                tvCombo.setTypeface(null, Typeface.BOLD);
+                tvCombo.setBackgroundColor(Color.parseColor("#FF0000"));
+                tvCombo.setPadding(32, 20, 32, 20);
+                tvCombo.bringToFront();
             } else {
                 tvCombo.setVisibility(View.GONE);
+            }
+        }
+    }
+
+    private void checkComboMilestone() {
+        int[] milestones = {3, 5, 10, 15, 20, 30, 50};
+        for (int m : milestones) {
+            if (currentCombo == m) {
+                if (vibrationManager != null) {
+                    vibrationManager.success();
+                }
+                String milestoneText;
+                if (currentCombo >= 30) {
+                    milestoneText = "🌟 GODLIKE COMBO x" + currentCombo + "! 🌟";
+                } else if (currentCombo >= 20) {
+                    milestoneText = "💥 UNSTOPPABLE COMBO x" + currentCombo + "! 💥";
+                } else if (currentCombo >= 10) {
+                    milestoneText = "🔥 EPIC COMBO x" + currentCombo + "! 🔥";
+                } else {
+                    milestoneText = "⚡ COMBO x" + currentCombo + "! ⚡";
+                }
+                tvStatus.setText(milestoneText);
+                SoundManager.getInstance(this).playPerfectThrowSound();
+                break;
             }
         }
     }
@@ -593,17 +616,16 @@ public class ARActivity extends AppCompatActivity implements SurfaceHolder.Callb
                 int newLevel = 1 + (totalXP / 100);
                 if (newLevel > currentLevel) {
                     currentLevel = newLevel;
-
                     vibrationManager.celebration();
-
-                    // Play level up sound
                     SoundManager.getInstance(ARActivity.this).playLevelUpSound();
                     tvStatus.setText("LEVEL UP! Now Level " + currentLevel + "!");
                     tvStatus.setTextSize(18);
                     tvStatus.setTextColor(Color.parseColor("#FFD700"));
+
+                    // Check achievement for level up
+                    checkAchievements();
                 }
             }
-
             @Override
             public void onError(String error) {
                 Log.e("ARActivity", "Error checking level: " + error);
@@ -611,45 +633,81 @@ public class ARActivity extends AppCompatActivity implements SurfaceHolder.Callb
         });
     }
 
+    private void checkAchievements() {
+        dbManager.getAllCreatures(new DatabaseManager.Callback<List<CreatureEntity>>() {
+            @Override
+            public void onSuccess(List<CreatureEntity> creatures) {
+                final int totalCaptures;  // Make final
+                final int discoveredSpecies;  // Make final
+                int captures = 0;
+                int species = 0;
+
+                for (CreatureEntity creature : creatures) {
+                    int count = creature.getCaptureCount();
+                    captures += count;
+                    if (count > 0) {
+                        species++;
+                    }
+                }
+                totalCaptures = captures;
+                discoveredSpecies = species;
+
+                dbManager.getTotalXP(new DatabaseManager.Callback<Integer>() {
+                    @Override
+                    public void onSuccess(Integer totalXP) {
+                        int level = 1 + (totalXP / 100);
+
+                        AchievementManager am = AchievementManager.getInstance(ARActivity.this);
+                        am.checkFirstCatch(totalCaptures);
+                        am.checkLevelUp(level);
+                        am.checkCollector(discoveredSpecies);
+                        am.checkMasterHunter(discoveredSpecies, 15);
+                    }
+                    @Override
+                    public void onError(String error) {
+                        Log.e("ARActivity", "Error getting XP: " + error);
+                    }
+                });
+            }
+            @Override
+            public void onError(String error) {
+                Log.e("ARActivity", "Error getting creatures: " + error);
+            }
+        });
+    }
+
     private void catchSuccess(int xpGained, boolean wasPerfect, boolean isCritical) {
         int totalXP = xpGained;
 
-        // ===== VIBRATION: CATCH RESULT =====
-        if (isCritical) {
-            vibrationManager.celebration();  // Strong pattern vibration for critical catch
-        } else if (wasPerfect) {
-            vibrationManager.success();      // Medium vibration for perfect catch
-        } else {
-            vibrationManager.tap();          // Light tap for normal catch
-        }
-        // ===================================
+        AchievementManager am = AchievementManager.getInstance(this);
+        am.updateCombo(currentCombo);
 
-        // COMBO SYSTEM
+        // Add combo bonus
+        int comboBonus = (int)(totalXP * Math.min(1.0, currentCombo * 0.1));
+        totalXP += comboBonus;
+
+        // VIBRATION
+        if (isCritical) {
+            vibrationManager.celebration();
+        } else if (wasPerfect) {
+            vibrationManager.success();
+        } else {
+            vibrationManager.tap();
+        }
+
         if (wasPerfect) {
-            currentCombo++;
-            checkComboMilestone();  // This also has vibration for combo milestones
-            if (currentCombo > bestCombo) {
-                bestCombo = currentCombo;
-            }
-            // Combo bonus XP (5% per combo)
-            int comboBonus = (int)(totalXP * (currentCombo * 0.05));
-            totalXP += comboBonus;
             tvStatus.setText("CAPTURED! +" + totalXP + " XP (Combo: " + currentCombo + "x!)");
         } else {
-            currentCombo = 0; // Reset combo on non-perfect catch
+            tvStatus.setText("CAPTURED! +" + totalXP + " XP");
         }
 
-        // Critical catch bonus
+        // Critical catch bonus display
         if (isCritical) {
-            totalXP = totalXP * 2;
             tvStatus.setText("🔥 CRITICAL CATCH! +" + totalXP + " XP 🔥");
         }
 
         // Play catch sound
         SoundManager.getInstance(this).playCatchSound();
-
-        // Update combo display
-        updateComboDisplay();
 
         // Update database with new capture count
         final int finalTotalXP = totalXP;
@@ -658,11 +716,9 @@ public class ARActivity extends AppCompatActivity implements SurfaceHolder.Callb
             public void onSuccess(Integer newCount) {
                 Log.d("ARActivity", "Capture count updated to: " + newCount);
                 currentCreature.setCaptureCount(newCount);
-
-                // Check for level up (level up has its own vibration)
                 checkLevelUp(finalTotalXP);
+                checkAchievements();
             }
-
             @Override
             public void onError(String error) {
                 Log.e("ARActivity", "Error updating capture count: " + error);
@@ -675,7 +731,6 @@ public class ARActivity extends AppCompatActivity implements SurfaceHolder.Callb
             public void onSuccess(Void result) {
                 Log.d("ARActivity", "Challenge progress recorded");
             }
-
             @Override
             public void onError(String error) {
                 Log.e("ARActivity", "Error recording challenge: " + error);
@@ -691,14 +746,12 @@ public class ARActivity extends AppCompatActivity implements SurfaceHolder.Callb
                     public void onSuccess(Boolean result) {
                         Log.d("ARActivity", "XP saved successfully");
                     }
-
                     @Override
                     public void onError(String error) {
                         Log.e("ARActivity", "Error saving XP: " + error);
                     }
                 });
             }
-
             @Override
             public void onError(String error) {
                 Log.e("ARActivity", "Error getting XP: " + error);
@@ -715,6 +768,7 @@ public class ARActivity extends AppCompatActivity implements SurfaceHolder.Callb
         resultIntent.putExtra("captured_creature", currentCreature.getName());
         resultIntent.putExtra("xp_gained", finalTotalXP);
         resultIntent.putExtra("new_capture_count", currentCreature.getCaptureCount() + 1);
+        resultIntent.putExtra("current_combo", currentCombo);
         setResult(RESULT_OK, resultIntent);
 
         // Catch animation
@@ -724,35 +778,7 @@ public class ARActivity extends AppCompatActivity implements SurfaceHolder.Callb
                 .setDuration(500)
                 .start();
 
-        new Handler().postDelayed(new Runnable() {
-            @Override
-            public void run() {
-                finish();
-            }
-        }, 1000);
-    }
-
-    private void checkComboMilestone() {
-        int[] milestones = {3, 5, 10, 15, 20};
-        for (int m : milestones) {
-            if (currentCombo == m) {
-                // ➕ ADD VIBRATION HERE - COMBO MILESTONE
-                vibrationManager.success();
-                tvStatus.setText("COMBO x" + currentCombo + "! ON FIRE!");
-                break;
-            }
-        }
-    }
-
-    private void openCamera() {
-        try {
-            camera = Camera.open(Camera.CameraInfo.CAMERA_FACING_BACK);
-            camera.setDisplayOrientation(90);
-            camera.setPreviewDisplay(surfaceHolder);
-            camera.startPreview();
-        } catch (Exception e) {
-            tvStatus.setText("CAMERA ERROR");
-        }
+        new Handler().postDelayed(() -> finish(), 1000);
     }
 
     @Override

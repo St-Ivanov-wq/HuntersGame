@@ -32,55 +32,55 @@ public class CreatureData {
                 "Mountain spirits with long hair who can heal or harm humans. They are known to dance in meadows and protect nature.",
                 "Mountain peaks and springs", 110, R.drawable.vila));
 
-//        // 6. Poludnitsa (Noon Demon)
-//        creatures.add(new Creature("6", "Poludnitsa", "Полудница",
-//                "A noon demon that appears during the hottest hours of the day. She causes heatstroke and madness to those who work in the fields.",
-//                "Fields and meadows", 90, R.drawable.poludnitsa));
-//
-//        // 7. Talasam (Water Spirit)
-//        creatures.add(new Creature("7", "Talasam", "Таласъм",
-//                "A water spirit that drowns people near rivers and lakes. It appears as a handsome man to lure victims.",
-//                "Rivers and lakes", 130, R.drawable.talasam));
-//
-//        // 8. Lamia (Serpent Monster)
-//        creatures.add(new Creature("8", "Lamia", "Ламия",
-//                "A multi-headed serpent monster that terrorizes villages. It is known to kidnap young maidens and guard treasures.",
-//                "Caves and mountains", 180, R.drawable.lamia));
-//
-//        // 9. Yuda (Forest Witch)
-//        creatures.add(new Creature("9", "Yuda", "Юда",
-//                "An old forest witch who lures children into the woods. She possesses dark magic and can transform into animals.",
-//                "Deep forests", 140, R.drawable.yuda));
-//
-//        // 10. Mavrud (Dark Spirit)
-//        creatures.add(new Creature("10", "Mavrud", "Мавруд",
-//                "A dark spirit that haunts abandoned houses and crossroads. It is said to be the ghost of a restless soul.",
-//                "Abandoned places", 95, R.drawable.mavrud));
-//
-//        // 11. Zmeitsa (Dragoness)
-//        creatures.add(new Creature("11", "Zmeitsa", "Змеица",
-//                "A female dragon with healing powers. She is the counterpart of the Zmey and can control the weather.",
-//                "Mountains and springs", 160, R.drawable.zmeitsa));
-//
-//        // 12. Borislav (Forest Guardian)
-//        creatures.add(new Creature("12", "Borislav", "Борислав",
-//                "A noble forest guardian who protects animals and travelers. He appears as a glowing figure in the woods.",
-//                "Forest clearings", 125, R.drawable.borislav));
-//
-//        // 13. Shum (Noise Demon)
-//        creatures.add(new Creature("13", "Shum", "Шум",
-//                "A demon that creates terrifying noises in the forest to scare travelers. It feeds on fear and confusion.",
-//                "Dark forests", 85, R.drawable.shum));
-//
-//        // 14. Drekavac (Screamer)
-//        creatures.add(new Creature("14", "Drekavac", "Дрекавац",
-//                "A creature that screams loudly to frighten people. It is born from the spirit of a deceased child.",
-//                "Swamps and forests", 105, R.drawable.drekavac));
-//
-//        // 15. Rusalka (Water Nymph)
-//        creatures.add(new Creature("15", "Rusalka", "Русалка",
-//                "A water nymph with long green hair. She lures men into the water with her enchanting voice.",
-//                "Lakes and rivers", 115, R.drawable.rusalka));
+        // 6. Poludnitsa (Noon Demon)
+        creatures.add(new Creature("6", "Poludnitsa", "Полудница",
+                "A noon demon that appears during the hottest hours of the day. She causes heatstroke and madness to those who work in the fields.",
+                "Fields and meadows", 90, R.drawable.poludnitsa));
+
+        // 7. Talasam (Water Spirit)
+        creatures.add(new Creature("7", "Talasam", "Таласъм",
+                "A water spirit that drowns people near rivers and lakes. It appears as a handsome man to lure victims.",
+                "Rivers and lakes", 130, R.drawable.talasam));
+
+        // 8. Lamia (Serpent Monster)
+        creatures.add(new Creature("8", "Lamia", "Ламия",
+                "A multi-headed serpent monster that terrorizes villages. It is known to kidnap young maidens and guard treasures.",
+                "Caves and mountains", 180, R.drawable.lamia));
+
+        // 9. Baba Yaga (Forest Witch)
+        creatures.add(new Creature("9", "Baba Yaga", "Баба Яга",
+                "An old forest witch who lures children into the woods. She possesses dark magic and can transform into animals.",
+                "Deep forests", 140, R.drawable.babayaga));
+
+        // 10. Orisnizi
+        creatures.add(new Creature("10", "Orisnizi", "Орисници",
+                "A trio of female creatures that looked like women. It is said that they go into homes where there’s a newborn, and when the baby is three days old, they would predict its fate.",
+                "Abandoned places", 95, R.drawable.orisnizi));
+
+        // 11. Hala (Storm Demon)
+        creatures.add(new Creature("11", "Hala", "Хала",
+                "A female demonic creature which is considered good by some, and evil by others. She would sometimes cast hails and storms on crops and destroy them.",
+                "Mountains and springs", 160, R.drawable.hala));
+
+        // 12. Borislav (Forest Guardian)
+        creatures.add(new Creature("12", "Borislav", "Борислав",
+                "A noble forest guardian who protects animals and travelers. He appears as a glowing figure in the woods.",
+                "Forest clearings", 125, R.drawable.borislav));
+
+        // 13.Chuma(Plague)
+        creatures.add(new Creature("13", "Chuma", "Чума",
+                "It is represented as an ugly old woman with long arms and bony hands. It only appeared in places where there were lots of sinners, killing them with arrows.",
+                "Dark forests", 85, R.drawable.chuma));
+
+        // 14. Drekavac (Screamer)
+        creatures.add(new Creature("14", "Drekavac", "Дрекавац",
+                "A creature that screams loudly to frighten people. It is born from the spirit of a deceased child.",
+                "Swamps and forests", 105, R.drawable.drekavac));
+
+        // 15. Rusalka (Water Nymph)
+        creatures.add(new Creature("15", "Rusalka", "Русалка",
+                "A water nymph with long green hair. She lures men into the water with her enchanting voice.",
+                "Lakes and rivers", 115, R.drawable.rusalka));
 
         return creatures;
     }

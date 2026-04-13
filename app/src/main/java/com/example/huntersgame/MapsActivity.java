@@ -50,8 +50,6 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
     private TextView tvStatus;
     private TextView tvXP;
 
-    private VibrationManager vibrationManager;
-
     private List<CreatureEntity> allCreatures;
     private HashMap<Marker, CreatureEntity> creatureMarkers;
     private Location currentLocation;
@@ -60,6 +58,10 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
     // XP System
     private int currentLevel = 1;
     private int currentXP = 0;
+
+    // Combo System
+    private int currentCombo = 0;
+    private int bestCombo = 0;
 
     private static final int LOCATION_PERMISSION_REQUEST_CODE = 100;
     private Random random = new Random();
@@ -74,7 +76,6 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         btnBack = findViewById(R.id.btn_back_maps);
         tvStatus = findViewById(R.id.tv_map_status);
         tvXP = findViewById(R.id.tv_xp);
-        vibrationManager = new VibrationManager(this);
 
         dbManager = new DatabaseManager(this);
         allCreatures = new ArrayList<>();
@@ -93,11 +94,8 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
             mapFragment.getMapAsync(this);
         }
 
-        btnFindNearby.setOnClickListener(v -> {
-            SoundManager.getInstance(this).playButtonClick();
-            spawnNearbyCreatures();});
+        btnFindNearby.setOnClickListener(v -> spawnNearbyCreatures());
         btnBack.setOnClickListener(v -> {
-            SoundManager.getInstance(this).playButtonClick();
             stopLocationUpdates();
             finish();
         });
@@ -121,6 +119,10 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                 Toast.makeText(MapsActivity.this, "Error loading data", Toast.LENGTH_SHORT).show();
             }
         });
+    }
+
+    private void saveAllData() {
+        dbManager.saveCreatures(allCreatures);
     }
 
     private void setupLocationCallback() {
@@ -223,14 +225,57 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
 
     private BitmapDescriptor getCustomMarker(String creatureName) {
         int color;
-        switch(creatureName) {
-            case "Samodiva": color = 0xFFFFD966; break;
-            case "Zmey": color = 0xFFFF5722; break;
-            case "Karakondzul": color = 0xFF8D6E63; break;
-            case "Torbalan": color = 0xFF37474F; break;
-            case "Vila": color = 0xFFF06292; break;
-            default: color = 0xFF4CAF50;
+        switch(creatureName.toLowerCase()) {
+            case "samodiva":
+                color = 0xFFFFD966;  // Golden yellow
+                break;
+            case "zmey":
+                color = 0xFFFF5722;  // Deep orange
+                break;
+            case "karakondzul":
+                color = 0xFF8D6E63;  // Brown
+                break;
+            case "torbalan":
+                color = 0xFF37474F;  // Dark gray-blue
+                break;
+            case "vila":
+                color = 0xFFF06292;  // Pink
+                break;
+            case "poludnitsa":
+                color = 0xFFFFA726;  // Orange
+                break;
+            case "talasam":
+                color = 0xFF42A5F5;  // Bright blue
+                break;
+            case "lamia":
+                color = 0xFFEF5350;  // Red
+                break;
+            case "baba yaga":
+                color = 0xFFAB47BC;  // Purple
+                break;
+            case "orisnizi":
+                color = 0xFFEC407A;  // Hot pink
+                break;
+            case "hala":
+                color = 0xFF26C6DA;  // Cyan
+                break;
+            case "borislav":
+                color = 0xFF66BB6A;  // Forest green
+                break;
+            case "chuma":
+                color = 0xFF7E57C2;  // Deep purple
+                break;
+            case "drekavac":
+                color = 0xFFFF7043;  // Coral
+                break;
+            case "rusalka":
+                color = 0xFF29B6F6;  // Light blue
+                break;
+            default:
+                color = 0xFF4CAF50;  // Default green
+                break;
         }
+
         Bitmap bitmap = Bitmap.createBitmap(80, 80, Bitmap.Config.ARGB_8888);
         Canvas canvas = new Canvas(bitmap);
         Paint paint = new Paint();
@@ -244,8 +289,11 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         paint.setColor(Color.WHITE);
         paint.setTextSize(40);
         paint.setTextAlign(Paint.Align.CENTER);
-        String letter = creatureName.substring(0, 1);
+
+        // Get first letter (handle multi-word names like "Baba Yaga")
+        String letter = creatureName.substring(0, 1).toUpperCase();
         canvas.drawText(letter, 40, 55, paint);
+
         return BitmapDescriptorFactory.fromBitmap(bitmap);
     }
 
@@ -260,7 +308,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
             mMap.setMyLocationEnabled(true);
         }
 
-        int creatureCount = 5 + random.nextInt(8);  // Spawn 5-12 creatures
+        int creatureCount = Math.min(5 + random.nextInt(4), allCreatures.size());
         List<String> spawnedThisBatch = new ArrayList<>();
 
         for (int i = 0; i < creatureCount; i++) {
@@ -294,8 +342,6 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         LatLng playerLocation = new LatLng(currentLocation.getLatitude(), currentLocation.getLongitude());
         mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(playerLocation, 16));
         creaturesSpawned = true;
-        vibrationManager.tap();
-
         tvStatus.setText(creatureCount + " creatures nearby! Tap to hunt!");
     }
 
@@ -311,11 +357,11 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
             int distanceRounded = Math.round(distanceMeters);
 
             if (distanceRounded <= 150) {
-                vibrationManager.tap();
                 tvStatus.setText("Entering AR mode to catch " + creature.getName() + "!");
                 Intent intent = new Intent(MapsActivity.this, ARActivity.class);
                 intent.putExtra("creature_name", creature.getName());
                 intent.putExtra("creature_xp", creature.getPointsValue());
+                intent.putExtra("current_combo", currentCombo);  // Pass current combo
                 startActivityForResult(intent, 1);
             } else {
                 tvStatus.setText("Too far! You're " + distanceRounded + "m away. Walk closer!");
@@ -331,8 +377,31 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         if (requestCode == 1 && resultCode == RESULT_OK && data != null) {
             String creatureName = data.getStringExtra("captured_creature");
             int xpGained = data.getIntExtra("xp_gained", 0);
+            int newCombo = data.getIntExtra("current_combo", 0);  // Get combo back
+
+            // Update combo
+            currentCombo = newCombo;
+            if (currentCombo > bestCombo) {
+                bestCombo = currentCombo;
+            }
+
+            // Update the creature in our list as captured
+            for (CreatureEntity creature : allCreatures) {
+                if (creature.getName().equals(creatureName)) {
+                    int newCount = creature.getCaptureCount() + 1;
+                    creature.setCaptureCount(newCount);
+                    creature.setCaptured(true);
+                    break;
+                }
+            }
+
+            // Save everything immediately
+            saveAllData();
+
+            // Update XP
             addXP(xpGained);
 
+            // Remove the captured marker from map
             Marker toRemove = null;
             for (Map.Entry<Marker, CreatureEntity> entry : creatureMarkers.entrySet()) {
                 if (entry.getValue().getName().equals(creatureName)) {
@@ -344,17 +413,20 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                 toRemove.remove();
                 creatureMarkers.remove(toRemove);
             }
-            tvStatus.setText("Captured " + creatureName + "! +" + xpGained + " XP!");
+
+            tvStatus.setText("Captured " + creatureName + "! +" + xpGained + " XP! Combo: " + currentCombo);
             if (creatureMarkers.size() > 0) {
                 tvStatus.setText(creatureMarkers.size() + " creatures remaining!");
             }
+        } else if (requestCode == 1 && resultCode == RESULT_CANCELED && data != null) {
+            // Catch failed, reset combo
+            currentCombo = 0;
+            tvStatus.setText("Missed! Combo reset.");
         }
     }
 
     @Override
     protected void onResume() {
-        SoundManager.getInstance(this).stopHuntingTheme();
-        SoundManager.getInstance(this).playMainTheme();
         super.onResume();
         loadCreaturesFromDatabase();
         loadXPData();

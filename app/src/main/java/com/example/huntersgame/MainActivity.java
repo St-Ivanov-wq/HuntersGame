@@ -31,6 +31,8 @@ public class MainActivity extends AppCompatActivity {
         btnBestiary = findViewById(R.id.btn_bestiary);
         btnChallenges = findViewById(R.id.btn_challenges);
         btnSettings = findViewById(R.id.btn_settings);
+        AchievementManager.getInstance(this);
+
 
         btnChallenges.setOnClickListener(v -> {
 
