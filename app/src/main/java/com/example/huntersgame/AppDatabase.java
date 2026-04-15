@@ -7,7 +7,7 @@ import androidx.room.migration.Migration;
 import androidx.sqlite.db.SupportSQLiteDatabase;
 import android.content.Context;
 
-@Database(entities = {CreatureEntity.class, ChallengeEntity.class}, version = 3, exportSchema = false)
+@Database(entities = {CreatureEntity.class, ChallengeEntity.class}, version = 7, exportSchema = false)
 public abstract class AppDatabase extends RoomDatabase {
 
     private static AppDatabase instance;
@@ -47,6 +47,7 @@ public abstract class AppDatabase extends RoomDatabase {
             instance = Room.databaseBuilder(context.getApplicationContext(),
                             AppDatabase.class, "creature_database")
                     .addMigrations(MIGRATION_1_2, MIGRATION_2_3)
+                    .fallbackToDestructiveMigration()  // THIS WILL DELETE AND RECREATE THE DATABASE
                     .build();
         }
         return instance;

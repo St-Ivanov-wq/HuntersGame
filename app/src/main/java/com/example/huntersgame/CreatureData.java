@@ -47,10 +47,10 @@ public class CreatureData {
                 "A multi-headed serpent monster that terrorizes villages. It is known to kidnap young maidens and guard treasures.",
                 "Caves and mountains", 180, R.drawable.lamia));
 
-        // 9. Baba Yaga (Forest Witch)
-        creatures.add(new Creature("9", "Baba Yaga", "Баба Яга",
-                "An old forest witch who lures children into the woods. She possesses dark magic and can transform into animals.",
-                "Deep forests", 140, R.drawable.babayaga));
+//        // 9. Baba Yaga (Forest Witch)
+//        creatures.add(new Creature("9", "Baba Yaga", "Баба Яга",
+//                "An old forest witch who lures children into the woods. She possesses dark magic and can transform into animals.",
+//                "Deep forests", 140, R.drawable.babayaga));
 
         // 10. Orisnizi
         creatures.add(new Creature("10", "Orisnizi", "Орисници",

@@ -125,7 +125,7 @@ public class DatabaseManager {
             List<CreatureEntity> finalList = db.creatureDao().getAllCreatures();
             android.util.Log.d("DatabaseManager", "=== FINAL CREATURE COUNT: " + finalList.size() + " ===");
             for (CreatureEntity c : finalList) {
-                android.util.Log.d("DatabaseManager", " - " + c.getName());
+                android.util.Log.d("DatabaseManager", " - " + c.getImageResId());
             }
         });
     }
@@ -173,7 +173,7 @@ public class DatabaseManager {
                 {"catch_vila", "Catch 4 Vilas", "catch_specific", "4", "100"},
                 {"master_hunter", "Catch 15 creatures total", "total", "15", "120"},
                 {"perfect_master", "Get 10 perfect throws", "perfect", "10", "110"},
-                {"complete_collection", "Catch all 15 species", "species", "15", "250"}
+                {"complete_collection", "Catch all 14 species", "species", "15", "250"}
         };
 
         // Pick 3 random challenges
@@ -400,10 +400,10 @@ public class DatabaseManager {
                 "A multi-headed serpent monster that terrorizes villages. It is known to kidnap young maidens and guard treasures.",
                 "Caves and mountains", 180, R.drawable.lamia));
 
-        // 9. Baba Yaga (note: your drawable is baba_qga, but should be baba_yaga)
-        creatures.add(new CreatureEntity("9", "Baba Yaga", "Баба Яга",
-                "An old forest witch who lures children into the woods. She possesses dark magic and can transform into animals.",
-                "Deep forests", 140, R.drawable.babayaga));
+//        // 9. Baba Yaga (note: your drawable is baba_qga, but should be baba_yaga)
+//        creatures.add(new CreatureEntity("9", "Baba Yaga", "Баба Яга",
+//                "An old forest witch who lures children into the woods. She possesses dark magic and can transform into animals.",
+//                "Deep forests", 140, R.drawable.babayaga));
 
         // 10. Orisnizi
         creatures.add(new CreatureEntity("10", "Orisnizi", "Орисници",
@@ -423,7 +423,7 @@ public class DatabaseManager {
         // 13. Chuma
         creatures.add(new CreatureEntity("13", "Chuma", "Чума",
                 "It is represented as an ugly old woman with long arms and bony hands. It only appeared in places where there were lots of sinners, killing them with arrows.",
-                "Dark forests", 85, R.drawable.rusalka));
+                "Dark forests", 85, R.drawable.chuma));
 
         // 14. Drekavac
         creatures.add(new CreatureEntity("14", "Drekavac", "Дрекавац",
@@ -433,7 +433,7 @@ public class DatabaseManager {
         // 15. Rusalka
         creatures.add(new CreatureEntity("15", "Rusalka", "Русалка",
                 "A water nymph with long green hair. She lures men into the water with her enchanting voice.",
-                "Lakes and rivers", 115, R.drawable.drekavac));
+                "Lakes and rivers", 115, R.drawable.rusalka));
 
         return creatures;
     }

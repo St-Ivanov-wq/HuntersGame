@@ -45,7 +45,7 @@ public class ProfileActivity extends AppCompatActivity {
     private int xpToNextLevel = 100;
     private int totalCaptures = 0;
     private int discoveredSpecies = 0;
-    private int totalSpecies = 15;
+    private int totalSpecies = 14;
     private String topCreature = "";
     private int topCreatureCount = 0;
 

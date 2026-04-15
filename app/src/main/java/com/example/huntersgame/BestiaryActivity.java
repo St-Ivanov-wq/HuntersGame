@@ -111,12 +111,13 @@ public class BestiaryActivity extends AppCompatActivity {
         // Forest card bg + gold stroke
         GradientDrawable cardBg = new GradientDrawable();
         cardBg.setShape(GradientDrawable.RECTANGLE);
-        cardBg.setColor(Color.parseColor("#2A4F3A"));  // Dark forest green
-        cardBg.setStroke(3, Color.parseColor("#FFD700"));  // Gold border
+        cardBg.setColor(Color.parseColor("#2A4F3A"));
+        cardBg.setStroke(3, Color.parseColor("#FFD700"));
         cardBg.setCornerRadius(28f);
         card.setBackground(cardBg);
 
         boolean hasCaptured = creature.getCaptureCount() > 0;
+        boolean isMaster = creature.getCaptureCount() >= 10;
 
         if (!hasCaptured) {
             card.setAlpha(0.85f);
@@ -130,18 +131,17 @@ public class BestiaryActivity extends AppCompatActivity {
         // Creature Image
         ImageView creatureImage = new ImageView(this);
         LinearLayout.LayoutParams imageParams = new LinearLayout.LayoutParams(140, 140);
-        imageParams.setMargins(0, 0, 20, 0);
+        imageParams.setMargins(0, 0, 28, 0);
         creatureImage.setLayoutParams(imageParams);
         creatureImage.setScaleType(ImageView.ScaleType.FIT_CENTER);
 
-        // Load image resource - FIXED
-        String creatureName = creature.getName().toLowerCase();
-        int imageResId = getResources().getIdentifier(creatureName, "drawable", getPackageName());
+        // Load image
+        String imageName = creature.getName().toLowerCase().replace(" ", "");
+        int imageResId = getResources().getIdentifier(imageName, "drawable", getPackageName());
 
         if (imageResId != 0) {
             creatureImage.setImageResource(imageResId);
         } else {
-            // Fallback to a default image
             creatureImage.setImageResource(android.R.drawable.star_on);
         }
 
@@ -153,23 +153,42 @@ public class BestiaryActivity extends AppCompatActivity {
             creatureImage.setAlpha(1f);
         }
 
-        // Name Container
+        // Text Container
         LinearLayout textContainer = new LinearLayout(this);
         textContainer.setOrientation(LinearLayout.VERTICAL);
         textContainer.setLayoutParams(new LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1));
+
+        // Name Layout (with master badge)
+        LinearLayout nameLayout = new LinearLayout(this);
+        nameLayout.setOrientation(LinearLayout.HORIZONTAL);
+        nameLayout.setGravity(Gravity.CENTER_VERTICAL);
 
         TextView nameText = new TextView(this);
         nameText.setTextSize(20);
         nameText.setTypeface(null, Typeface.BOLD);
 
         if (hasCaptured) {
-            nameText.setText(creature.getName() + "\n(" + creature.getNameBulgarian() + ")");
+            nameText.setText(creature.getName() + " (" + creature.getNameBulgarian() + ")");
             nameText.setTextColor(Color.parseColor("#FFD700"));
         } else {
             nameText.setText("???");
             nameText.setTextColor(Color.parseColor("#D4AF37"));
         }
-        nameText.setLineSpacing(6, 1f);
+
+        nameLayout.addView(nameText);
+
+        // Master trophy badge
+//        if (isMaster) {
+//            TextView masterBadge = new TextView(this);
+////            masterBadge.setText(" 🏆");
+////            masterBadge.setTextSize(20);
+//            masterBadge.setTextColor(Color.parseColor("#FFD700"));
+//            masterBadge.setShadowLayer(4, 1, 1, Color.parseColor("#FF5722"));
+//            masterBadge.setPadding(8, 0, 0, 0);
+//            nameLayout.addView(masterBadge);
+//        }
+
+        textContainer.addView(nameLayout);
 
         // Capture count info
         TextView infoText = new TextView(this);
@@ -177,31 +196,36 @@ public class BestiaryActivity extends AppCompatActivity {
         infoText.setPadding(0, 12, 0, 0);
 
         if (hasCaptured) {
-            infoText.setText("Captured × " + creature.getCaptureCount());
-            infoText.setTextColor(Color.parseColor("#FF8C00"));
+            if (isMaster) {
+                infoText.setText("Captured × " + creature.getCaptureCount());
+                infoText.setTextColor(Color.parseColor("#FFD700"));
+                infoText.setTypeface(null, Typeface.BOLD);
+            } else {
+                infoText.setText("Captured × " + creature.getCaptureCount());
+                infoText.setTextColor(Color.parseColor("#FF8C00"));
+            }
         } else {
             infoText.setText("Not yet discovered");
             infoText.setTextColor(Color.parseColor("#A8A8A8"));
         }
 
-        textContainer.addView(nameText);
         textContainer.addView(infoText);
+
         contentLayout.addView(creatureImage);
         contentLayout.addView(textContainer);
 
-        // Trophy badge for captured
-        if (hasCaptured) {
+        // Trophy or checkmark on the right
+        if (isMaster) {
             TextView trophy = new TextView(this);
             trophy.setText("🏆");
-            trophy.setTextSize(36);
+            trophy.setTextSize(40);
             trophy.setTextColor(Color.parseColor("#FFD700"));
+            trophy.setShadowLayer(6, 2, 2, Color.parseColor("#FF5722"));
             contentLayout.addView(trophy);
         }
-
         card.addView(contentLayout);
 
         card.setOnClickListener(v -> {
-            vibrationManager.tap();
             SoundManager.getInstance(this).playCardFlip();
             if (hasCaptured) {
                 showCreatureDetails(creature);
@@ -218,17 +242,23 @@ public class BestiaryActivity extends AppCompatActivity {
         View dialogView = getLayoutInflater().inflate(R.layout.dialog_creature_details, null);
 
         ImageView ivSprite = dialogView.findViewById(R.id.dialog_creature_sprite);
+        LinearLayout.LayoutParams layoutParams = new LinearLayout.LayoutParams(350, 350);
+        layoutParams.gravity = Gravity.CENTER;
+        layoutParams.bottomMargin = 24;
+        ivSprite.setLayoutParams(layoutParams);
+        ivSprite.setScaleType(ImageView.ScaleType.FIT_CENTER);
 
-        // Load the creature image - FIXED
-        String imageName = creature.getName().toLowerCase();
+        // Load creature image
+        String imageName = creature.getName().toLowerCase().replace(" ", "");
         int imageResId = getResources().getIdentifier(imageName, "drawable", getPackageName());
-
         if (imageResId != 0) {
             ivSprite.setImageResource(imageResId);
         } else {
-            // Fallback
             ivSprite.setImageResource(android.R.drawable.star_on);
         }
+
+        int captureCount = creature.getCaptureCount();
+        boolean isMaster = captureCount >= 10;
 
         TextView tvName = dialogView.findViewById(R.id.dialog_creature_name);
         TextView tvNameBulgarian = dialogView.findViewById(R.id.dialog_creature_name_bulgarian);
@@ -236,32 +266,51 @@ public class BestiaryActivity extends AppCompatActivity {
         TextView tvHabitat = dialogView.findViewById(R.id.dialog_creature_habitat);
         TextView tvPoints = dialogView.findViewById(R.id.dialog_creature_points);
         TextView tvCaptureInfo = dialogView.findViewById(R.id.dialog_capture_info);
-        TextView tvRank = dialogView.findViewById(R.id.dialog_rank);
+        TextView tvMasterBadge = dialogView.findViewById(R.id.dialog_master_badge);
 
         tvName.setText(creature.getName());
         tvNameBulgarian.setText(creature.getNameBulgarian());
         tvPoints.setText("XP Value: " + creature.getPointsValue());
-        tvDescription.setText(creature.getDisplayDescription());
-        tvHabitat.setText("Habitat: " + creature.getDisplayHabitat());
-        tvCaptureInfo.setText("Captured " + creature.getCaptureCount() + " time" + (creature.getCaptureCount() != 1 ? "s" : ""));
-        tvRank.setText(creature.getHunterRank());
 
-        // Set rank color
-        if (creature.getCaptureCount() >= 10) {
-            tvRank.setTextColor(Color.parseColor("#FFD700"));
-        } else if (creature.getCaptureCount() >= 5) {
-            tvRank.setTextColor(Color.parseColor("#C0C0C0"));
-        } else if (creature.getCaptureCount() >= 2) {
-            tvRank.setTextColor(Color.parseColor("#CD7F32"));
+        // Show description and habitat based on unlock level
+        if (captureCount >= 5) {
+            tvDescription.setText(creature.getDescription());
+            tvHabitat.setText("Habitat: " + creature.getHabitat());
+        } else if (captureCount >= 2) {
+            tvDescription.setText("??? (Capture " + (5 - captureCount) + " more to unlock description)");
+            tvHabitat.setText("Habitat: " + creature.getHabitat());
         } else {
-            tvRank.setTextColor(Color.parseColor("#666666"));
+            tvDescription.setText("??? (Capture " + (5 - captureCount) + " more to unlock)");
+            tvHabitat.setText("Habitat: ???");
+        }
+
+        // Capture info with mastery badge
+        if (isMaster) {
+            tvCaptureInfo.setText("🏆 MASTER HUNTER 🏆\nCaptured " + captureCount + " times");
+            tvCaptureInfo.setTextColor(Color.parseColor("#FFD700"));
+            tvCaptureInfo.setTextSize(14);
+            tvCaptureInfo.setTypeface(null, Typeface.BOLD);
+        } else if (captureCount > 0) {
+            tvCaptureInfo.setText("Captured " + captureCount + " time" + (captureCount != 1 ? "s" : ""));
+            tvCaptureInfo.setTextColor(Color.parseColor("#AAAAAA"));
+            tvCaptureInfo.setTextSize(12);
+            tvCaptureInfo.setTypeface(null, Typeface.NORMAL);
+
+            if (tvMasterBadge != null) {
+                tvMasterBadge.setVisibility(View.GONE);
+            }
+        } else {
+            tvCaptureInfo.setText("Not yet discovered");
+            tvCaptureInfo.setTextColor(Color.parseColor("#666666"));
+
+            if (tvMasterBadge != null) {
+                tvMasterBadge.setVisibility(View.GONE);
+            }
         }
 
         builder.setView(dialogView);
         AlertDialog dialog = builder.create();
-        dialogView.findViewById(R.id.btn_close_dialog).setOnClickListener(v -> {
-            SoundManager.getInstance(this).playButtonClick();
-            dialog.dismiss();});
+        dialogView.findViewById(R.id.btn_close_dialog).setOnClickListener(v -> dialog.dismiss());
         dialog.show();
 
         if (dialog.getWindow() != null) {

@@ -57,6 +57,19 @@
             android:layout_marginTop="4dp"/>
     </LinearLayout>
 
+    <TextView
+        android:id="@+id/dialog_master_badge"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="⭐ FULLY MASTERED ⭐"
+        android:textSize="16sp"
+        android:textStyle="bold"
+        android:textColor="#FFD700"
+        android:gravity="center"
+        android:layout_marginTop="8dp"
+        android:layout_marginBottom="8dp"
+        android:visibility="gone"/>
+
     <!-- Gold Divider -->
     <View
         android:layout_width="match_parent"
@@ -128,6 +141,8 @@
         android:textColor="#D4AF37"
         android:gravity="center"
         android:layout_marginBottom="20dp"/>
+
+
 
     <!-- Close Button -->
     <com.google.android.material.button.MaterialButton
