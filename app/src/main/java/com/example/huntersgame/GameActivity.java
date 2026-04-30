@@ -19,7 +19,7 @@ import com.google.android.gms.tasks.Task;
 import java.util.List;
 import java.util.Random;
 
-public class GameActivity extends AppCompatActivity {
+public class GameActivity extends BaseActivity {
 
     private TextView tvLocationStatus;
     private TextView tvCreatureFound;

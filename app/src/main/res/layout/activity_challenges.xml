@@ -27,7 +27,7 @@
             android:shadowDx="2"
             android:shadowDy="2"
             android:shadowRadius="6"
-            android:letterSpacing="0.5"
+            android:letterSpacing="0"
             android:gravity="center"/>
 
         <TextView

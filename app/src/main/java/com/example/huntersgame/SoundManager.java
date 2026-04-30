@@ -32,6 +32,7 @@ public class SoundManager {
     private MediaPlayer huntingThemePlayer;
 
     private boolean huntingThemePlaying = false;
+    static private boolean mainThemePlaying = false;
 
     private SoundManager(Context context) {
         settingsManager = new SettingsManager(context);
@@ -115,6 +116,13 @@ public class SoundManager {
         }
     }
 
+    public boolean isHuntingThemePlaying() {
+        return huntingThemePlaying;
+    }
+
+    static public boolean isMainThemePlaying() {
+        return mainThemePlaying;
+    }
     public void playPerfectThrowSound() {
         if (perfectPlayer != null) {
             if (perfectPlayer.isPlaying()) perfectPlayer.seekTo(0);
@@ -209,6 +217,7 @@ public class SoundManager {
     public void playMainTheme() {
         if (mainThemePlayer != null && !mainThemePlayer.isPlaying()) {
             mainThemePlayer.start();
+            mainThemePlaying = true;
         }
     }
 
@@ -216,6 +225,7 @@ public class SoundManager {
         if (mainThemePlayer != null && mainThemePlayer.isPlaying()) {
             mainThemePlayer.pause();
             mainThemePlayer.seekTo(0);
+            mainThemePlaying = false;
         }
     }
 
@@ -257,4 +267,5 @@ public class SoundManager {
         if (mainThemePlayer != null) { mainThemePlayer.release(); mainThemePlayer = null; }
         if (huntingThemePlayer != null) { huntingThemePlayer.release(); huntingThemePlayer = null; }
     }
+
 }

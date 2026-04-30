@@ -1,3 +1,6 @@
+
+// dont need
+
 package com.example.huntersgame;
 
 import android.os.Bundle;
@@ -10,7 +13,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import java.util.ArrayList;
 import java.util.List;
 
-public class CollectionActivity extends AppCompatActivity {
+public class CollectionActivity extends BaseActivity {
 
     private RecyclerView recyclerView;
     private Button btnBack;

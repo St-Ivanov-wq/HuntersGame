@@ -20,7 +20,7 @@ import androidx.cardview.widget.CardView;
 import java.util.ArrayList;
 import java.util.List;
 
-public class BestiaryActivity extends AppCompatActivity {
+public class BestiaryActivity extends BaseActivity{
 
     private LinearLayout creaturesContainer;
     private Button btnBack;
@@ -44,6 +44,7 @@ public class BestiaryActivity extends AppCompatActivity {
         tvTotalCount = findViewById(R.id.tv_total_count);
         tvEmptyMessage = findViewById(R.id.tv_empty_message);
         vibrationManager = new VibrationManager(this);
+
 
         dbManager = new DatabaseManager(this);
         allCreatures = new ArrayList<>();
@@ -267,6 +268,7 @@ public class BestiaryActivity extends AppCompatActivity {
         TextView tvPoints = dialogView.findViewById(R.id.dialog_creature_points);
         TextView tvCaptureInfo = dialogView.findViewById(R.id.dialog_capture_info);
         TextView tvMasterBadge = dialogView.findViewById(R.id.dialog_master_badge);
+        TextView tvHunterRank = dialogView.findViewById(R.id.dialog_rank);
 
         tvName.setText(creature.getName());
         tvNameBulgarian.setText(creature.getNameBulgarian());
@@ -276,9 +278,13 @@ public class BestiaryActivity extends AppCompatActivity {
         if (captureCount >= 5) {
             tvDescription.setText(creature.getDescription());
             tvHabitat.setText("Habitat: " + creature.getHabitat());
+            tvHunterRank.setText("EXPERT HUNTER");
+            tvHunterRank.setTextColor(Color.parseColor("#8B5CF6"));
         } else if (captureCount >= 2) {
             tvDescription.setText("??? (Capture " + (5 - captureCount) + " more to unlock description)");
             tvHabitat.setText("Habitat: " + creature.getHabitat());
+            tvHunterRank.setText("VETERAN HUNTER");
+            tvHunterRank.setTextColor(Color.parseColor("#3B82F6"));
         } else {
             tvDescription.setText("??? (Capture " + (5 - captureCount) + " more to unlock)");
             tvHabitat.setText("Habitat: ???");
@@ -290,6 +296,8 @@ public class BestiaryActivity extends AppCompatActivity {
             tvCaptureInfo.setTextColor(Color.parseColor("#FFD700"));
             tvCaptureInfo.setTextSize(14);
             tvCaptureInfo.setTypeface(null, Typeface.BOLD);
+            tvHunterRank.setText("MASTER HUNTER");
+            tvHunterRank.setTextColor(Color.parseColor("#F59E0B"));
         } else if (captureCount > 0) {
             tvCaptureInfo.setText("Captured " + captureCount + " time" + (captureCount != 1 ? "s" : ""));
             tvCaptureInfo.setTextColor(Color.parseColor("#AAAAAA"));
@@ -316,25 +324,5 @@ public class BestiaryActivity extends AppCompatActivity {
         if (dialog.getWindow() != null) {
             dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
         }
-    }
-
-    private void createColoredCircle(ImageView imageView, String creatureName) {
-        android.graphics.drawable.GradientDrawable drawable = new android.graphics.drawable.GradientDrawable();
-        drawable.setShape(android.graphics.drawable.GradientDrawable.OVAL);
-
-        int color;
-        switch(creatureName.toLowerCase()) {
-            case "samodiva": color = 0xFFFFD966; break;
-            case "zmey": color = 0xFFFF5722; break;
-            case "karakondzul": color = 0xFF8D6E63; break;
-            case "torbalan": color = 0xFF37474F; break;
-            case "vila": color = 0xFFF06292; break;
-            default: color = 0xFF4CAF50;
-        }
-
-        drawable.setColor(color);
-        drawable.setStroke(4, Color.WHITE);
-        drawable.setSize(140, 140);
-        imageView.setImageDrawable(drawable);
     }
 }

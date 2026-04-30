@@ -7,7 +7,7 @@ import android.view.View;
 import android.widget.Button;
 import androidx.appcompat.app.AppCompatActivity;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends BaseActivity {
 
     private Button btnProfile;
     private Button btnMap;
@@ -69,5 +69,13 @@ public class MainActivity extends AppCompatActivity {
         SoundManager sm = SoundManager.getInstance(this);
         sm.playAppLaunch();
         new Handler().postDelayed(() -> sm.playMainTheme(), 2000);
+    }
+
+    protected void onDestroy() {
+        super.onDestroy();
+        // Само при пълно затваряне на app-а спираме музиката
+        if (isFinishing()) {
+            SoundManager.getInstance(this).stopMainTheme();
+        }
     }
 }

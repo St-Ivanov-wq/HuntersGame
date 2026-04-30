@@ -16,7 +16,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.cardview.widget.CardView;
 import java.util.List;
 
-public class ChallengesActivity extends AppCompatActivity {
+public class ChallengesActivity extends BaseActivity {
 
     private DatabaseManager dbManager;
     private LinearLayout challengesContainer;

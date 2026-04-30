@@ -173,7 +173,7 @@ public class DatabaseManager {
                 {"catch_vila", "Catch 4 Vilas", "catch_specific", "4", "100"},
                 {"master_hunter", "Catch 15 creatures total", "total", "15", "120"},
                 {"perfect_master", "Get 10 perfect throws", "perfect", "10", "110"},
-                {"complete_collection", "Catch all 14 species", "species", "15", "250"}
+                {"complete_collection", "Catch all 14 species", "species", "14", "250"}
         };
 
         // Pick 3 random challenges

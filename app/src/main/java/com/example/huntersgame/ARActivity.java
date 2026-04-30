@@ -28,7 +28,7 @@ import androidx.core.content.ContextCompat;
 import java.io.IOException;
 import java.util.List;
 
-public class ARActivity extends AppCompatActivity implements SurfaceHolder.Callback, SensorEventListener {
+public class ARActivity extends BaseActivity implements SurfaceHolder.Callback, SensorEventListener {
 
     private SurfaceView surfaceView;
     private SurfaceHolder surfaceHolder;
@@ -97,7 +97,9 @@ public class ARActivity extends AppCompatActivity implements SurfaceHolder.Callb
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         SoundManager.getInstance(this).playEncounterCreature();
-        SoundManager.getInstance(this).stopMainTheme();
+        if(SoundManager.isMainThemePlaying()) {
+            SoundManager.getInstance(this).stopMainTheme();
+        }
         SoundManager.getInstance(this).playHuntingTheme();
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_ar_simple);
@@ -826,6 +828,7 @@ public class ARActivity extends AppCompatActivity implements SurfaceHolder.Callb
     @Override
     protected void onPause() {
         super.onPause();
+        SoundManager.getInstance(this).stopHuntingTheme();
         spriteActive = false;
         powerHandler.removeCallbacksAndMessages(null);
         if (sensorManager != null) {
