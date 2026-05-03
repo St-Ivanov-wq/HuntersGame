@@ -11,19 +11,27 @@ import java.util.concurrent.Executors;
 
 public class DatabaseManager {
 
+    private static DatabaseManager instance;
     private AppDatabase db;
     private ExecutorService executorService;
     private Handler mainHandler;
     private ChallengeCallback challengeCallback;
 
-    public DatabaseManager(Context context) {
+    private DatabaseManager(Context context) {
         db = AppDatabase.getInstance(context);
         executorService = Executors.newSingleThreadExecutor();
         mainHandler = new Handler(Looper.getMainLooper());
 
         initializeDatabase();
-        ensureAllCreaturesExist();  // ADD THIS LINE
+        ensureAllCreaturesExist();
         initializeChallenges();
+    }
+
+    public static synchronized DatabaseManager getInstance(Context context) {
+        if (instance == null) {
+            instance = new DatabaseManager(context.getApplicationContext());
+        }
+        return instance;
     }
 
     private void initializeDatabase() {
@@ -76,13 +84,11 @@ public class DatabaseManager {
 
     public void generateDailyChallenges() {
         executorService.execute(() -> {
-            // Clear existing challenges
             List<ChallengeEntity> existing = db.challengeDao().getAllChallenges();
             for (ChallengeEntity c : existing) {
                 db.challengeDao().delete(c);
             }
 
-            // Generate 3 random daily challenges
             List<ChallengeEntity> newChallenges = getRandomChallenges();
             db.challengeDao().insertAll(newChallenges);
 
@@ -103,7 +109,6 @@ public class DatabaseManager {
             android.util.Log.d("DatabaseManager", "Existing: " + existing.size());
             android.util.Log.d("DatabaseManager", "Default: " + defaultCreatures.size());
 
-            // For each default creature, check if it exists in database
             for (CreatureEntity defaultCreature : defaultCreatures) {
                 boolean exists = false;
                 for (CreatureEntity existingCreature : existing) {
@@ -121,23 +126,11 @@ public class DatabaseManager {
                 }
             }
 
-            // Verify final count
             List<CreatureEntity> finalList = db.creatureDao().getAllCreatures();
             android.util.Log.d("DatabaseManager", "=== FINAL CREATURE COUNT: " + finalList.size() + " ===");
             for (CreatureEntity c : finalList) {
                 android.util.Log.d("DatabaseManager", " - " + c.getImageResId());
             }
-        });
-    }
-
-    public void getPerfectThrowsCount(Callback<Integer> callback) {
-        executorService.execute(() -> {
-            // This would need a separate table to track perfect throws
-            // For now, we'll estimate based on capture counts
-            List<CreatureEntity> creatures = db.creatureDao().getAllCreatures();
-            int perfectThrows = 0;
-            // You can store perfect throws in SharedPreferences as a temporary fix
-            mainHandler.post(() -> callback.onSuccess(perfectThrows));
         });
     }
 
@@ -153,21 +146,15 @@ public class DatabaseManager {
         List<ChallengeEntity> challenges = new java.util.ArrayList<>();
         Random random = new Random();
 
-        // Challenge pool
         String[][] challengePool = {
-                // Easy challenges (XP: 30-50)
                 {"catch_creatures", "Catch 5 creatures", "catch", "5", "40"},
                 {"perfect_throws", "Make 3 perfect throws", "perfect", "3", "45"},
                 {"capture_any", "Capture any 8 creatures", "total", "8", "35"},
                 {"streak_3", "Get 3 hits in a row", "streak", "3", "50"},
-
-                // Medium challenges (XP: 60-80)
                 {"catch_samodiva", "Catch 3 Samodivas", "catch_specific", "3", "60"},
                 {"catch_zmey", "Catch 2 Zmeys", "catch_specific", "2", "70"},
                 {"perfect_streak", "Get 5 perfect throws", "perfect", "5", "75"},
                 {"catch_different", "Catch 4 different species", "species", "4", "65"},
-
-                // Hard challenges (XP: 90-120)
                 {"catch_karakondzul", "Catch 3 Karakondzuls", "catch_specific", "3", "90"},
                 {"catch_torbalan", "Catch 3 Torbalans", "catch_specific", "3", "95"},
                 {"catch_vila", "Catch 4 Vilas", "catch_specific", "4", "100"},
@@ -176,7 +163,6 @@ public class DatabaseManager {
                 {"complete_collection", "Catch all 14 species", "species", "14", "250"}
         };
 
-        // Pick 3 random challenges
         List<Integer> selectedIndices = new java.util.ArrayList<>();
         for (int i = 0; i < 3; i++) {
             int index;
@@ -207,20 +193,15 @@ public class DatabaseManager {
 
     public void resetAllProgress(Callback<Boolean> callback) {
         executorService.execute(() -> {
-            // Reset all creature capture counts
             List<CreatureEntity> creatures = db.creatureDao().getAllCreatures();
             for (CreatureEntity creature : creatures) {
                 db.creatureDao().updateCreatureFull(creature.getId(), 0, false, false, false, false);
             }
-
-            // Generate new daily challenges
             generateDailyChallenges();
-
             mainHandler.post(() -> callback.onSuccess(true));
         });
     }
 
-    // Creature methods
     public void getAllCreatures(Callback<List<CreatureEntity>> callback) {
         executorService.execute(() -> {
             List<CreatureEntity> creatures = db.creatureDao().getAllCreatures();
@@ -253,7 +234,6 @@ public class DatabaseManager {
         });
     }
 
-    // Challenge methods
     public void getAllChallenges(Callback<List<ChallengeEntity>> callback) {
         executorService.execute(() -> {
             List<ChallengeEntity> challenges = db.challengeDao().getAllChallenges();
@@ -275,35 +255,28 @@ public class DatabaseManager {
                         challenge.incrementProgress();
                         db.challengeDao().update(challenge);
                         break;
-
                     case "perfect":
                         if (wasPerfect) {
                             challenge.incrementProgress();
                             db.challengeDao().update(challenge);
                         }
                         break;
-
                     case "total":
                         challenge.incrementProgress();
                         db.challengeDao().update(challenge);
                         break;
-
                     case "catch_specific":
                         if (challenge.getName().toLowerCase().contains(creatureName.toLowerCase())) {
                             challenge.incrementProgress();
                             db.challengeDao().update(challenge);
                         }
                         break;
-
                     case "species":
-                        // Track unique species caught
                         int uniqueSpecies = db.creatureDao().getDiscoveredCount();
                         challenge.setProgress(uniqueSpecies);
                         db.challengeDao().update(challenge);
                         break;
-
                     case "streak":
-                        // This would need streak tracking - simplified for now
                         challenge.incrementProgress();
                         db.challengeDao().update(challenge);
                         break;
@@ -329,7 +302,6 @@ public class DatabaseManager {
         });
     }
 
-    // XP methods
     public void getTotalXP(Callback<Integer> callback) {
         executorService.execute(() -> {
             List<CreatureEntity> creatures = db.creatureDao().getAllCreatures();
@@ -343,101 +315,50 @@ public class DatabaseManager {
     }
 
     public void saveXP(int newTotalXP, Callback<Boolean> callback) {
-        // XP is calculated from capture counts, so we don't actually "save" XP separately
         if (callback != null) {
             mainHandler.post(() -> callback.onSuccess(true));
         }
     }
 
-    // Set callback
     public void setChallengeCallback(ChallengeCallback callback) {
         this.challengeCallback = callback;
     }
 
-    // Default creatures
-    // Default creatures
-    // Default creatures
     private List<CreatureEntity> getDefaultCreatures() {
         List<CreatureEntity> creatures = new java.util.ArrayList<>();
 
-        // 1. Samodiva
         creatures.add(new CreatureEntity("1", "Samodiva", "Самодива",
-                "Beautiful woodland fairies with magical powers. They live in forests and mountains, dancing in circles called 'horo'. They can heal or curse humans.",
-                "Forests and mountains", 100, R.drawable.samodiva));
-
-        // 2. Zmey
+                "Beautiful woodland fairies...", "Forests and mountains", 100, R.drawable.samodiva));
         creatures.add(new CreatureEntity("2", "Zmey", "Змей",
-                "A dragon-like creature that protects villages but also falls in love with human women. It can fly and breathe fire.",
-                "Mountains and caves", 150, R.drawable.zmey));
-
-        // 3. Karakondzul
+                "A dragon-like creature...", "Mountains and caves", 150, R.drawable.zmey));
         creatures.add(new CreatureEntity("3", "Karakondzul", "Караконджул",
-                "A mischievous goblin that appears during the 12 days of Christmas. It rides on people's backs and causes chaos.",
-                "Villages and forests", 80, R.drawable.karakondzul));
-
-        // 4. Torbalan
+                "A mischievous goblin...", "Villages and forests", 80, R.drawable.karakondzul));
         creatures.add(new CreatureEntity("4", "Torbalan", "Торбалан",
-                "A vampire-like creature that rises from the dead to haunt the living. It is said to suck blood and bring nightmares.",
-                "Graveyards and abandoned places", 120, R.drawable.torbalan));
-
-        // 5. Vila
+                "A vampire-like creature...", "Graveyards", 120, R.drawable.torbalan));
         creatures.add(new CreatureEntity("5", "Vila", "Вила",
-                "Mountain spirits with long hair who can heal or harm humans. They are known to dance in meadows and protect nature.",
-                "Mountain peaks and springs", 110, R.drawable.vila));
-
-        // 6. Poludnitsa
+                "Mountain spirits...", "Mountain peaks", 110, R.drawable.vila));
         creatures.add(new CreatureEntity("6", "Poludnitsa", "Полудница",
-                "A noon demon that appears during the hottest hours of the day. She causes heatstroke and madness to those who work in the fields.",
-                "Fields and meadows", 90, R.drawable.poludnitsa));
-
-        // 7. Talasam
+                "A noon demon...", "Fields and meadows", 90, R.drawable.poludnitsa));
         creatures.add(new CreatureEntity("7", "Talasam", "Таласъм",
-                "A water spirit that drowns people near rivers and lakes. It appears as a handsome man to lure victims.",
-                "Rivers and lakes", 130, R.drawable.talasam));
-
-        // 8. Lamia
+                "A water spirit...", "Rivers and lakes", 130, R.drawable.talasam));
         creatures.add(new CreatureEntity("8", "Lamia", "Ламия",
-                "A multi-headed serpent monster that terrorizes villages. It is known to kidnap young maidens and guard treasures.",
-                "Caves and mountains", 180, R.drawable.lamia));
-
-//        // 9. Baba Yaga (note: your drawable is baba_qga, but should be baba_yaga)
-//        creatures.add(new CreatureEntity("9", "Baba Yaga", "Баба Яга",
-//                "An old forest witch who lures children into the woods. She possesses dark magic and can transform into animals.",
-//                "Deep forests", 140, R.drawable.babayaga));
-
-        // 10. Orisnizi
+                "A multi-headed serpent...", "Caves and mountains", 180, R.drawable.lamia));
         creatures.add(new CreatureEntity("10", "Orisnizi", "Орисници",
-                "A trio of female creatures that looked like women. It is said that they go into homes where there's a newborn, and when the baby is three days old, they would predict its fate.",
-                "Abandoned places", 95, R.drawable.orisnizi));
-
-        // 11. Hala
+                "A trio of female creatures...", "Abandoned places", 95, R.drawable.orisnizi));
         creatures.add(new CreatureEntity("11", "Hala", "Хала",
-                "A female demonic creature which is considered good by some, and evil by others. She would sometimes cast hails and storms on crops and destroy them.",
-                "Mountains and springs", 160, R.drawable.hala));
-
-        // 12. Borislav
+                "A female demonic creature...", "Mountains", 160, R.drawable.hala));
         creatures.add(new CreatureEntity("12", "Borislav", "Борислав",
-                "A noble forest guardian who protects animals and travelers. He appears as a glowing figure in the woods.",
-                "Forest clearings", 125, R.drawable.borislav));
-
-        // 13. Chuma
+                "A noble forest guardian...", "Forest clearings", 125, R.drawable.borislav));
         creatures.add(new CreatureEntity("13", "Chuma", "Чума",
-                "It is represented as an ugly old woman with long arms and bony hands. It only appeared in places where there were lots of sinners, killing them with arrows.",
-                "Dark forests", 85, R.drawable.chuma));
-
-        // 14. Drekavac
+                "An ugly old woman...", "Dark forests", 85, R.drawable.chuma));
         creatures.add(new CreatureEntity("14", "Drekavac", "Дрекавац",
-                "A creature that screams loudly to frighten people. It is born from the spirit of a deceased child.",
-                "Swamps and forests", 105, R.drawable.drekavac));
-
-        // 15. Rusalka
+                "A screaming creature...", "Swamps and forests", 105, R.drawable.drekavac));
         creatures.add(new CreatureEntity("15", "Rusalka", "Русалка",
-                "A water nymph with long green hair. She lures men into the water with her enchanting voice.",
-                "Lakes and rivers", 115, R.drawable.rusalka));
+                "A water nymph...", "Lakes and rivers", 115, R.drawable.rusalka));
 
         return creatures;
     }
-    // Callback interfaces
+
     public interface Callback<T> {
         void onSuccess(T result);
         void onError(String error);

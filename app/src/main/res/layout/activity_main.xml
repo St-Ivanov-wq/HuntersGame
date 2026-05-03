@@ -8,7 +8,6 @@
     android:background="@drawable/bulgarian_forest_gradient"
     android:padding="16dp">
 
-    <!-- Outer border frame -->
     <FrameLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
@@ -31,7 +30,6 @@
                     android:gravity="center"
                     android:padding="24dp">
 
-                    <!-- Title Section -->
                     <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
@@ -72,7 +70,6 @@
 
                     </LinearLayout>
 
-                    <!-- START button -->
                     <com.google.android.material.button.MaterialButton
                         android:id="@+id/btn_map"
                         style="@style/Widget.Material3.Button.ElevatedButton"
@@ -90,7 +87,6 @@
                         app:strokeColor="#D4AF37"
                         app:strokeWidth="2dp" />
 
-                    <!-- BESTIARY button -->
                     <com.google.android.material.button.MaterialButton
                         android:id="@+id/btn_bestiary"
                         style="@style/Widget.Material3.Button"
@@ -108,7 +104,6 @@
                         app:strokeColor="#FFD700"
                         app:strokeWidth="2dp" />
 
-                    <!-- CHALLENGES button -->
                     <com.google.android.material.button.MaterialButton
                         android:id="@+id/btn_challenges"
                         style="@style/Widget.Material3.Button.ElevatedButton"
@@ -126,7 +121,6 @@
                         app:strokeColor="#FFD700"
                         app:strokeWidth="2dp" />
 
-                    <!-- HUNTER PROFILE button -->
                     <com.google.android.material.button.MaterialButton
                         android:id="@+id/btn_profile"
                         style="@style/Widget.Material3.Button.OutlinedButton"
@@ -144,7 +138,6 @@
                         app:strokeColor="#FFD700"
                         app:strokeWidth="3dp" />
 
-                    <!-- Spacer -->
                     <View
                         android:layout_width="match_parent"
                         android:layout_height="40dp"
@@ -154,7 +147,6 @@
 
             </ScrollView>
 
-            <!-- Settings Button - Lower Left Corner -->
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/btn_settings"
                 android:layout_width="48dp"

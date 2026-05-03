@@ -11,7 +11,6 @@ public class SoundManager {
     private Handler delayHandler = new Handler();
     private SettingsManager settingsManager;
 
-    // Gameplay sounds
     private MediaPlayer catchPlayer;
     private MediaPlayer perfectPlayer;
     private MediaPlayer missPlayer;
@@ -19,13 +18,11 @@ public class SoundManager {
     private MediaPlayer levelUpPlayer;
     private MediaPlayer buttonPlayer;
 
-    // UI sounds
     private MediaPlayer menuOpenPlayer;
     private MediaPlayer menuClosePlayer;
     private MediaPlayer cardFlipPlayer;
     private MediaPlayer achievementPlayer;
 
-    // Music
     private MediaPlayer appLaunchPlayer;
     private MediaPlayer encounterCreaturePlayer;
     private MediaPlayer mainThemePlayer;
@@ -48,7 +45,6 @@ public class SoundManager {
 
     private void loadSounds(Context context) {
         try {
-            // Gameplay sounds
             catchPlayer = MediaPlayer.create(context, R.raw.catch_sound);
             perfectPlayer = MediaPlayer.create(context, R.raw.perfect_throw);
             missPlayer = MediaPlayer.create(context, R.raw.miss_sound);
@@ -56,23 +52,19 @@ public class SoundManager {
             levelUpPlayer = MediaPlayer.create(context, R.raw.level_up);
             buttonPlayer = MediaPlayer.create(context, R.raw.button_click);
 
-            // UI sounds
             menuOpenPlayer = MediaPlayer.create(context, R.raw.menu_open);
             menuClosePlayer = MediaPlayer.create(context, R.raw.menu_close);
             cardFlipPlayer = MediaPlayer.create(context, R.raw.card_flip);
             achievementPlayer = MediaPlayer.create(context, R.raw.achievement);
 
-            // Music
             appLaunchPlayer = MediaPlayer.create(context, R.raw.app_launch);
             encounterCreaturePlayer = MediaPlayer.create(context, R.raw.encounter_creature);
             mainThemePlayer = MediaPlayer.create(context, R.raw.main_theme);
             huntingThemePlayer = MediaPlayer.create(context, R.raw.hunting_theme);
 
-            // Set looping for themes
             if (mainThemePlayer != null) mainThemePlayer.setLooping(true);
             if (huntingThemePlayer != null) huntingThemePlayer.setLooping(true);
 
-            // Apply saved volumes
             applyVolumes();
 
             Log.d("SoundManager", "All sounds loaded successfully");
@@ -108,7 +100,6 @@ public class SoundManager {
         if (achievementPlayer != null) achievementPlayer.setVolume(volume, volume);
     }
 
-    // Gameplay sounds
     public void playCatchSound() {
         if (catchPlayer != null) {
             if (catchPlayer.isPlaying()) catchPlayer.seekTo(0);
@@ -158,7 +149,6 @@ public class SoundManager {
         }
     }
 
-    // UI sounds
     public void playMenuOpen() {
         if (menuOpenPlayer != null) {
             if (menuOpenPlayer.isPlaying()) menuOpenPlayer.seekTo(0);
@@ -187,23 +177,10 @@ public class SoundManager {
         }
     }
 
-    // Music
     public void playAppLaunch() {
         if (appLaunchPlayer != null) {
             if (appLaunchPlayer.isPlaying()) appLaunchPlayer.seekTo(0);
             appLaunchPlayer.start();
-        }
-    }
-
-    public void playAppLaunchWithDelay() {
-        if (appLaunchPlayer != null) {
-            if (appLaunchPlayer.isPlaying()) appLaunchPlayer.seekTo(0);
-            appLaunchPlayer.start();
-
-            int duration = appLaunchPlayer.getDuration();
-            delayHandler.postDelayed(() -> playMainTheme(), duration + 200);
-        } else {
-            playMainTheme();
         }
     }
 
@@ -243,29 +220,4 @@ public class SoundManager {
             huntingThemePlaying = false;
         }
     }
-
-    public void release() {
-        delayHandler.removeCallbacksAndMessages(null);
-
-        // Gameplay sounds
-        if (catchPlayer != null) { catchPlayer.release(); catchPlayer = null; }
-        if (perfectPlayer != null) { perfectPlayer.release(); perfectPlayer = null; }
-        if (missPlayer != null) { missPlayer.release(); missPlayer = null; }
-        if (throwPlayer != null) { throwPlayer.release(); throwPlayer = null; }
-        if (levelUpPlayer != null) { levelUpPlayer.release(); levelUpPlayer = null; }
-        if (buttonPlayer != null) { buttonPlayer.release(); buttonPlayer = null; }
-
-        // UI sounds
-        if (menuOpenPlayer != null) { menuOpenPlayer.release(); menuOpenPlayer = null; }
-        if (menuClosePlayer != null) { menuClosePlayer.release(); menuClosePlayer = null; }
-        if (cardFlipPlayer != null) { cardFlipPlayer.release(); cardFlipPlayer = null; }
-        if (achievementPlayer != null) { achievementPlayer.release(); achievementPlayer = null; }
-
-        // Music
-        if (appLaunchPlayer != null) { appLaunchPlayer.release(); appLaunchPlayer = null; }
-        if (encounterCreaturePlayer != null) { encounterCreaturePlayer.release(); encounterCreaturePlayer = null; }
-        if (mainThemePlayer != null) { mainThemePlayer.release(); mainThemePlayer = null; }
-        if (huntingThemePlayer != null) { huntingThemePlayer.release(); huntingThemePlayer = null; }
-    }
-
 }

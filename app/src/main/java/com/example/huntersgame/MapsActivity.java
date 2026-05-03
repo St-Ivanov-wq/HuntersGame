@@ -9,17 +9,14 @@ import android.graphics.Color;
 import android.graphics.Paint;
 import android.location.Location;
 import android.os.Bundle;
-import android.os.Handler;
 import android.os.Looper;
 import android.util.Log;
-import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
-import androidx.appcompat.app.AppCompatActivity;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationCallback;
 import com.google.android.gms.location.LocationRequest;
@@ -55,11 +52,9 @@ public class MapsActivity extends BaseActivity implements OnMapReadyCallback, Go
     private Location currentLocation;
     private DatabaseManager dbManager;
 
-    // XP System
     private int currentLevel = 1;
     private int currentXP = 0;
 
-    // Combo System
     private int currentCombo = 0;
     private int bestCombo = 0;
 
@@ -77,7 +72,7 @@ public class MapsActivity extends BaseActivity implements OnMapReadyCallback, Go
         tvStatus = findViewById(R.id.tv_map_status);
         tvXP = findViewById(R.id.tv_xp);
 
-        dbManager = new DatabaseManager(this);
+        dbManager = DatabaseManager.getInstance(this);
         allCreatures = new ArrayList<>();
         creatureMarkers = new HashMap<>();
 
@@ -227,52 +222,52 @@ public class MapsActivity extends BaseActivity implements OnMapReadyCallback, Go
         int color;
         switch(creatureName.toLowerCase()) {
             case "samodiva":
-                color = 0xFFFFD966;  // Golden yellow
+                color = 0xFFFFD966;
                 break;
             case "zmey":
-                color = 0xFFFF5722;  // Deep orange
+                color = 0xFFFF5722;
                 break;
             case "karakondzul":
-                color = 0xFF8D6E63;  // Brown
+                color = 0xFF8D6E63;
                 break;
             case "torbalan":
-                color = 0xFF37474F;  // Dark gray-blue
+                color = 0xFF37474F;
                 break;
             case "vila":
-                color = 0xFFF06292;  // Pink
+                color = 0xFFF06292;
                 break;
             case "poludnitsa":
-                color = 0xFFFFA726;  // Orange
+                color = 0xFFFFA726;
                 break;
             case "talasam":
-                color = 0xFF42A5F5;  // Bright blue
+                color = 0xFF42A5F5;
                 break;
             case "lamia":
-                color = 0xFFEF5350;  // Red
+                color = 0xFFEF5350;
                 break;
             case "baba yaga":
-                color = 0xFFAB47BC;  // Purple
+                color = 0xFFAB47BC;
                 break;
             case "orisnizi":
-                color = 0xFFEC407A;  // Hot pink
+                color = 0xFFEC407A;
                 break;
             case "hala":
-                color = 0xFF26C6DA;  // Cyan
+                color = 0xFF26C6DA;
                 break;
             case "borislav":
-                color = 0xFF66BB6A;  // Forest green
+                color = 0xFF66BB6A;
                 break;
             case "chuma":
-                color = 0xFF7E57C2;  // Deep purple
+                color = 0xFF7E57C2;
                 break;
             case "drekavac":
-                color = 0xFFFF7043;  // Coral
+                color = 0xFFFF7043;
                 break;
             case "rusalka":
-                color = 0xFF29B6F6;  // Light blue
+                color = 0xFF29B6F6;
                 break;
             default:
-                color = 0xFF4CAF50;  // Default green
+                color = 0xFF4CAF50;
                 break;
         }
 
@@ -290,7 +285,6 @@ public class MapsActivity extends BaseActivity implements OnMapReadyCallback, Go
         paint.setTextSize(40);
         paint.setTextAlign(Paint.Align.CENTER);
 
-        // Get first letter (handle multi-word names like "Baba Yaga")
         String letter = creatureName.substring(0, 1).toUpperCase();
         canvas.drawText(letter, 40, 55, paint);
 
@@ -361,7 +355,7 @@ public class MapsActivity extends BaseActivity implements OnMapReadyCallback, Go
                 Intent intent = new Intent(MapsActivity.this, ARActivity.class);
                 intent.putExtra("creature_name", creature.getName());
                 intent.putExtra("creature_xp", creature.getPointsValue());
-                intent.putExtra("current_combo", currentCombo);  // Pass current combo
+                intent.putExtra("current_combo", currentCombo);
                 startActivityForResult(intent, 1);
             } else {
                 tvStatus.setText("Too far! You're " + distanceRounded + "m away. Walk closer!");
@@ -377,15 +371,13 @@ public class MapsActivity extends BaseActivity implements OnMapReadyCallback, Go
         if (requestCode == 1 && resultCode == RESULT_OK && data != null) {
             String creatureName = data.getStringExtra("captured_creature");
             int xpGained = data.getIntExtra("xp_gained", 0);
-            int newCombo = data.getIntExtra("current_combo", 0);  // Get combo back
+            int newCombo = data.getIntExtra("current_combo", 0);
 
-            // Update combo
             currentCombo = newCombo;
             if (currentCombo > bestCombo) {
                 bestCombo = currentCombo;
             }
 
-            // Update the creature in our list as captured
             for (CreatureEntity creature : allCreatures) {
                 if (creature.getName().equals(creatureName)) {
                     int newCount = creature.getCaptureCount() + 1;
@@ -395,13 +387,10 @@ public class MapsActivity extends BaseActivity implements OnMapReadyCallback, Go
                 }
             }
 
-            // Save everything immediately
             saveAllData();
 
-            // Update XP
             addXP(xpGained);
 
-            // Remove the captured marker from map
             Marker toRemove = null;
             for (Map.Entry<Marker, CreatureEntity> entry : creatureMarkers.entrySet()) {
                 if (entry.getValue().getName().equals(creatureName)) {
@@ -419,7 +408,6 @@ public class MapsActivity extends BaseActivity implements OnMapReadyCallback, Go
                 tvStatus.setText(creatureMarkers.size() + " creatures remaining!");
             }
         } else if (requestCode == 1 && resultCode == RESULT_CANCELED && data != null) {
-            // Catch failed, reset combo
             currentCombo = 0;
             tvStatus.setText("Missed! Combo reset.");
         }

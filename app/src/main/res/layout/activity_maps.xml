@@ -4,90 +4,18 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <!-- Google Map -->
     <fragment
         android:id="@+id/map"
         android:name="com.google.android.gms.maps.SupportMapFragment"
         android:layout_width="match_parent"
         android:layout_height="match_parent" />
 
-    <!-- Catch Overlay (White Theme) -->
-    <FrameLayout
-        android:id="@+id/catch_circle_container"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:visibility="gone"
-        android:background="#AA1A3F2C">
-
-        <!-- Outer Ring -->
-        <View
-            android:id="@+id/outer_circle"
-            android:layout_width="280dp"
-            android:layout_height="280dp"
-            android:layout_gravity="center"
-            android:background="@drawable/circle_outer" />
-
-        <!-- Inner Ring -->
-        <View
-            android:id="@+id/inner_circle"
-            android:layout_width="280dp"
-            android:layout_height="280dp"
-            android:layout_gravity="center"
-            android:background="@drawable/circle_inner" />
-
-        <!-- Percentage -->
-        <TextView
-            android:id="@+id/percentage_text"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:text="0%"
-            android:textSize="36sp"
-            android:textStyle="bold"
-            android:textColor="#FFD700"
-            android:shadowColor="#1A3F2C"
-            android:shadowRadius="4"
-            android:textAlignment="center"/>
-
-        <!-- Instructions -->
-        <TextView
-            android:id="@+id/catch_instruction"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center|bottom"
-            android:layout_marginBottom="160dp"
-            android:text="🎯 TAP WHEN GREEN!"
-            android:textSize="20sp"
-            android:textStyle="bold"
-            android:textColor="#FFFFFF"
-            android:padding="16dp"
-            android:background="#801A3F2C"
-            android:elevation="4dp"/>
-
-        <!-- Cancel -->
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/btn_cancel_catch"
-            style="@style/Widget.Material3.Button.OutlinedButton"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="bottom|center"
-            android:layout_marginBottom="60dp"
-            android:text="❌ CANCEL"
-            android:textSize="16sp"
-            app:backgroundTint="#FFFFFF"
-            app:strokeColor="#E94560"
-            app:strokeWidth="2dp"
-            android:textColor="#E94560" />
-    </FrameLayout>
-
-    <!-- White Overlay UI -->
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:orientation="vertical"
         android:background="#00000000">
 
-        <!-- Gold Header Bar -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -118,7 +46,6 @@
                 android:paddingStart="16dp"/>
         </LinearLayout>
 
-        <!-- Status Bar -->
         <TextView
             android:id="@+id/tv_map_status"
             android:layout_width="match_parent"
@@ -131,103 +58,6 @@
             android:gravity="center"
             android:elevation="4dp"/>
 
-        <!-- Catch Card (White + Gold) -->
-        <androidx.cardview.widget.CardView
-            android:id="@+id/catch_card"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_gravity="bottom"
-            android:layout_margin="20dp"
-            android:visibility="gone"
-            app:cardCornerRadius="20dp"
-            app:cardElevation="12dp"
-            app:cardBackgroundColor="#FFFFFF">
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="vertical"
-                android:padding="24dp">
-
-                <TextView
-                    android:id="@+id/catch_creature_name"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:text="ZMEY DRAGON"
-                    android:textSize="24sp"
-                    android:textStyle="bold"
-                    android:textColor="#1A3F2C"
-                    android:gravity="center"
-                    android:shadowColor="#FFD700"
-                    android:shadowRadius="2"/>
-
-                <TextView
-                    android:id="@+id/catch_creature_desc"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:text="Fire-breathing serpent of ancient Bulgarian legends"
-                    android:textSize="15sp"
-                    android:textColor="#666666"
-                    android:gravity="center"
-                    android:padding="12dp"/>
-
-                <TextView
-                    android:id="@+id/catch_creature_points"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:text="⭐ 75 XP"
-                    android:textSize="20sp"
-                    android:textColor="#FF9800"
-                    android:gravity="center"
-                    android:padding="8dp"/>
-
-                <TextView
-                    android:id="@+id/catch_distance"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:text="📏 25m away"
-                    android:textSize="16sp"
-                    android:textStyle="bold"
-                    android:textColor="#1A3F2C"
-                    android:gravity="center"
-                    android:padding="12dp"/>
-
-                <!-- Catch Buttons -->
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="horizontal"
-                    android:layout_marginTop="16dp">
-
-                    <com.google.android.material.button.MaterialButton
-                        android:id="@+id/btn_catch"
-                        style="@style/Widget.Material3.Button.ElevatedButton"
-                        android:layout_width="0dp"
-                        android:layout_height="56dp"
-                        android:layout_weight="1"
-                        android:text="🎯 CATCH"
-                        android:textSize="18sp"
-                        android:textColor="#FFFFFF"
-                        app:backgroundTint="#4CAF50"
-                        android:layout_marginEnd="12dp"/>
-
-                    <com.google.android.material.button.MaterialButton
-                        android:id="@+id/btn_cancel"
-                        style="@style/Widget.Material3.Button.OutlinedButton"
-                        android:layout_width="0dp"
-                        android:layout_height="56dp"
-                        android:layout_weight="1"
-                        android:text="❌ PASS"
-                        android:textSize="18sp"
-                        app:backgroundTint="#FFFFFF"
-                        app:strokeColor="#E94560"
-                        android:textColor="#E94560"
-                        android:layout_marginStart="12dp"/>
-                </LinearLayout>
-            </LinearLayout>
-        </androidx.cardview.widget.CardView>
-
-        <!-- White Bottom Bar -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"

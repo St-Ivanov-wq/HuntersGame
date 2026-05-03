@@ -15,7 +15,6 @@ public abstract class AppDatabase extends RoomDatabase {
     public abstract CreatureDao creatureDao();
     public abstract ChallengeDao challengeDao();
 
-    // Migration from version 1 to 2 (add unlock columns to creatures table)
     static final Migration MIGRATION_1_2 = new Migration(1, 2) {
         @Override
         public void migrate(SupportSQLiteDatabase database) {
@@ -25,7 +24,6 @@ public abstract class AppDatabase extends RoomDatabase {
         }
     };
 
-    // Migration from version 2 to 3 (add challenges table)
     static final Migration MIGRATION_2_3 = new Migration(2, 3) {
         @Override
         public void migrate(SupportSQLiteDatabase database) {
@@ -47,7 +45,7 @@ public abstract class AppDatabase extends RoomDatabase {
             instance = Room.databaseBuilder(context.getApplicationContext(),
                             AppDatabase.class, "creature_database")
                     .addMigrations(MIGRATION_1_2, MIGRATION_2_3)
-                    .fallbackToDestructiveMigration()  // THIS WILL DELETE AND RECREATE THE DATABASE
+                    .fallbackToDestructiveMigration()
                     .build();
         }
         return instance;

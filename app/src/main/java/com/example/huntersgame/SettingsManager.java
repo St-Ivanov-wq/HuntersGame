@@ -9,7 +9,6 @@ public class SettingsManager {
     private static final String KEY_MUSIC_VOLUME = "music_volume";
     private static final String KEY_SFX_VOLUME = "sfx_volume";
     private static final String KEY_VIBRATION = "vibration";
-    private static final String KEY_TUTORIAL_COMPLETED = "tutorial_completed";
 
     private SharedPreferences prefs;
 
@@ -49,11 +48,4 @@ public class SettingsManager {
         prefs.edit().putBoolean(KEY_VIBRATION, enabled).apply();
     }
 
-    public boolean isTutorialCompleted() {
-        return prefs.getBoolean(KEY_TUTORIAL_COMPLETED, false);
-    }
-
-    public void setTutorialCompleted(boolean completed) {
-        prefs.edit().putBoolean(KEY_TUTORIAL_COMPLETED, completed).apply();
-    }
 }

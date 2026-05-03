@@ -11,7 +11,7 @@ public class ChallengeEntity {
     private String id;
     private String name;
     private String description;
-    private String type; // "catch", "perfect", "total", "streak", "species"
+    private String type;
     private int target;
     private int progress;
     private int rewardXP;
@@ -19,7 +19,6 @@ public class ChallengeEntity {
     private boolean isClaimed;
     private String lastResetDate;
 
-    // Constructor
     public ChallengeEntity(@NonNull String id, String name, String description, String type, int target, int rewardXP) {
         this.id = id;
         this.name = name;
@@ -33,7 +32,6 @@ public class ChallengeEntity {
         this.lastResetDate = "";
     }
 
-    // Getters
     @NonNull
     public String getId() { return id; }
     public String getName() { return name; }
@@ -46,7 +44,6 @@ public class ChallengeEntity {
     public boolean isClaimed() { return isClaimed; }
     public String getLastResetDate() { return lastResetDate; }
 
-    // Setters
     public void setId(@NonNull String id) { this.id = id; }
     public void setName(String name) { this.name = name; }
     public void setDescription(String description) { this.description = description; }
@@ -61,7 +58,6 @@ public class ChallengeEntity {
     public void setClaimed(boolean claimed) { this.isClaimed = claimed; }
     public void setLastResetDate(String lastResetDate) { this.lastResetDate = lastResetDate; }
 
-    // Helper methods
     public void incrementProgress() {
         if (progress < target) {
             progress++;
@@ -69,9 +65,4 @@ public class ChallengeEntity {
         }
     }
 
-    public void reset() {
-        progress = 0;
-        isCompleted = false;
-        isClaimed = false;
-    }
 }

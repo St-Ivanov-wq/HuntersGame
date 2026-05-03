@@ -47,7 +47,6 @@ dependencies {
     implementation 'androidx.core:core:1.13.1'
 
 
-    // ARCore - Only this is needed
     implementation 'com.google.ar:core:1.39.0'
     implementation 'androidx.cardview:cardview:1.0.0'
 }

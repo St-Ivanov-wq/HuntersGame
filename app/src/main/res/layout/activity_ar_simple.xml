@@ -4,26 +4,22 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <!-- Camera Preview -->
     <SurfaceView
         android:id="@+id/surface_view"
         android:layout_width="match_parent"
         android:layout_height="match_parent" />
 
-    <!-- Dark Green Overlay -->
     <View
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:background="#AA1A3A2A" />
 
-    <!-- Top Bar -->
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_gravity="top"
         android:orientation="vertical">
 
-        <!-- Bulgarian Flag Stripes -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -33,7 +29,6 @@
             <View android:layout_width="0dp" android:layout_height="4dp" android:layout_weight="1" android:background="#D62612"/>
         </LinearLayout>
 
-        <!-- Header -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -68,7 +63,6 @@
         </LinearLayout>
     </LinearLayout>
 
-    <!-- Combo Display - More Visible -->
     <TextView
         android:id="@+id/tv_combo"
         android:layout_width="wrap_content"
@@ -87,7 +81,6 @@
         android:shadowDy="2"
         android:shadowRadius="4"
         android:letterSpacing="0"/>
-    <!-- Creature Sprite Container -->
     <FrameLayout
         android:id="@+id/sprite_container"
         android:layout_width="match_parent"
@@ -104,7 +97,6 @@
             android:scaleType="fitCenter"/>
     </FrameLayout>
 
-    <!-- Net Image -->
     <ImageView
         android:id="@+id/net_image"
         android:layout_width="64dp"
@@ -113,7 +105,6 @@
         android:visibility="gone"
         android:scaleType="fitCenter"/>
 
-    <!-- Bottom Panel -->
     <LinearLayout
         android:id="@+id/bottom_panel"
         android:layout_width="match_parent"
@@ -127,13 +118,11 @@
             android:id="@+id/tv_ar_status"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Get close to the creature"
             android:textSize="13sp"
             android:textColor="#FFD700"
             android:gravity="center"
             android:layout_marginBottom="20dp"/>
 
-        <!-- Power Meter -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -210,7 +199,6 @@
             </LinearLayout>
         </LinearLayout>
 
-        <!-- Buttons -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"

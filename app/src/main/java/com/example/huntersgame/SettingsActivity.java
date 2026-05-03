@@ -4,7 +4,6 @@ import android.os.Bundle;
 import android.widget.SeekBar;
 import android.widget.Switch;
 import android.widget.TextView;
-import androidx.appcompat.app.AppCompatActivity;
 
 public class SettingsActivity extends BaseActivity {
 
@@ -28,7 +27,6 @@ public class SettingsActivity extends BaseActivity {
         musicPercent = findViewById(R.id.music_volume_percent);
         sfxPercent = findViewById(R.id.sfx_volume_percent);
 
-        // Load current values
         float musicVol = settingsManager.getMusicVolume();
         float sfxVol = settingsManager.getSfxVolume();
         musicSeekBar.setProgress((int)(musicVol * 100));

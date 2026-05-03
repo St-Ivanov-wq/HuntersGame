@@ -4,30 +4,25 @@
     android:viewportWidth="100"
     android:viewportHeight="100">
 
-    <!-- Background diamond/net shape with lower opacity -->
     <path
         android:fillColor="#44FFFFFF"
         android:pathData="M50,10 L90,50 L50,90 L10,50 Z" />
 
-    <!-- Thicker horizontal ropes -->
     <path android:strokeColor="#4CAF50" android:strokeWidth="2.5" android:pathData="M10,50 L90,50" />
     <path android:strokeColor="#4CAF50" android:strokeWidth="1.8" android:pathData="M15,30 L85,30" />
     <path android:strokeColor="#4CAF50" android:strokeWidth="1.8" android:pathData="M15,70 L85,70" />
     <path android:strokeColor="#4CAF50" android:strokeWidth="1.2" android:pathData="M20,20 L80,20" />
     <path android:strokeColor="#4CAF50" android:strokeWidth="1.2" android:pathData="M20,80 L80,80" />
 
-    <!-- Thicker vertical ropes -->
     <path android:strokeColor="#4CAF50" android:strokeWidth="2.5" android:pathData="M50,10 L50,90" />
     <path android:strokeColor="#4CAF50" android:strokeWidth="1.8" android:pathData="M30,15 L30,85" />
     <path android:strokeColor="#4CAF50" android:strokeWidth="1.8" android:pathData="M70,15 L70,85" />
     <path android:strokeColor="#4CAF50" android:strokeWidth="1.2" android:pathData="M20,20 L20,80" />
     <path android:strokeColor="#4CAF50" android:strokeWidth="1.2" android:pathData="M80,20 L80,80" />
 
-    <!-- Main diagonal weaves for diamond mesh -->
     <path android:strokeColor="#4CAF50" android:strokeWidth="2" android:pathData="M10,50 L50,10 L90,50 L50,90 L10,50" />
     <path android:strokeColor="#4CAF50" android:strokeWidth="2" android:pathData="M10,50 L50,90 L90,50 L50,10 L10,50" />
 
-    <!-- Finer diagonal lines for tighter net texture -->
     <path android:strokeColor="#45AD40" android:strokeWidth="1.2" android:pathData="M25,25 L50,50 L75,75" />
     <path android:strokeColor="#45AD40" android:strokeWidth="1.2" android:pathData="M25,75 L50,50 L75,25" />
     <path android:strokeColor="#45AD40" android:strokeWidth="1" android:pathData="M20,40 L60,60" />
@@ -35,7 +30,6 @@
     <path android:strokeColor="#45AD40" android:strokeWidth="1" android:pathData="M40,20 L80,60" />
     <path android:strokeColor="#45AD40" android:strokeWidth="1" android:pathData="M40,80 L80,40" />
 
-    <!-- Small knot circles at key intersections for realism -->
     <path android:fillColor="#FFD700" android:pathData="M47,47 L53,47 L53,53 L47,53 Z" />
     <path android:fillColor="#FFB347" android:pathData="M47,53 L53,53 L53,57 L47,57 Z" />
     <path android:fillColor="#FFB347" android:pathData="M53,47 L57,47 L57,53 L53,53 Z" />

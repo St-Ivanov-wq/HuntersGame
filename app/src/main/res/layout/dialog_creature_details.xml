@@ -9,7 +9,6 @@
     android:elevation="12dp"
     android:clipToPadding="false">
 
-    <!-- Creature Image with Glow -->
     <ImageView
         android:id="@+id/dialog_creature_sprite"
         android:layout_width="280dp"
@@ -21,7 +20,6 @@
         android:elevation="8dp"
         android:contentDescription="Creature sprite"/>
 
-    <!-- Title Section -->
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -70,7 +68,6 @@
         android:layout_marginBottom="8dp"
         android:visibility="gone"/>
 
-    <!-- Gold Divider -->
     <View
         android:layout_width="match_parent"
         android:layout_height="2dp"
@@ -78,7 +75,6 @@
         android:elevation="2dp"
         android:layout_marginBottom="20dp"/>
 
-    <!-- Capture Info -->
     <TextView
         android:id="@+id/dialog_capture_info"
         android:layout_width="match_parent"
@@ -90,7 +86,6 @@
         android:gravity="center"
         android:layout_marginBottom="16dp"/>
 
-    <!-- Description -->
     <TextView
         android:id="@+id/dialog_creature_description"
         android:layout_width="match_parent"
@@ -101,7 +96,6 @@
         android:lineSpacingExtra="6dp"
         android:layout_marginBottom="16dp"/>
 
-    <!-- Habitat & XP Row -->
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -144,7 +138,6 @@
 
 
 
-    <!-- Close Button -->
     <com.google.android.material.button.MaterialButton
         android:id="@+id/btn_close_dialog"
         style="@style/Widget.Material3.Button.ElevatedButton"

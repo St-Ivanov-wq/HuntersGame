@@ -6,7 +6,6 @@
     android:orientation="vertical"
     android:background="#1A3F2C">
 
-    <!-- Enhanced Fiery Header -->
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -41,7 +40,6 @@
             android:lineSpacingExtra="2dp"/>
     </LinearLayout>
 
-    <!-- Premium ScrollView with Shadow -->
     <androidx.core.widget.NestedScrollView
         android:layout_width="match_parent"
         android:layout_height="0dp"
@@ -57,7 +55,6 @@
             android:paddingBottom="160dp"/>
     </androidx.core.widget.NestedScrollView>
 
-    <!-- Epic Red/Gold Action Bar -->
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -65,7 +62,6 @@
         android:padding="28dp"
         android:background="#8B0000">
 
-        <!-- Rewards with Icon & Glow -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -96,7 +92,6 @@
                 android:shadowRadius="4"/>
         </LinearLayout>
 
-        <!-- Enhanced Button Stack -->
         <com.google.android.material.button.MaterialButton
             android:id="@+id/btn_reset_challenges"
             style="@style/Widget.Material3.Button.OutlinedButton"

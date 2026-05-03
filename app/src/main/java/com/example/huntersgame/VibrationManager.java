@@ -12,11 +12,10 @@ public class VibrationManager {
 
     public VibrationManager(Context context) {
         vibrator = (Vibrator) context.getSystemService(Context.VIBRATOR_SERVICE);
-        settingsManager = new SettingsManager(context);  // ← Uses your settings
+        settingsManager = new SettingsManager(context);
     }
 
     public void vibrate(long milliseconds) {
-        // ✅ Checks if user enabled vibration in settings
         if (settingsManager.isVibrationEnabled() && vibrator != null && vibrator.hasVibrator()) {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
                 vibrator.vibrate(VibrationEffect.createOneShot(milliseconds, VibrationEffect.DEFAULT_AMPLITUDE));
@@ -27,7 +26,6 @@ public class VibrationManager {
     }
 
     public void vibratePattern(long[] pattern, int repeat) {
-        // ✅ Also checks user preference
         if (settingsManager.isVibrationEnabled() && vibrator != null && vibrator.hasVibrator()) {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
                 vibrator.vibrate(VibrationEffect.createWaveform(pattern, repeat));

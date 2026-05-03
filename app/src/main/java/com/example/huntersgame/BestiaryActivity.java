@@ -15,7 +15,6 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
-import androidx.appcompat.app.AppCompatActivity;
 import androidx.cardview.widget.CardView;
 import java.util.ArrayList;
 import java.util.List;
@@ -28,25 +27,20 @@ public class BestiaryActivity extends BaseActivity{
     private DatabaseManager dbManager;
     private List<CreatureEntity> allCreatures;
     private TextView tvEmptyMessage;
-    private VibrationManager vibrationManager;
-
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_bestiary);
 
-        // Play menu open sound AFTER super and setContentView
         SoundManager.getInstance(this).playMenuOpen();
 
         creaturesContainer = findViewById(R.id.creatures_container);
        btnBack = findViewById(R.id.btn_back_bestiary);
         tvTotalCount = findViewById(R.id.tv_total_count);
         tvEmptyMessage = findViewById(R.id.tv_empty_message);
-        vibrationManager = new VibrationManager(this);
 
-
-        dbManager = new DatabaseManager(this);
+        dbManager = DatabaseManager.getInstance(this);
         allCreatures = new ArrayList<>();
 
         btnBack.setOnClickListener(v -> {
@@ -109,7 +103,6 @@ public class BestiaryActivity extends BaseActivity{
         card.setCardElevation(16f);
         card.setUseCompatPadding(true);
 
-        // Forest card bg + gold stroke
         GradientDrawable cardBg = new GradientDrawable();
         cardBg.setShape(GradientDrawable.RECTANGLE);
         cardBg.setColor(Color.parseColor("#2A4F3A"));
@@ -129,14 +122,12 @@ public class BestiaryActivity extends BaseActivity{
         contentLayout.setPadding(36, 36, 36, 36);
         contentLayout.setGravity(Gravity.CENTER_VERTICAL);
 
-        // Creature Image
         ImageView creatureImage = new ImageView(this);
         LinearLayout.LayoutParams imageParams = new LinearLayout.LayoutParams(140, 140);
         imageParams.setMargins(0, 0, 28, 0);
         creatureImage.setLayoutParams(imageParams);
         creatureImage.setScaleType(ImageView.ScaleType.FIT_CENTER);
 
-        // Load image
         String imageName = creature.getName().toLowerCase().replace(" ", "");
         int imageResId = getResources().getIdentifier(imageName, "drawable", getPackageName());
 
@@ -154,12 +145,10 @@ public class BestiaryActivity extends BaseActivity{
             creatureImage.setAlpha(1f);
         }
 
-        // Text Container
         LinearLayout textContainer = new LinearLayout(this);
         textContainer.setOrientation(LinearLayout.VERTICAL);
         textContainer.setLayoutParams(new LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1));
 
-        // Name Layout (with master badge)
         LinearLayout nameLayout = new LinearLayout(this);
         nameLayout.setOrientation(LinearLayout.HORIZONTAL);
         nameLayout.setGravity(Gravity.CENTER_VERTICAL);
@@ -178,20 +167,9 @@ public class BestiaryActivity extends BaseActivity{
 
         nameLayout.addView(nameText);
 
-        // Master trophy badge
-//        if (isMaster) {
-//            TextView masterBadge = new TextView(this);
-////            masterBadge.setText(" 🏆");
-////            masterBadge.setTextSize(20);
-//            masterBadge.setTextColor(Color.parseColor("#FFD700"));
-//            masterBadge.setShadowLayer(4, 1, 1, Color.parseColor("#FF5722"));
-//            masterBadge.setPadding(8, 0, 0, 0);
-//            nameLayout.addView(masterBadge);
-//        }
 
         textContainer.addView(nameLayout);
 
-        // Capture count info
         TextView infoText = new TextView(this);
         infoText.setTextSize(14);
         infoText.setPadding(0, 12, 0, 0);
@@ -215,7 +193,6 @@ public class BestiaryActivity extends BaseActivity{
         contentLayout.addView(creatureImage);
         contentLayout.addView(textContainer);
 
-        // Trophy or checkmark on the right
         if (isMaster) {
             TextView trophy = new TextView(this);
             trophy.setText("🏆");
@@ -249,7 +226,6 @@ public class BestiaryActivity extends BaseActivity{
         ivSprite.setLayoutParams(layoutParams);
         ivSprite.setScaleType(ImageView.ScaleType.FIT_CENTER);
 
-        // Load creature image
         String imageName = creature.getName().toLowerCase().replace(" ", "");
         int imageResId = getResources().getIdentifier(imageName, "drawable", getPackageName());
         if (imageResId != 0) {
@@ -274,7 +250,6 @@ public class BestiaryActivity extends BaseActivity{
         tvNameBulgarian.setText(creature.getNameBulgarian());
         tvPoints.setText("XP Value: " + creature.getPointsValue());
 
-        // Show description and habitat based on unlock level
         if (captureCount >= 5) {
             tvDescription.setText(creature.getDescription());
             tvHabitat.setText("Habitat: " + creature.getHabitat());
@@ -290,7 +265,6 @@ public class BestiaryActivity extends BaseActivity{
             tvHabitat.setText("Habitat: ???");
         }
 
-        // Capture info with mastery badge
         if (isMaster) {
             tvCaptureInfo.setText("🏆 MASTER HUNTER 🏆\nCaptured " + captureCount + " times");
             tvCaptureInfo.setTextColor(Color.parseColor("#FFD700"));

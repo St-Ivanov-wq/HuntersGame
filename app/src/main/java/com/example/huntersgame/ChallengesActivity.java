@@ -7,12 +7,10 @@ import android.graphics.drawable.GradientDrawable;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Gravity;
-import android.view.View;
 import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
-import androidx.appcompat.app.AppCompatActivity;
 import androidx.cardview.widget.CardView;
 import java.util.List;
 
@@ -49,7 +47,7 @@ public class ChallengesActivity extends BaseActivity {
             return;
         }
 
-        dbManager = new DatabaseManager(this);
+        dbManager = DatabaseManager.getInstance(this);
 
         btnBack.setOnClickListener(v -> {
             SoundManager.getInstance(this).playMenuClose();

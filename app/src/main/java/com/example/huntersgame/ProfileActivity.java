@@ -1,25 +1,19 @@
 package com.example.huntersgame;
 
 import android.app.AlertDialog;
-import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.Typeface;
 import android.os.Bundle;
-import android.os.Handler;
 import android.util.Log;
 import android.view.Gravity;
-import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.ScrollView;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
-import android.widget.SeekBar;
-import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
-import androidx.appcompat.app.AppCompatActivity;
 import androidx.cardview.widget.CardView;
 import androidx.core.content.ContextCompat;
 import java.text.SimpleDateFormat;
@@ -33,13 +27,11 @@ public class ProfileActivity extends BaseActivity {
     private LinearLayout profileContainer;
     private Button btnBack;
     private Button btnResetAll;
-    private Button btnSettings;
     private TextView tvUsername;
     private TextView tvProfileLevel;
     private ImageView ivEditUsername;
     private SettingsManager settingsManager;
 
-    // Stats
     private int totalXP = 0;
     private int currentLevel = 1;
     private int xpToNextLevel = 100;
@@ -63,9 +55,8 @@ public class ProfileActivity extends BaseActivity {
 
         settingsManager = new SettingsManager(this);
 
-        dbManager = new DatabaseManager(this);
+        dbManager = DatabaseManager.getInstance(this);
 
-        // Load username
         String username = settingsManager.getUsername();
         tvUsername.setText(username);
 
@@ -168,6 +159,7 @@ public class ProfileActivity extends BaseActivity {
                 currentLevel = 1 + (totalXP / 100);
                 xpToNextLevel = 100 - (totalXP % 100);
                 updateLevelDisplay();
+                updateAchievements();
                 displayProfile();
             }
 
@@ -183,10 +175,8 @@ public class ProfileActivity extends BaseActivity {
             tvProfileLevel.setText("LEVEL " + currentLevel + " • " + totalXP + " XP");
         }
     }
-
     private void displayProfile() {
         profileContainer.removeAllViews();
-
         addHeaderCard();
         addStatsCard();
         addProgressCard();
@@ -408,7 +398,6 @@ public class ProfileActivity extends BaseActivity {
 
         AchievementManager am = AchievementManager.getInstance(this);
 
-        // Use a ScrollView inside for many achievements
         ScrollView scrollView = new ScrollView(this);
         scrollView.setLayoutParams(new LinearLayout.LayoutParams(
                 LinearLayout.LayoutParams.MATCH_PARENT,
@@ -417,7 +406,6 @@ public class ProfileActivity extends BaseActivity {
         LinearLayout grid = new LinearLayout(this);
         grid.setOrientation(LinearLayout.VERTICAL);
 
-        // Row 1
         LinearLayout row1 = new LinearLayout(this);
         row1.setOrientation(LinearLayout.HORIZONTAL);
         row1.setPadding(0, 0, 0, 16);
@@ -425,7 +413,6 @@ public class ProfileActivity extends BaseActivity {
         addAchievementItem(row1, "⭐", "Novice Hunter", am.hasNoviceHunter(), 1, am);
         grid.addView(row1);
 
-        // Row 2
         LinearLayout row2 = new LinearLayout(this);
         row2.setOrientation(LinearLayout.HORIZONTAL);
         row2.setPadding(0, 0, 0, 16);
@@ -433,7 +420,6 @@ public class ProfileActivity extends BaseActivity {
         addAchievementItem(row2, "✨", "Perfect Start", am.hasPerfectStart(), 3, am);
         grid.addView(row2);
 
-        // Row 3
         LinearLayout row3 = new LinearLayout(this);
         row3.setOrientation(LinearLayout.HORIZONTAL);
         row3.setPadding(0, 0, 0, 16);
@@ -441,7 +427,6 @@ public class ProfileActivity extends BaseActivity {
         addAchievementItem(row3, "⚡", "Combo Novice", am.hasComboNovice(), 5, am);
         grid.addView(row3);
 
-        // Row 4
         LinearLayout row4 = new LinearLayout(this);
         row4.setOrientation(LinearLayout.HORIZONTAL);
         row4.setPadding(0, 0, 0, 16);
@@ -449,7 +434,6 @@ public class ProfileActivity extends BaseActivity {
         addAchievementItem(row4, "👑", "Level 10", am.hasLevel10(), 7, am);
         grid.addView(row4);
 
-        // Row 5
         LinearLayout row5 = new LinearLayout(this);
         row5.setOrientation(LinearLayout.HORIZONTAL);
         row5.setPadding(0, 0, 0, 16);
@@ -457,7 +441,6 @@ public class ProfileActivity extends BaseActivity {
         addAchievementItem(row5, "🔥", "Combo Expert", am.hasComboExpert(), 9, am);
         grid.addView(row5);
 
-        // Row 6
         LinearLayout row6 = new LinearLayout(this);
         row6.setOrientation(LinearLayout.HORIZONTAL);
         row6.setPadding(0, 0, 0, 16);
@@ -465,14 +448,12 @@ public class ProfileActivity extends BaseActivity {
         addAchievementItem(row6, "💥", "Combo Legend", am.hasComboLegend(), 11, am);
         grid.addView(row6);
 
-        // Row 7
         LinearLayout row7 = new LinearLayout(this);
         row7.setOrientation(LinearLayout.HORIZONTAL);
         addAchievementItem(row7, "🏅", "Ultimate Collector", am.hasUltimateCollector(), 12, am);
         addAchievementItem(row7, "🎯", "Perfectionist", am.hasPerfectionist(), 13, am);
         grid.addView(row7);
 
-        // Row 8 (single item centered)
         LinearLayout row8 = new LinearLayout(this);
         row8.setOrientation(LinearLayout.HORIZONTAL);
         row8.setGravity(Gravity.CENTER);
@@ -519,7 +500,6 @@ public class ProfileActivity extends BaseActivity {
         item.addView(nameText);
         item.addView(statusText);
 
-        // Single click listener
         final int achievementIndex = index;
         item.setOnClickListener(v -> {
             SoundManager.getInstance(this).playButtonClick();
@@ -543,6 +523,7 @@ public class ProfileActivity extends BaseActivity {
             @Override
             public void onSuccess(Boolean result) {
                 AchievementManager am = AchievementManager.getInstance(ProfileActivity.this);
+                currentLevel = 1;
                 am.resetAllAchievements();
                 Toast.makeText(ProfileActivity.this, "All progress has been reset!", Toast.LENGTH_LONG).show();
                 loadProfileData();

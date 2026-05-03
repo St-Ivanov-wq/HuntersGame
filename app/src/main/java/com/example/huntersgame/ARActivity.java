@@ -22,7 +22,6 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 import androidx.annotation.NonNull;
-import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import java.io.IOException;
@@ -51,7 +50,6 @@ public class ARActivity extends BaseActivity implements SurfaceHolder.Callback, 
     private List<CreatureEntity> allCreatures;
     private DatabaseManager dbManager;
 
-    // Gyroscope variables
     private SensorManager sensorManager;
     private Sensor accelerometer;
     private Sensor magnetometer;
@@ -60,13 +58,11 @@ public class ARActivity extends BaseActivity implements SurfaceHolder.Callback, 
     private float[] rotationMatrix = new float[9];
     private float[] orientation = new float[3];
 
-    // Calibration
     private float calibrationX = 0;
     private float calibrationY = 0;
     private boolean calibrated = false;
     private int calibrationSamples = 0;
 
-    // Sprite movement
     private float spriteX = 0;
     private float spriteY = 0;
     private int containerWidth = 0;
@@ -75,7 +71,6 @@ public class ARActivity extends BaseActivity implements SurfaceHolder.Callback, 
     private int spriteHeight = 0;
     private boolean spriteActive = true;
 
-    // Throw mechanics
     private boolean isThrowing = false;
     private boolean canThrow = true;
     private int powerLevel = 0;
@@ -85,7 +80,6 @@ public class ARActivity extends BaseActivity implements SurfaceHolder.Callback, 
     private int requiredHits = 3;
     private int powerBarMaxWidth = 0;
 
-    // Combo system
     private int currentCombo = 0;
     private int bestCombo = 0;
     private int currentLevel = 1;
@@ -104,7 +98,6 @@ public class ARActivity extends BaseActivity implements SurfaceHolder.Callback, 
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_ar_simple);
 
-        // Initialize views
         surfaceView = findViewById(R.id.surface_view);
         creatureSprite = findViewById(R.id.creature_sprite);
         tvCreatureName = findViewById(R.id.tv_creature_name);
@@ -122,37 +115,29 @@ public class ARActivity extends BaseActivity implements SurfaceHolder.Callback, 
         surfaceHolder = surfaceView.getHolder();
         surfaceHolder.addCallback(this);
 
-        // Initialize Database Manager
-        dbManager = new DatabaseManager(this);
+        dbManager = DatabaseManager.getInstance(this);
 
-        // Initialize sensors
         sensorManager = (SensorManager) getSystemService(SENSOR_SERVICE);
         if (sensorManager != null) {
             accelerometer = sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
             magnetometer = sensorManager.getDefaultSensor(Sensor.TYPE_MAGNETIC_FIELD);
         }
 
-        // Get creature from intent
         Intent intent = getIntent();
         String creatureName = intent.getStringExtra("creature_name");
         int creatureXP = intent.getIntExtra("creature_xp", 0);
         int incomingCombo = intent.getIntExtra("current_combo", 0);
 
-        // Set combo from previous session
         currentCombo = incomingCombo;
         Log.d("COMBO", "Starting with combo: " + currentCombo);
 
-        // Initialize all creatures
         loadAllCreatures();
 
-        // Create creature object
         currentCreature = new CreatureEntity("temp", creatureName, "", "", "", creatureXP, 0);
 
-        // Set up UI
         tvCreatureName.setText(creatureName);
         tvCreaturePoints.setText(creatureXP + " XP");
 
-        // Load creature image
         if (creatureName != null && !creatureName.isEmpty()) {
             int imageResId = getResources().getIdentifier(
                     creatureName.toLowerCase(), "drawable", getPackageName());
@@ -165,17 +150,13 @@ public class ARActivity extends BaseActivity implements SurfaceHolder.Callback, 
 
         creatureSprite.setVisibility(View.VISIBLE);
 
-        // Hide net initially
         netImageView.setVisibility(View.GONE);
 
-        // Update combo display
         updateComboDisplay();
 
-        tvStatus.setText("MOVE YOUR PHONE");
         tvStatus.setTextSize(18);
         tvStatus.setTextColor(Color.parseColor("#FFD700"));
 
-        // Set up throw button
         btnThrow.setOnClickListener(v -> {
             if (canThrow && !isThrowing) {
                 throwNet();
@@ -188,10 +169,8 @@ public class ARActivity extends BaseActivity implements SurfaceHolder.Callback, 
             finish();
         });
 
-        // Get power bar max width
         powerBar.post(() -> powerBarMaxWidth = powerBar.getWidth());
 
-        // Get sprite container dimensions
         spriteContainer.post(() -> {
             containerWidth = spriteContainer.getWidth();
             containerHeight = spriteContainer.getHeight();
@@ -206,13 +185,10 @@ public class ARActivity extends BaseActivity implements SurfaceHolder.Callback, 
             }
         });
 
-        // Start power meter
         startPowerMeter();
 
-        // Start sensor tracking
         startSensorTracking();
 
-        // Check camera permission
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA)
                 != PackageManager.PERMISSION_GRANTED) {
             ActivityCompat.requestPermissions(this,
@@ -336,15 +312,6 @@ public class ARActivity extends BaseActivity implements SurfaceHolder.Callback, 
         creatureSprite.setScaleX(scale);
         creatureSprite.setScaleY(scale);
 
-        if (!isThrowing && canThrow && powerLevel < 70) {
-            if (proximity > 0.7f) {
-                tvStatus.setText("CREATURE CLOSE");
-            } else if (proximity > 0.3f) {
-                tvStatus.setText("GETTING CLOSER");
-            } else {
-                tvStatus.setText("MOVE YOUR PHONE");
-            }
-        }
     }
 
     @Override
@@ -380,15 +347,12 @@ public class ARActivity extends BaseActivity implements SurfaceHolder.Callback, 
                     if (powerLevel >= 70 && powerLevel <= 90) {
                         powerBar.setBackgroundColor(Color.parseColor("#4CAF50"));
                         btnThrow.setBackgroundColor(Color.parseColor("#4CAF50"));
-                        tvStatus.setText("OPTIMAL POWER");
                     } else if (powerLevel >= 50) {
                         powerBar.setBackgroundColor(Color.parseColor("#FFC107"));
                         btnThrow.setBackgroundColor(Color.parseColor("#FFC107"));
-                        tvStatus.setText("POWER BUILDING");
                     } else {
                         powerBar.setBackgroundColor(Color.parseColor("#F44336"));
                         btnThrow.setBackgroundColor(Color.parseColor("#F44336"));
-                        tvStatus.setText("TOO WEAK");
                     }
 
                     powerHandler.postDelayed(this, 100);
@@ -418,11 +382,9 @@ public class ARActivity extends BaseActivity implements SurfaceHolder.Callback, 
             tvStatus.setText(resultText);
             tvStatus.setTextColor(Color.parseColor("#4CAF50"));
 
-            // Track perfect throw for achievements - FIXED
             AchievementManager am = AchievementManager.getInstance(ARActivity.this);
             am.updatePerfectThrow();
 
-            // COMBO INCREASES ON PERFECT THROW
             currentCombo++;
             updateComboDisplay();
             checkComboMilestone();
@@ -452,7 +414,6 @@ public class ARActivity extends BaseActivity implements SurfaceHolder.Callback, 
             tvStatus.setText(resultText);
             tvStatus.setTextColor(Color.parseColor("#FFC107"));
 
-            // COMBO RESETS ON NORMAL THROW
             currentCombo = 0;
             updateComboDisplay();
             isCritical = false;
@@ -466,7 +427,6 @@ public class ARActivity extends BaseActivity implements SurfaceHolder.Callback, 
             tvStatus.setText(resultText);
             tvStatus.setTextColor(Color.parseColor("#F44336"));
 
-            // COMBO RESETS ON FAIL
             currentCombo = 0;
             updateComboDisplay();
             isCritical = false;
@@ -578,7 +538,6 @@ public class ARActivity extends BaseActivity implements SurfaceHolder.Callback, 
                 tvCombo.setTextSize(24);
                 tvCombo.setTextColor(Color.WHITE);
                 tvCombo.setTypeface(null, Typeface.BOLD);
-                tvCombo.setBackgroundColor(Color.parseColor("#FF0000"));
                 tvCombo.setPadding(32, 20, 32, 20);
                 tvCombo.bringToFront();
             } else {
@@ -624,7 +583,6 @@ public class ARActivity extends BaseActivity implements SurfaceHolder.Callback, 
                     tvStatus.setTextSize(18);
                     tvStatus.setTextColor(Color.parseColor("#FFD700"));
 
-                    // Check achievement for level up
                     checkAchievements();
                 }
             }
@@ -639,8 +597,8 @@ public class ARActivity extends BaseActivity implements SurfaceHolder.Callback, 
         dbManager.getAllCreatures(new DatabaseManager.Callback<List<CreatureEntity>>() {
             @Override
             public void onSuccess(List<CreatureEntity> creatures) {
-                final int totalCaptures;  // Make final
-                final int discoveredSpecies;  // Make final
+                final int totalCaptures;
+                final int discoveredSpecies;
                 int captures = 0;
                 int species = 0;
 
@@ -684,11 +642,9 @@ public class ARActivity extends BaseActivity implements SurfaceHolder.Callback, 
         AchievementManager am = AchievementManager.getInstance(this);
         am.updateCombo(currentCombo);
 
-        // Add combo bonus
         int comboBonus = (int)(totalXP * Math.min(1.0, currentCombo * 0.1));
         totalXP += comboBonus;
 
-        // VIBRATION
         if (isCritical) {
             vibrationManager.celebration();
         } else if (wasPerfect) {
@@ -703,15 +659,12 @@ public class ARActivity extends BaseActivity implements SurfaceHolder.Callback, 
             tvStatus.setText("CAPTURED! +" + totalXP + " XP");
         }
 
-        // Critical catch bonus display
         if (isCritical) {
             tvStatus.setText("🔥 CRITICAL CATCH! +" + totalXP + " XP 🔥");
         }
 
-        // Play catch sound
         SoundManager.getInstance(this).playCatchSound();
 
-        // Update database with new capture count
         final int finalTotalXP = totalXP;
         dbManager.incrementCaptureCount(currentCreature.getName(), new DatabaseManager.Callback<Integer>() {
             @Override
@@ -727,7 +680,6 @@ public class ARActivity extends BaseActivity implements SurfaceHolder.Callback, 
             }
         });
 
-        // Record for daily challenges
         dbManager.recordCapture(currentCreature.getName(), wasPerfect, new DatabaseManager.Callback<Void>() {
             @Override
             public void onSuccess(Void result) {
@@ -739,7 +691,6 @@ public class ARActivity extends BaseActivity implements SurfaceHolder.Callback, 
             }
         });
 
-        // Save XP
         dbManager.getTotalXP(new DatabaseManager.Callback<Integer>() {
             @Override
             public void onSuccess(Integer currentXP) {
@@ -765,7 +716,6 @@ public class ARActivity extends BaseActivity implements SurfaceHolder.Callback, 
         if (isCritical) message += " CRITICAL!";
         Toast.makeText(this, message, Toast.LENGTH_LONG).show();
 
-        // Return the updated creature data to MapsActivity
         Intent resultIntent = new Intent();
         resultIntent.putExtra("captured_creature", currentCreature.getName());
         resultIntent.putExtra("xp_gained", finalTotalXP);
@@ -773,7 +723,6 @@ public class ARActivity extends BaseActivity implements SurfaceHolder.Callback, 
         resultIntent.putExtra("current_combo", currentCombo);
         setResult(RESULT_OK, resultIntent);
 
-        // Catch animation
         creatureSprite.animate()
                 .scaleX(2f).scaleY(2f)
                 .alpha(0f)
